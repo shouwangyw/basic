@@ -1,5 +1,8 @@
 package com.yw.basic.course.class02;
 
+/**
+ * @author yangwei
+ */
 public class Code03_EqualProbabilityRandom {
 
 	// 内部内容不可见

@@ -1,61 +1,38 @@
 package com.yw.basic.course.class04;
 
-// 测试链接：https://leetcode.cn/problems/add-two-numbers/
+import com.yw.entity.ListNode;
+
+/**
+ * 测试链接：https://leetcode.cn/problems/add-two-numbers/
+ *
+ * @author yangwei
+ */
 public class Code05_AddTwoNumbers {
 
-    public static class ListNode {
-        int val;
-        ListNode next;
-
-        ListNode(int val) {
-            this.val = val;
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode head = getLength(l1) > getLength(l2) ? l1 : l2;
+        ListNode p = head, q = head == l1 ? l2 : l1, pre = p;
+        int c = 0;
+        while (p != null) {
+            int x = c + p.val + (q == null ? 0 : q.val);
+            c = x / 10;
+            p.val = x % 10;
+            pre = p;
+            p = p.next;
+            if (q != null) q = q.next;
+            if (q == null && c == 0) break;
         }
-
-        public ListNode(int val, ListNode next) {
-            this.val = val;
-            this.next = next;
-        }
+        if (c == 1) pre.next = new ListNode(1);
+        return head;
     }
 
-    public static ListNode addTwoNumbers(ListNode head1, ListNode head2) {
-        int len1 = listLength(head1);
-        int len2 = listLength(head2);
-        ListNode l = len1 >= len2 ? head1 : head2;
-        ListNode s = l == head1 ? head2 : head1;
-        ListNode curL = l;
-        ListNode curS = s;
-        ListNode last = curL;
-        int carry = 0;
-        int curNum = 0;
-        while (curS != null) {
-            curNum = curL.val + curS.val + carry;
-            curL.val = (curNum % 10);
-            carry = curNum / 10;
-            last = curL;
-            curL = curL.next;
-            curS = curS.next;
-        }
-        while (curL != null) {
-            curNum = curL.val + carry;
-            curL.val = (curNum % 10);
-            carry = curNum / 10;
-            last = curL;
-            curL = curL.next;
-        }
-        if (carry != 0) {
-            last.next = new ListNode(1);
-        }
-        return l;
-    }
-
-    // 求链表长度
-    private static int listLength(ListNode head) {
+    private int getLength(ListNode head) {
         int len = 0;
-        while (head != null) {
+        ListNode cur = head;
+        while (cur != null) {
             len++;
-            head = head.next;
+            cur = cur.next;
         }
         return len;
     }
-
 }

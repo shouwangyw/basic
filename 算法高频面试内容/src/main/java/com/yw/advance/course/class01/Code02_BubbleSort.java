@@ -1,28 +1,30 @@
-package com.yw.basic.course.class01;
+package com.yw.advance.course.class01;
 
 import java.util.Arrays;
 
-public class Code04_SelectionSort {
+public class Code02_BubbleSort {
 
-	public static void selectionSort(int[] arr) {
+	public static void bubbleSort(int[] arr) {
 		if (arr == null || arr.length < 2) {
 			return;
 		}
-		for (int i = 0; i < arr.length - 1; i++) { 
-			int minIndex = i;
-			for (int j = i + 1; j < arr.length; j++) {
-				if(arr[j] < arr[minIndex]) {
-					minIndex = j;
+		// 0 ~ N-1
+		// 0 ~ N-2
+		// 0 ~ N-3
+		for (int e = arr.length - 1; e > 0; e--) { // 0 ~ e
+			for (int i = 0; i < e; i++) {
+				if (arr[i] > arr[i + 1]) {
+					swap(arr, i, i + 1);
 				}
 			}
-			swap(arr, i, minIndex);
 		}
 	}
 
+	// 交换arr的i和j位置上的值
 	public static void swap(int[] arr, int i, int j) {
-		int tmp = arr[i];
-		arr[i] = arr[j];
-		arr[j] = tmp;
+		arr[i] = arr[i] ^ arr[j];
+		arr[j] = arr[i] ^ arr[j];
+		arr[i] = arr[i] ^ arr[j];
 	}
 
 	// for test
@@ -32,12 +34,8 @@ public class Code04_SelectionSort {
 
 	// for test
 	public static int[] generateRandomArray(int maxSize, int maxValue) {
-		// Math.random() [0,1)
-		// Math.random() * N [0,N)
-		// (int)(Math.random() * N) [0, N-1]
 		int[] arr = new int[(int) ((maxSize + 1) * Math.random())];
 		for (int i = 0; i < arr.length; i++) {
-			// [-? , +?]
 			arr[i] = (int) ((maxValue + 1) * Math.random()) - (int) (maxValue * Math.random());
 		}
 		return arr;
@@ -86,7 +84,7 @@ public class Code04_SelectionSort {
 	}
 
 	// for test
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		int testTime = 500000;
 		int maxSize = 100;
 		int maxValue = 100;
@@ -94,12 +92,10 @@ public class Code04_SelectionSort {
 		for (int i = 0; i < testTime; i++) {
 			int[] arr1 = generateRandomArray(maxSize, maxValue);
 			int[] arr2 = copyArray(arr1);
-			selectionSort(arr1);
+			bubbleSort(arr1);
 			comparator(arr2);
 			if (!isEqual(arr1, arr2)) {
 				succeed = false;
-				printArray(arr1);
-				printArray(arr2);
 				break;
 			}
 		}
@@ -107,7 +103,7 @@ public class Code04_SelectionSort {
 
 		int[] arr = generateRandomArray(maxSize, maxValue);
 		printArray(arr);
-		selectionSort(arr);
+		bubbleSort(arr);
 		printArray(arr);
 	}
 

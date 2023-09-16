@@ -1,11 +1,13 @@
 package com.yw.basic.course.class04;
 
-// 测试链接：https://leetcode.cn/problems/reverse-nodes-in-k-group/
+import com.yw.entity.ListNode;
+
+/**
+ * 测试链接：https://leetcode.cn/problems/reverse-nodes-in-k-group/
+ *
+ * @author yangwei
+ */
 public class Code04_ReverseNodesInKGroup {
-    public static class ListNode {
-        int val;
-        ListNode next;
-    }
     public static ListNode reverseKGroup(ListNode head, int k) {
         ListNode start = head;
         ListNode end = getKGroupEnd(start, k);

@@ -1,35 +1,24 @@
 package com.yw.basic.course.class01;
 
+/**
+ * @author yangwei
+ */
 public class Code01_PrintBinary {
 
-	public static void print(int num) {
-		for (int i = 31; i >= 0; i--) {
-			System.out.print((num & (1 << i)) == 0 ? "0" : "1");
-		}
-		System.out.println();
-	}
+    public static void print(int num) {
+        // int 32位，依次打印高位到低位(31 -> 0)的二进制值
+        for (int i = 31; i >= 0; i--) {
+            System.out.print((num & (1 << i)) == 0 ? "0" : "1");
+        }
+        System.out.println();
+    }
 
-	public static void main(String[] args) {
-		// 32位
-//		int num = 4;
+    public static void main(String[] args) {
+        print(42361845);
+        print(Integer.MAX_VALUE);
+        print(Integer.MIN_VALUE);
 //
-//		print(num);
 //		
-//		
-//		int test = 1123123;
-//		print(test);
-//		print(test<<1);
-//		print(test<<2);
-//		print(test<<8);
-//		
-//		
-//		int a = Integer.MAX_VALUE;
-//		System.out.println(a);
-
-//		print(-1);
-//		int a = Integer.MIN_VALUE;
-//		print(a);
-
 //		int b = 123823138;
 //		int c = ~b;
 //		print(b);
@@ -59,7 +48,5 @@ public class Code01_PrintBinary {
 //		
 //		print(c);
 //		print(d);
-
-	}
-
+    }
 }

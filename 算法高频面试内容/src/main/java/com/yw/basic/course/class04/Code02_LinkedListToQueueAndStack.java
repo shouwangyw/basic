@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
+/**
+ * @author yangwei
+ */
 public class Code02_LinkedListToQueueAndStack {
 
     public static class Node<V> {
@@ -112,7 +115,6 @@ public class Code02_LinkedListToQueueAndStack {
         V peek() {
             return head != null ? head.value : null;
         }
-
     }
 
     public static void testQueue() {

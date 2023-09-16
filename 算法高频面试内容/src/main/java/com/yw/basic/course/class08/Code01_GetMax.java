@@ -1,5 +1,8 @@
 package com.yw.basic.course.class08;
 
+/**
+ * @author yangwei
+ */
 public class Code01_GetMax {
 
 	public static int flip(int n) {

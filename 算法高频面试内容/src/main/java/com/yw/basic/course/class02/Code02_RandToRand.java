@@ -1,5 +1,8 @@
 package com.yw.basic.course.class02;
 
+/**
+ * @author yangwei
+ */
 public class Code02_RandToRand {
 
 	// 此函数只能用，不能修改

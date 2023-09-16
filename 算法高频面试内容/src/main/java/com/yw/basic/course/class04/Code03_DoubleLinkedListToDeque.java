@@ -3,6 +3,9 @@ package com.yw.basic.course.class04;
 import java.util.Deque;
 import java.util.LinkedList;
 
+/**
+ * @author yangwei
+ */
 public class Code03_DoubleLinkedListToDeque {
 
     public static class Node<V> {
@@ -184,5 +187,4 @@ public class Code03_DoubleLinkedListToDeque {
     public static void main(String[] args) {
         testDeque();
     }
-
 }
