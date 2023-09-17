@@ -1,21 +1,27 @@
 package com.yw.basic.course.class07;
 
+import com.yw.entity.TreeNode;
+
+/**
+ * 测试链接：https://leetcode.cn/problems/path-sum
+ *
+ * @author yangwei
+ */
 public class Code03_PathSum {
 
-	// 测试链接：https://leetcode.com/problems/path-sum
-	public static class TreeNode {
-		public int val;
-		public TreeNode left;
-		public TreeNode right;
-
-		TreeNode(int val) {
-			this.val = val;
-		}
+	/**
+	 * 方法一
+	 */
+	public boolean hasPathSum(TreeNode root, int targetSum) {
+		if (root == null) return false;
+		if (root.left == null && root.right == null && root.val == targetSum) return true;
+		return hasPathSum(root.left, targetSum - root.val) || hasPathSum(root.right, targetSum - root.val);
 	}
 
-	public static boolean isSum = false;
-
-	public static boolean hasPathSum(TreeNode root, int sum) {
+	/**
+	 * 方法二
+	 */
+	public static boolean hasPathSum2(TreeNode root, int sum) {
 		if (root == null) {
 			return false;
 		}
@@ -40,6 +46,8 @@ public class Code03_PathSum {
 			process(x.right, preSum, sum);
 		}
 	}
+
+	public static boolean isSum = false;
 
 //	public static boolean hasPathSum(TreeNode root, int sum) {
 //		if (root == null) {

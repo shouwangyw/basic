@@ -1,22 +1,14 @@
 package com.yw.basic.course.class06;
 
+import com.yw.entity.Student;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import static com.yw.util.CommonUtils.printArray;
+
 public class ShowComparator {
-
-	public static class Student {
-		public String name;
-		public int id;
-		public int age;
-
-		public Student(String name, int id, int age) {
-			this.name = name;
-			this.id = id;
-			this.age = age;
-		}
-	}
 
 	// 谁id大，谁放前！
 	public static class IdComparator implements Comparator<Student> {
@@ -52,13 +44,6 @@ public class ShowComparator {
 				return 0;
 			}
 		}
-	}
-
-	public static void printArray(int[] arr) {
-		for (int i = 0; i < arr.length; i++) {
-			System.out.print(arr[i] + " ");
-		}
-		System.out.println();
 	}
 
 	public static void printStudents(Student[] students) {

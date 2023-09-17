@@ -1,85 +1,69 @@
 package com.yw.basic.course.class07;
 
+import com.yw.entity.TreeNode;
+
+/**
+ * 测试链接：https://leetcode.cn/problems/validate-binary-search-tree
+ * @author yangwei
+ */
 public class Code05_IsBinarySearchTree {
 
-	public static class TreeNode {
-		public int val;
-		public TreeNode left;
-		public TreeNode right;
-
-		TreeNode(int val) {
-			this.val = val;
-		}
+	/**
+	 * 方法一：基于中序遍历
+	 */
+	private TreeNode pre;
+	public boolean isValidBST(TreeNode root) {
+		pre = null;
+		return inOrder(root);
+	}
+	private boolean inOrder(TreeNode root) {
+		if (root == null) return true;
+		if (!inOrder(root.left)) return false;
+		else if (pre != null && root.val <= pre.val) return false;
+		pre = root;
+		if (!inOrder(root.right)) return false;
+		return true;
 	}
 
 	public static class Info {
-		public boolean isBST;
-		public int max;
 		public int min;
-
-		public Info(boolean is, int ma, int mi) {
-			isBST = is;
-			max = ma;
-			min = mi;
+		public int max;
+		public boolean isBST;
+		public Info(int min, int max, boolean isBST) {
+			this.min = min;
+			this.max = max;
+			this.isBST = isBST;
 		}
 	}
 
-//	public static Info process(TreeNode x) {
-//		if (x == null) {
-//			return null;
-//		}
-//		Info leftInfo = process(x.left);
-//		Info rightInfo = process(x.right);
-//		int max = x.val;
-//		int min = x.val;
-//		if (leftInfo != null) {
-//			max = Math.max(leftInfo.max, max);
-//			min = Math.min(leftInfo.min, min);
-//		}
-//		if (rightInfo != null) {
-//			max = Math.max(rightInfo.max, max);
-//			min = Math.min(rightInfo.min, min);
-//		}
-//		boolean isBST = true;
-//		if (leftInfo != null && !leftInfo.isBST) {
-//			isBST = false;
-//		}
-//		if (rightInfo != null && !rightInfo.isBST) {
-//			isBST = false;
-//		}
-//		boolean leftMaxLessX = leftInfo == null ? true : (leftInfo.max < x.val);
-//		boolean rightMinMoreX = rightInfo == null ? true : (rightInfo.min > x.val);
-//		if (!(leftMaxLessX && rightMinMoreX)) {
-//			isBST = false;
-//		}
-//		return new Info(isBST, max, min);
-//	}
+	public static Info process(TreeNode root) {
+		if (root == null) return null;
+		Info leftInfo = process(root.left);
+		Info rightInfo = process(root.right);
 
-	public static Info process(TreeNode x) {
-		if (x == null) {
-			return null;
-		}
-		Info leftInfo = process(x.left);
-		Info rightInfo = process(x.right);
-		int max = x.val;
-		int min = x.val;
+		int min = root.val;
+		int max = root.val;
 		if (leftInfo != null) {
-			max = Math.max(leftInfo.max, max);
 			min = Math.min(leftInfo.min, min);
+			max = Math.max(leftInfo.max, max);
 		}
 		if (rightInfo != null) {
-			max = Math.max(rightInfo.max, max);
 			min = Math.min(rightInfo.min, min);
+			max = Math.max(rightInfo.max, max);
 		}
+//		boolean isBST = true;
+//		if (leftInfo != null && !leftInfo.isBST) isBST = false;
+//		if (rightInfo != null && !rightInfo.isBST) isBST = false;
+//		boolean leftIsBST = leftInfo == null ? true : (leftInfo.max < root.val);
+//		boolean rightIsBST = rightInfo == null ? true : (rightInfo.min > root.val);
+//		if (!leftIsBST || !rightIsBST) isBST = false;
+
 		boolean isBST = false;
-		boolean leftIsBst = leftInfo == null ? true : leftInfo.isBST;
-		boolean rightIsBst = rightInfo == null ? true : rightInfo.isBST;
-		boolean leftMaxLessX = leftInfo == null ? true : (leftInfo.max < x.val);
-		boolean rightMinMoreX = rightInfo == null ? true : (rightInfo.min > x.val);
-		if (leftIsBst && rightIsBst && leftMaxLessX && rightMinMoreX) {
+		boolean leftIsBST = leftInfo == null ? true : (leftInfo.isBST && leftInfo.max < root.val);
+		boolean rightIsBST = rightInfo == null ? true : (rightInfo.isBST && rightInfo.min > root.val);
+		if (leftIsBST && rightIsBST) {
 			isBST = true;
 		}
-		return new Info(isBST, max, min);
+		return new Info(min, max, isBST);
 	}
-
 }

@@ -37,9 +37,13 @@ public class Code01_GetMax {
 		int b = -19;
 		System.out.println(getMax1(a, b));
 		System.out.println(getMax2(a, b));
+
+
 		a = 2147483647;
 		b = -2147480000;
-		System.out.println(getMax1(a, b)); // wrong answer because of overflow
+		// wrong answer because of overflow
+		System.out.println(getMax1(a, b));
+
 		System.out.println(getMax2(a, b));
 	}
 

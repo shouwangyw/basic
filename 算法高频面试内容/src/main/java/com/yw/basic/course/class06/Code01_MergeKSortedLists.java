@@ -1,52 +1,31 @@
 package com.yw.basic.course.class06;
 
+import com.yw.entity.ListNode;
+
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
-// 测试链接：https://leetcode.com/problems/merge-k-sorted-lists/
+/**
+ * 测试链接：https://leetcode.cn/problems/merge-k-sorted-lists/
+ * @author yangwei
+ */
 public class Code01_MergeKSortedLists {
 
-	public static class ListNode {
-		public int val;
-		public ListNode next;
-	}
-
-	public static class ListNodeComparator implements Comparator<ListNode> {
-
-		@Override
-		public int compare(ListNode o1, ListNode o2) {
-			return o1.val - o2.val; 
+	public ListNode mergeKLists(ListNode[] lists) {
+		if (lists == null || lists.length == 0) return null;
+		Queue<ListNode> queue = new PriorityQueue<>(Comparator.comparingInt(o -> o.val));
+		for (ListNode list : lists) {
+			if (list != null) queue.offer(list);
 		}
-
-	}
-
-	public static ListNode mergeKLists(ListNode[] lists) {
-		if (lists == null) {
-			return null;
-		}
-		PriorityQueue<ListNode> heap = new PriorityQueue<>(new ListNodeComparator());
-		for (int i = 0; i < lists.length; i++) {
-			if (lists[i] != null) {
-				heap.add(lists[i]);
-			}
-		}
-		if (heap.isEmpty()) {
-			return null;
-		}
-		ListNode head = heap.poll();
-		ListNode pre = head;
-		if (pre.next != null) {
-			heap.add(pre.next);
-		}
-		while (!heap.isEmpty()) {
-			ListNode cur = heap.poll();
-			pre.next = cur;
-			pre = cur;
-			if (cur.next != null) {
-				heap.add(cur.next);
-			}
+		ListNode head = null, cur = null;
+		while (!queue.isEmpty()) {
+			ListNode node = queue.poll();
+			if (head == null) head = node;
+			else cur.next = node;
+			cur = node;
+			if (node.next != null) queue.offer(node.next);
 		}
 		return head;
 	}
-
 }

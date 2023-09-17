@@ -1,5 +1,6 @@
 package com.yw.basic.course.class08;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 import static com.yw.util.CommonUtils.*;
@@ -9,154 +10,96 @@ import static com.yw.util.CommonUtils.*;
  */
 public class Code03_PartitionAndQuickSort {
 
+    public static void quickSort(int[] arr) {
+        if (arr == null || arr.length < 2) return;
 
-
-
-
-
-    public static void splitNum1(int[] arr) {
-        int lessEqualR = -1;
-        int index = 0;
-        int N = arr.length;
-        while (index < N) {
-            if (arr[index] <= arr[N - 1]) {
-                swap(arr, ++lessEqualR, index++);
-            } else {
-                index++;
-            }
-        }
+//        quickSort2Way(arr, 0, arr.length - 1);
+        quickSort3Way(arr, 0, arr.length - 1);
     }
 
-    public static void splitNum2(int[] arr) {
-        int N = arr.length;
-        int lessR = -1;
-        int moreL = N - 1;
-        int index = 0;
-        // arr[N-1]
-        while (index < moreL) {
-            if (arr[index] < arr[N - 1]) {
-                swap(arr, ++lessR, index++);
-            } else if (arr[index] > arr[N - 1]) {
-                swap(arr, --moreL, index);
-            } else {
-                index++;
-            }
-        }
-        swap(arr, moreL, N - 1);
+    private static void quickSort2Way(int[] arr, int l, int r) {
+        if (l >= r) return;
+        int lessOrEqual = partition2Way(arr, l, r);
+        quickSort2Way(arr, l, lessOrEqual - 1);
+        quickSort2Way(arr, lessOrEqual + 1, r);
     }
 
-    // arr[L...R]范围上，拿arr[R]做划分值，
-    // L....R < = >
-    public static int[] partition(int[] arr, int L, int R) {
-        int lessR = L - 1;
-        int moreL = R;
-        int index = L;
-        while (index < moreL) {
-            if (arr[index] < arr[R]) {
-                swap(arr, ++lessR, index++);
-            } else if (arr[index] > arr[R]) {
-                swap(arr, --moreL, index);
-            } else {
-                index++;
-            }
+    private static void quickSort3Way(int[] arr, int l, int r) {
+        if (l >= r) return;
+        int[] equals = partition3Way(arr, l, r);
+        quickSort3Way(arr, l, equals[0] - 1);
+        quickSort3Way(arr, equals[1] + 1, r);
+    }
+
+    /**
+     * 两路分区：
+     * 以 arr[r] 为基准：将所有小于等于 arr[r] 的放左边，将所有大于 arr[r] 的放右边
+     *
+     * @return 等于区的右边界
+     */
+    private static int partition2Way(int[] arr, int l, int r) {
+        int lessOrEqualR = l - 1;
+        while (l <= r) {
+            if (arr[l] <= arr[r]) swap(arr, ++lessOrEqualR, l);
+            l++;
         }
-        swap(arr, moreL, R);
+        return lessOrEqualR;
+    }
+
+    /**
+     * 三路分区：
+     * 以 arr[r] 为基准：将所有小于 arr[r] 的放左边，将所有大于 arr[r] 的放右边，将所有等于 arr[r] 的放中间
+     *
+     * @return 等于区的索引范围
+     */
+    private static int[] partition3Way(int[] arr, int l, int r) {
+        int lessR = l - 1, moreL = r;
+        while (l < moreL) {
+            if (arr[l] < arr[r]) swap(arr, ++lessR, l++);
+            else if (arr[l] > arr[r]) swap(arr, --moreL, l);
+            else l++;
+        }
+        swap(arr, moreL, r);
         return new int[]{lessR + 1, moreL};
     }
 
-    public static void quickSort1(int[] arr) {
-        if (arr == null || arr.length < 2) {
-            return;
-        }
-        process(arr, 0, arr.length - 1);
-    }
-
-    public static void process(int[] arr, int L, int R) {
-        if (L >= R) {
-            return;
-        }
-        int[] equalE = partition(arr, L, R);
-        process(arr, L, equalE[0] - 1);
-        process(arr, equalE[1] + 1, R);
-    }
-
-    public static class Job {
-        public int L;
-        public int R;
-
-        public Job(int left, int right) {
-            L = left;
-            R = right;
-        }
-    }
-
+    // 非递归版本
     public static void quickSort2(int[] arr) {
-        if (arr == null || arr.length < 2) {
-            return;
-        }
+        if (arr == null || arr.length < 2) return;
         Stack<Job> stack = new Stack<>();
         stack.push(new Job(0, arr.length - 1));
         while (!stack.isEmpty()) {
             Job cur = stack.pop();
-            int[] equals = partition(arr, cur.L, cur.R);
-            if (equals[0] > cur.L) { // 有< 区域
-                stack.push(new Job(cur.L, equals[0] - 1));
+            int[] equals = partition3Way(arr, cur.l, cur.r);
+            if (equals[0] > cur.l) { // 有< 区域
+                stack.push(new Job(cur.l, equals[0] - 1));
             }
-            if (equals[1] < cur.R) { // 有 > 区域
-                stack.push(new Job(equals[1] + 1, cur.R));
-            }
-        }
-    }
-
-    public static int[] netherlandsFlag(int[] arr, int L, int R) {
-        if (L > R) {
-            return new int[]{-1, -1};
-        }
-        if (L == R) {
-            return new int[]{L, R};
-        }
-        int less = L - 1;
-        int more = R;
-        int index = L;
-        while (index < more) {
-            if (arr[index] == arr[R]) {
-                index++;
-            } else if (arr[index] < arr[R]) {
-                swap(arr, index++, ++less);
-            } else {
-                swap(arr, index, --more);
+            if (equals[1] < cur.r) { // 有 > 区域
+                stack.push(new Job(equals[1] + 1, cur.r));
             }
         }
-        swap(arr, more, R); // <[R] =[R] >[R]
-        return new int[]{less + 1, more};
     }
+    private static class Job {
+        int l;
+        int r;
 
-    public static void quickSort3(int[] arr) {
-        if (arr == null || arr.length < 2) {
-            return;
+        Job(int l, int r) {
+            this.l = l;
+            this.r = r;
         }
-        process3(arr, 0, arr.length - 1);
     }
 
-    public static void process3(int[] arr, int L, int R) {
-        if (L >= R) {
-            return;
-        }
-        swap(arr, L + (int) (Math.random() * (R - L + 1)), R);
-        int[] equalArea = netherlandsFlag(arr, L, R);
-        process3(arr, L, equalArea[0] - 1);
-        process3(arr, equalArea[1] + 1, R);
-    }
-
-
-    // for test
     public static void main(String[] args) {
-//		int[] arr = { 7, 1, 3, 5, 4, 5, 1, 4, 2, 4, 2, 4 };
-//
-//		splitNum2(arr);
-//		for (int i = 0; i < arr.length; i++) {
-//			System.out.print(arr[i] + " ");
-//		}
+        int[] arr = {7, 1, 3, 5, 4, 5, 1, 4, 2, 4, 2, 4};
+        int lessOrEqualR = partition2Way(arr, 0, arr.length - 1);
+        printArray(arr);
+        System.out.println("小于等于区: " + lessOrEqualR);
+
+        arr = new int[]{7, 1, 3, 5, 4, 5, 1, 4, 2, 4, 2, 4};
+        int[] equalR = partition3Way(arr, 0, arr.length - 1);
+        printArray(arr);
+        System.out.println("等于区: " + Arrays.toString(equalR));
+
 
         int testTime = 500000;
         int maxSize = 100;
@@ -166,11 +109,9 @@ public class Code03_PartitionAndQuickSort {
         for (int i = 0; i < testTime; i++) {
             int[] arr1 = generateRandomArray(maxSize, maxValue);
             int[] arr2 = copyArray(arr1);
-            int[] arr3 = copyArray(arr1);
-            quickSort1(arr1);
+            quickSort(arr1);
             quickSort2(arr2);
-            quickSort3(arr3);
-            if (!isEqual(arr1, arr2) || !isEqual(arr1, arr3)) {
+            if (!isEqual(arr1, arr2)) {
                 System.out.println("Oops!");
                 succeed = false;
                 break;

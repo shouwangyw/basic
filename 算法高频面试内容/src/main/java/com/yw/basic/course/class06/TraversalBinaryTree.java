@@ -1,72 +1,59 @@
 package com.yw.basic.course.class06;
 
+import com.yw.entity.TreeNode;
+
+/**
+ * @author yangwei
+ */
 public class TraversalBinaryTree {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
+    public static void f(TreeNode root) {
+        if (root == null) return;
+        // 1
+        f(root.left);
+        // 2
+        f(root.right);
+        // 3
+    }
 
-		public Node(int v) {
-			value = v;
-		}
-	}
+    // 先序打印所有节点
+    public static void pre(TreeNode root) {
+        if (root == null) return;
+        System.out.print(root.val + " ");
+        pre(root.left);
+        pre(root.right);
+    }
 
-	public static void f(Node head) {
-		if (head == null) {
-			return;
-		}
-		// 1
-		f(head.left);
-		// 2
-		f(head.right);
-		// 3
-	}
+    // 中序打印所有节点
+    public static void in(TreeNode root) {
+        if (root == null) return;
+        in(root.left);
+        System.out.print(root.val + " ");
+        in(root.right);
+    }
 
-	// 先序打印所有节点
-	public static void pre(Node head) {
-		if (head == null) {
-			return;
-		}
-		System.out.println(head.value);
-		pre(head.left);
-		pre(head.right);
-	}
+    // 后序打印所有节点
+    public static void pos(TreeNode root) {
+        if (root == null) return;
+        pos(root.left);
+        pos(root.right);
+        System.out.print(root.val + " ");
+    }
 
-	public static void in(Node head) {
-		if (head == null) {
-			return;
-		}
-		in(head.left);
-		System.out.println(head.value);
-		in(head.right);
-	}
+    public static void main(String[] args) {
+        TreeNode root = new TreeNode(1);
+        root.left = new TreeNode(2);
+        root.right = new TreeNode(3);
+        root.left.left = new TreeNode(4);
+        root.left.right = new TreeNode(5);
+        root.right.left = new TreeNode(6);
+        root.right.right = new TreeNode(7);
 
-	public static void pos(Node head) {
-		if (head == null) {
-			return;
-		}
-		pos(head.left);
-		pos(head.right);
-		System.out.println(head.value);
-	}
-
-	public static void main(String[] args) {
-		Node head = new Node(1);
-		head.left = new Node(2);
-		head.right = new Node(3);
-		head.left.left = new Node(4);
-		head.left.right = new Node(5);
-		head.right.left = new Node(6);
-		head.right.right = new Node(7);
-
-		pre(head);
-		System.out.println("========");
-		in(head);
-		System.out.println("========");
-		pos(head);
-		System.out.println("========");
-
-	}
-
+        pre(root);
+        System.out.println("\n========");
+        in(root);
+        System.out.println("\n========");
+        pos(root);
+        System.out.println("\n========");
+    }
 }
