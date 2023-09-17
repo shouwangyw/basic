@@ -2,9 +2,7 @@ package com.yw.basic.course.class01;
 
 import com.yw.test.SortBasicTest;
 
-import java.util.Arrays;
-
-import static com.yw.util.CommonUtils.*;
+import static com.yw.util.CommonUtils.swap;
 
 /**
  * @author yangwei

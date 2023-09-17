@@ -25,7 +25,8 @@ public class Code04_BubbleSort extends SortBasicTest {
 					flag = true;
 				}
 			}
-			if (!flag) { // 如果没发生交换，说明已经有序，可以提前结束
+			if (!flag) {
+				// 如果没发生交换，说明已经有序，可以提前结束
 				break;
 			}
 		}

@@ -32,7 +32,6 @@ public class Code05_InsertionSort extends SortBasicTest {
 		}
 	}
 
-	// for test
 	public static void main(String[] args) {
 		new Code05_InsertionSort().test();
 	}
