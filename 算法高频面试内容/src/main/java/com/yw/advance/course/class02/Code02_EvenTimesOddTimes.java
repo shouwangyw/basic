@@ -1,17 +1,18 @@
 package com.yw.advance.course.class02;
 
+/**
+ * @author yangwei
+ */
 public class Code02_EvenTimesOddTimes {
 
-	// arr中，只有一种数，出现奇数次
+	// arr数组中，只有一种数出现奇数次
 	public static void printOddTimesNum1(int[] arr) {
-		int eor = 0;
-		for (int i = 0; i < arr.length; i++) {
-			eor ^= arr[i];
-		}
-		System.out.println(eor);
+		int ans = 0;
+		for (int x : arr) ans ^= x;
+		System.out.println(ans);
 	}
 
-	// arr中，有两种数，出现奇数次
+	// arr数组中，有两种数出现奇数次
 	public static void printOddTimesNum2(int[] arr) {
 		int eor = 0;
 		for (int i = 0; i < arr.length; i++) {

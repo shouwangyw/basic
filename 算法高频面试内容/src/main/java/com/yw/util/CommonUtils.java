@@ -4,7 +4,9 @@ import com.yw.entity.DoubleNode;
 import com.yw.entity.Node;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author yangwei
@@ -12,6 +14,58 @@ import java.util.List;
 public class CommonUtils {
     private CommonUtils() {
         throw new RuntimeException("new CommonUtils() Unsupported");
+    }
+
+    // generate random num: [1,max]
+    public static int random1ToMax(int max) {
+        return (int) (Math.random() * max) + 1;
+    }
+
+    // generate random num: [-range, +range]
+    public static int randomRange(int range) {
+        int x = (int) (Math.random() * (range + 1));
+        int y = (int) (Math.random() * (range + 1));
+        return x - y;
+    }
+
+    // generate maxKinds random num, maxKinds in [-range, range]
+    // and has one num appear k times，others appear m times
+    public static int[] randomArrayOnlyOneKTimes(int maxKinds, int range, int k, int m) {
+        // 出现k次的数
+        int kTimesNum = randomRange(range);
+        // 真命天子出现的次数
+//        int times = k;
+        // 按 50% 概率返回不出现k次的
+        int times = Math.random() < 0.5 ? k : ((int) (Math.random() * (m - 1)) + 1);
+        // 数组中共有多少种树，至少 2 种
+        int numKinds = (int) (Math.random() * maxKinds) + 2;
+        // k * 1 + (numKinds - 1) * m
+        int[] arr = new int[times + (numKinds - 1) * m];
+        int index = 0;
+        for (; index < times; index++) {
+            arr[index] = kTimesNum;
+        }
+        numKinds--;
+        Set<Integer> set = new HashSet<>();
+        set.add(kTimesNum);
+        while (numKinds != 0) {
+            int curNum = 0;
+            do {
+                curNum = randomRange(range);
+            } while (set.contains(curNum));
+            set.add(curNum);
+            numKinds--;
+            for (int i = 0; i < m; i++) {
+                arr[index++] = curNum;
+            }
+        }
+        // arr 填好了，数据打散
+        for (int i = 0; i < arr.length; i++) {
+            // i 位置的数，我想随机和j位置的数做交换
+            int j = (int) (Math.random() * arr.length);
+            swap(arr, i, j);
+        }
+        return arr;
     }
 
     public static void swap(int[] arr, int i, int j) {

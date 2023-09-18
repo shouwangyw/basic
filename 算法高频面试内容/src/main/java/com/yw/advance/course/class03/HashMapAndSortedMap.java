@@ -1,18 +1,12 @@
 package com.yw.advance.course.class03;
 
+import com.yw.entity.Node;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
 
 public class HashMapAndSortedMap {
-
-	public static class Node {
-		public int value;
-
-		public Node(int v) {
-			value = v;
-		}
-	}
 
 	public static class Zuo {
 		public int value;

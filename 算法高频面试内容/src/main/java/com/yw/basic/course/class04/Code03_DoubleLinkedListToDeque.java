@@ -25,13 +25,13 @@ public class Code03_DoubleLinkedListToDeque {
         private Node<V> tail;
         private int size;
 
-        MyDeque() {
+        public MyDeque() {
             head = null;
             tail = null;
             size = 0;
         }
 
-        boolean isEmpty() {
+        public boolean isEmpty() {
             return size == 0;
         }
 
@@ -39,7 +39,7 @@ public class Code03_DoubleLinkedListToDeque {
             return size;
         }
 
-        void pushHead(V value) {
+        public void pushHead(V value) {
             Node<V> cur = new Node<>(value);
             if (head == null) {
                 head = cur;
@@ -52,7 +52,7 @@ public class Code03_DoubleLinkedListToDeque {
             size++;
         }
 
-        void pushTail(V value) {
+        public void pushTail(V value) {
             Node<V> cur = new Node<>(value);
             if (head == null) {
                 head = cur;
@@ -65,7 +65,7 @@ public class Code03_DoubleLinkedListToDeque {
             size++;
         }
 
-        V pollHead() {
+        public V pollHead() {
             V ans = null;
             if (head == null) {
                 return ans;
@@ -82,7 +82,7 @@ public class Code03_DoubleLinkedListToDeque {
             return ans;
         }
 
-        V pollTail() {
+        public V pollTail() {
             V ans = null;
             if (head == null) {
                 return ans;
@@ -99,7 +99,7 @@ public class Code03_DoubleLinkedListToDeque {
             return ans;
         }
 
-        V peekHead() {
+        public V peekHead() {
             V ans = null;
             if (head != null) {
                 ans = head.value;
@@ -107,7 +107,7 @@ public class Code03_DoubleLinkedListToDeque {
             return ans;
         }
 
-        V peekTail() {
+        public V peekTail() {
             V ans = null;
             if (tail != null) {
                 ans = tail.value;
