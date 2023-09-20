@@ -35,7 +35,7 @@ public class Code03_PartitionAndQuickSort {
      * 两路分区：
      * 以 arr[r] 为基准：将所有小于等于 arr[r] 的放左边，将所有大于 arr[r] 的放右边
      *
-     * @return 等于区的右边界
+     * @return 小于等于区的右边界
      */
     private static int partition2Way(int[] arr, int l, int r) {
         int lessOrEqualR = l - 1;
@@ -52,7 +52,7 @@ public class Code03_PartitionAndQuickSort {
      *
      * @return 等于区的索引范围
      */
-    private static int[] partition3Way(int[] arr, int l, int r) {
+    protected static int[] partition3Way(int[] arr, int l, int r) {
         int lessR = l - 1, moreL = r;
         while (l < moreL) {
             if (arr[l] < arr[r]) swap(arr, ++lessR, l++);
