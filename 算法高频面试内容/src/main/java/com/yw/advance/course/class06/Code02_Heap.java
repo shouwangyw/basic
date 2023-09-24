@@ -1,9 +1,106 @@
 package com.yw.advance.course.class06;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
 
+import static com.yw.util.CommonUtils.swap;
+
+/**
+ * @author yangwei
+ */
 public class Code02_Heap {
+
+	public static class Heap<T extends Comparable<? super T>> {
+		private List<T> items;
+		private int count;
+		private Comparator<? super T> comparator;
+
+		public Heap() {
+			this(Comparator.naturalOrder());
+		}
+		public Heap(Comparator<? super T> comparator) {
+			this.comparator = comparator;
+			this.items = new ArrayList<>();
+			this.count = 0;
+		}
+		public void add(T item) {
+			items.add(item);
+			// 将item向上调整
+			shiftUp(count++, item);
+		}
+		public void shiftUp(int k, T x) {
+			int i = k;
+			while (k > 0) {
+				// 获取父节点索引位置 parent = (child - 1) / 2
+				int parent = (k - 1) >>> 1;
+				T e = items.get(parent);
+				// 比较当前节点值和父节点值，如果 x.val >= e.val 不需要调整直接 break
+				if ((comparator == null
+						? e.compareTo(x)
+						: comparator.compare(x, e)) >= 0) {
+					break;
+				}
+				// 交换
+				items.set(k, e);
+				k = parent;
+			}
+			// i != k 说明发生了交换
+			if (i != k) items.set(k, x);
+		}
+		public T poll() {
+			if (size() == 0) return null;
+			// 取出堆顶元素，并将末尾元素放到堆顶
+			T e = items.get(0);
+			T item = items.remove(--count);
+			if (count > 0) {
+				// 先将最末尾元素放到头位置(0索引位置)
+				items.set(0, item);
+				// 将item向下调整
+				shiftDown(0, item);
+			}
+			return e;
+		}
+		public void shiftDown(int k, T x) {
+			int half = count >>> 1, i = k;
+			while (k < half) {
+				// 获取左右子节点索引位置 left = root * 2 + 1, right = root * 2 + 2
+				int child = (k << 1) + 1, right = child + 1;
+				// 左子节点一定存在，先拿到左节点
+				T e = items.get(child);
+				// right < count: 防止越界，说明右子节点存在
+				// 比较左右子节点，并从中选一个较小的: 即当leftChild.val > rightChild.val时，就换成右子节点
+				if (right < count && (comparator == null
+						? e.compareTo(items.get(right))
+						: comparator.compare(e, items.get(right))) > 0) {
+					child = right;
+					e = items.get(child);
+				}
+				// 比较当前节点值和所选节点的值，如果 x.val <= e.val 不需要调整直接 break
+				if ((comparator == null
+						? x.compareTo(e)
+						: comparator.compare(x, e)) <= 0) {
+					break;
+				}
+				// 交换
+				items.set(k, e);
+				k = child;
+			}
+			// i != k 说明发生了交换
+			if (i != k) items.set(k, x);
+		}
+		public T peek() {
+			if (size() <= 0) return null;
+			return items.get(0);
+		}
+		public int size() {
+			return count;
+		}
+		public boolean isEmpty() {
+			return size() == 0;
+		}
+	}
 
 	public static class MyMaxHeap {
 		private int[] heap;
@@ -70,13 +167,6 @@ public class Code02_Heap {
 				left = index * 2 + 1;
 			}
 		}
-
-		private void swap(int[] arr, int i, int j) {
-			int tmp = arr[i];
-			arr[i] = arr[j];
-			arr[j] = tmp;
-		}
-
 	}
 
 	public static class RightMaxHeap {
@@ -119,32 +209,27 @@ public class Code02_Heap {
 
 	}
 
-	public static class MyComparator implements Comparator<Integer> {
-
-		@Override
-		public int compare(Integer o1, Integer o2) {
-			return o2 - o1;
-		}
-
-	}
-
 	public static void main(String[] args) {
 
 		// 小根堆
-		PriorityQueue<Integer> heap = new PriorityQueue<>(new MyComparator());
+//		PriorityQueue<Integer> heap = new PriorityQueue<>((o1, o2) -> o2 - o1);
+//		Heap<Integer> heap = new Heap<>();
+		Heap<Integer> heap = new Heap<>((o1, o2) -> o2 - o1);
 		heap.add(5);
-		heap.add(5);
+		heap.add(7);
 		heap.add(5);
 		heap.add(3);
 		// 5 , 3
-		System.out.println(heap.peek());
-		heap.add(7);
+		System.out.println("peek: " + heap.peek());
+		heap.add(8);
 		heap.add(0);
 		heap.add(7);
 		heap.add(0);
-		heap.add(7);
+		heap.add(9);
 		heap.add(0);
-		System.out.println(heap.peek());
+		System.out.println("peek: " + heap.peek());
+		System.out.println("poll: " + heap.poll());
+		System.out.println("poll: " + heap.poll());
 		while (!heap.isEmpty()) {
 			System.out.println(heap.poll());
 		}

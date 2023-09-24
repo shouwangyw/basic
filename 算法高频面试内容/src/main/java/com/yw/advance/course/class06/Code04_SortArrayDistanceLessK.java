@@ -2,36 +2,27 @@ package com.yw.advance.course.class06;
 
 import java.util.Arrays;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
+import static com.yw.util.CommonUtils.*;
+
+/**
+ * @author yangwei
+ */
 public class Code04_SortArrayDistanceLessK {
 
 	public static void sortedArrDistanceLessK(int[] arr, int k) {
-		if (k == 0) {
-			return;
+		if (k == 0) return;
+		Queue<Integer> queue = new PriorityQueue<>();
+		int n = arr.length, m = Math.min(n, k), i = 0, j = 0;
+		while (i < m) queue.offer(arr[i++]);
+		for (; i < n; i++, j++) {
+			queue.offer(arr[i]);
+			arr[j] = queue.poll();
 		}
-		// 默认小根堆
-		PriorityQueue<Integer> heap = new PriorityQueue<>();
-		int index = 0;
-		// 0...K-1
-		for (; index <= Math.min(arr.length - 1, k - 1); index++) {
-			heap.add(arr[index]);
-		}
-		int i = 0;
-		for (; index < arr.length; i++, index++) {
-			heap.add(arr[index]);
-			arr[i] = heap.poll();
-		}
-		while (!heap.isEmpty()) {
-			arr[i++] = heap.poll();
-		}
+		while (!queue.isEmpty()) arr[j++] = queue.poll();
 	}
 
-	// for test
-	public static void comparator(int[] arr, int k) {
-		Arrays.sort(arr);
-	}
-
-	// for test
 	public static int[] randomArrayNoMoveMoreK(int maxSize, int maxValue, int K) {
 		int[] arr = new int[(int) ((maxSize + 1) * Math.random())];
 		for (int i = 0; i < arr.length; i++) {
@@ -56,49 +47,6 @@ public class Code04_SortArrayDistanceLessK {
 		return arr;
 	}
 
-	// for test
-	public static int[] copyArray(int[] arr) {
-		if (arr == null) {
-			return null;
-		}
-		int[] res = new int[arr.length];
-		for (int i = 0; i < arr.length; i++) {
-			res[i] = arr[i];
-		}
-		return res;
-	}
-
-	// for test
-	public static boolean isEqual(int[] arr1, int[] arr2) {
-		if ((arr1 == null && arr2 != null) || (arr1 != null && arr2 == null)) {
-			return false;
-		}
-		if (arr1 == null && arr2 == null) {
-			return true;
-		}
-		if (arr1.length != arr2.length) {
-			return false;
-		}
-		for (int i = 0; i < arr1.length; i++) {
-			if (arr1[i] != arr2[i]) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	// for test
-	public static void printArray(int[] arr) {
-		if (arr == null) {
-			return;
-		}
-		for (int i = 0; i < arr.length; i++) {
-			System.out.print(arr[i] + " ");
-		}
-		System.out.println();
-	}
-
-	// for test
 	public static void main(String[] args) {
 		System.out.println("test begin");
 		int testTime = 500000;
@@ -111,7 +59,7 @@ public class Code04_SortArrayDistanceLessK {
 			int[] arr1 = copyArray(arr);
 			int[] arr2 = copyArray(arr);
 			sortedArrDistanceLessK(arr1, k);
-			comparator(arr2, k);
+			Arrays.sort(arr2);
 			if (!isEqual(arr1, arr2)) {
 				succeed = false;
 				System.out.println("K : " + k);

@@ -3,10 +3,19 @@ package com.yw.advance.course.class07;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
+/**
+ * @author yangwei
+ */
 public class Code01_CoverMax {
 
-	public static int maxCover1(int[][] lines) {
+	/**
+	 * 方法一：暴力解法
+	 * 依次计算 min+0.5, min+1.5, ..., max-0.5 位置线段重合的数量
+	 * 取一个最大值，即为所求答案
+	 */
+	public static int maxCover(int[][] lines) {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		for (int i = 0; i < lines.length; i++) {
@@ -26,65 +35,52 @@ public class Code01_CoverMax {
 		return cover;
 	}
 
-	public static int maxCover2(int[][] m) {
+	/**
+	 * 方法二：基于小根堆
+	 * 再依次处理每一条线段:
+	 * 		根据当前线段的左边界line[0]，将堆中所有 <= line[0] 的移出
+	 * 		并将当前线段的右边界 line[1] 放进堆中去，此时堆中的元素个数就是当前线段的最大重合区域个数
+	 * 从所有线段的重合区域选一个最大值即可
+	 */
+	public static int maxCoverByHeap(int[][] lines) {
+		// 排序是非必须的
+//		Arrays.sort(lines, Comparator.comparingInt(v -> v[0]));
+		Queue<Integer> heap = new PriorityQueue<>();
+		int max = 0;
+		for (int[] line : lines) {
+			while (!heap.isEmpty() && heap.peek() <= line[0]) heap.poll();
+			heap.add(line[1]);
+			max = Math.max(max, heap.size());
+		}
+		return max;
+	}
+
+	public static int maxCoverByHeap2(int[][] m) {
 		Line[] lines = new Line[m.length];
 		for (int i = 0; i < m.length; i++) {
 			lines[i] = new Line(m[i][0], m[i][1]);
 		}
-		Arrays.sort(lines, new StartComparator());
+		Arrays.sort(lines, Comparator.comparingInt(o -> o.start));
 		// 小根堆，每一条线段的结尾数值，使用默认的
-		PriorityQueue<Integer> heap = new PriorityQueue<>();
+		Queue<Integer> heap = new PriorityQueue<>();
 		int max = 0;
 		for (int i = 0; i < lines.length; i++) {
 			// lines[i] -> cur 在黑盒中，把<=cur.start 东西都弹出
-			while (!heap.isEmpty() && heap.peek() <= lines[i].start) {
-				heap.poll();
-			}
+			while (!heap.isEmpty() && heap.peek() <= lines[i].start) heap.poll();
 			heap.add(lines[i].end);
 			max = Math.max(max, heap.size());
 		}
 		return max;
 	}
 
-	public static class Line {
-		public int start;
-		public int end;
+	private static class Line {
+		int start;
+		int end;
 
-		public Line(int s, int e) {
+		Line(int s, int e) {
 			start = s;
 			end = e;
 		}
-	}
-
-	public static class EndComparator implements Comparator<Line> {
-
-		@Override
-		public int compare(Line o1, Line o2) {
-			return o1.end - o2.end;
-		}
-
-	}
-
-	// 和maxCover2过程是一样的
-	// 只是代码更短
-	// 不使用类定义的写法
-	public static int maxCover3(int[][] m) {
-		// m是二维数组，可以认为m内部是一个一个的一维数组
-		// 每一个一维数组就是一个对象，也就是线段
-		// 如下的code，就是根据每一个线段的开始位置排序
-		// 比如, m = { {5,7}, {1,4}, {2,6} } 跑完如下的code之后变成：{ {1,4}, {2,6}, {5,7} }
-		Arrays.sort(m, (a, b) -> (a[0] - b[0]));
-		// 准备好小根堆，和课堂的说法一样
-		PriorityQueue<Integer> heap = new PriorityQueue<>();
-		int max = 0;
-		for (int[] line : m) {
-			while (!heap.isEmpty() && heap.peek() <= line[0]) {
-				heap.poll();
-			}
-			heap.add(line[1]);
-			max = Math.max(max, heap.size());
-		}
-		return max;
 	}
 
 	// for test
@@ -103,15 +99,6 @@ public class Code01_CoverMax {
 		return ans;
 	}
 
-	public static class StartComparator implements Comparator<Line> {
-
-		@Override
-		public int compare(Line o1, Line o2) {
-			return o1.start - o2.start;
-		}
-
-	}
-
 	public static void main(String[] args) {
 
 		Line l1 = new Line(4, 9);
@@ -122,7 +109,7 @@ public class Code01_CoverMax {
 		Line l6 = new Line(3, 7);
 
 		// 底层堆结构，heap
-		PriorityQueue<Line> heap = new PriorityQueue<>(new StartComparator());
+		PriorityQueue<Line> heap = new PriorityQueue<>(Comparator.comparingInt(o -> o.start));
 		heap.add(l1);
 		heap.add(l2);
 		heap.add(l3);
@@ -142,9 +129,9 @@ public class Code01_CoverMax {
 		int testTimes = 200000;
 		for (int i = 0; i < testTimes; i++) {
 			int[][] lines = generateLines(N, L, R);
-			int ans1 = maxCover1(lines);
-			int ans2 = maxCover2(lines);
-			int ans3 = maxCover3(lines);
+			int ans1 = maxCover(lines);
+			int ans2 = maxCoverByHeap(lines);
+			int ans3 = maxCoverByHeap2(lines);
 			if (ans1 != ans2 || ans1 != ans3) {
 				System.out.println("Oops!");
 			}

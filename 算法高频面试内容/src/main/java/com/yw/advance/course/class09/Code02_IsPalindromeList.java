@@ -1,204 +1,196 @@
 package com.yw.advance.course.class09;
 
+import com.yw.entity.Node;
+
 import java.util.Stack;
 
+/**
+ * @author yangwei
+ */
 public class Code02_IsPalindromeList {
 
-	public static class Node {
-		public int value;
-		public Node next;
+    // 方法一：借助容器 栈，额外空间O(N)
+public static boolean isPalindromeByStack(Node head) {
+    Stack<Node> stack = new Stack<>();
+    Node cur = head;
+    while (cur != null) {
+        stack.push(cur);
+        cur = cur.next;
+    }
+    cur = head;
+    while (cur != null) {
+        if (cur.val != stack.pop().val) return false;
+        cur = cur.next;
+    }
+    return true;
+}
 
-		public Node(int data) {
-			this.value = data;
-		}
-	}
+    // 方法二：还是利用栈，只将右半部分入栈，额外空间O(N/2)
+    public static boolean isPalindromeByHalfStack(Node head) {
+        if (head == null || head.next == null) return true;
+        // 找中点
+        Node slow = head, fast = head;
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        // 中点之后的节点入栈
+        Stack<Node> stack = new Stack<>();
+        while (slow.next != null) {
+            stack.push(slow.next);
+            slow = slow.next;
+        }
+        Node cur = head;
+        // 依次弹出栈中元素比较
+        while (!stack.isEmpty()) {
+            if (cur.val != stack.pop().val) return false;
+            cur = cur.next;
+        }
+        return true;
+    }
 
-	// need n extra space
-	public static boolean isPalindrome1(Node head) {
-		Stack<Node> stack = new Stack<Node>();
-		Node cur = head;
-		while (cur != null) {
-			stack.push(cur);
-			cur = cur.next;
-		}
-		while (head != null) {
-			if (head.value != stack.pop().value) {
-				return false;
-			}
-			head = head.next;
-		}
-		return true;
-	}
+    // 方法三：翻转链表中点位置以后的链表，额外空间O(1)
+    public static boolean isPalindrome(Node head) {
+        if (head == null || head.next == null) return true;
+        // 1. 快慢指针找中点
+        Node slow = head, fast = head;
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        // 2. 逆序中点(奇数节点时slow中点、偶数节点时slow是上中点)之后的链表
+        Node revHead = null, cur = slow.next, next;
+        slow.next = null;
+        while (cur != null) {
+            next = cur.next;
+            cur.next = revHead;
+            revHead = cur;
+            cur = next;
+        }
+        // 3. 头尾比较，判断是否是回文
+        Node p = revHead;
+        cur = head;
+        boolean ans = true;
+        while (cur != null && p != null) {
+            if (cur.val != p.val) {
+                ans = false;
+                break;
+            }
+            cur = cur.next;
+            p = p.next;
+        }
+        // 4. 恢复原链表
+        Node pre = null;
+        cur = revHead;
+        while (cur != null) {
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        slow.next = pre;
+        return ans;
+    }
 
-	// need n/2 extra space
-	public static boolean isPalindrome2(Node head) {
-		if (head == null || head.next == null) {
-			return true;
-		}
-		Node right = head.next;
-		Node cur = head;
-		while (cur.next != null && cur.next.next != null) {
-			right = right.next;
-			cur = cur.next.next;
-		}
-		Stack<Node> stack = new Stack<Node>();
-		while (right != null) {
-			stack.push(right);
-			right = right.next;
-		}
-		while (!stack.isEmpty()) {
-			if (head.value != stack.pop().value) {
-				return false;
-			}
-			head = head.next;
-		}
-		return true;
-	}
+    public static void main(String[] args) {
 
-	// need O(1) extra space
-	public static boolean isPalindrome3(Node head) {
-		if (head == null || head.next == null) {
-			return true;
-		}
-		Node n1 = head;
-		Node n2 = head;
-		while (n2.next != null && n2.next.next != null) { // find mid node
-			n1 = n1.next; // n1 -> mid
-			n2 = n2.next.next; // n2 -> end
-		}
-		// n1 中点
-		
-		
-		n2 = n1.next; // n2 -> right part first node
-		n1.next = null; // mid.next -> null
-		Node n3 = null;
-		while (n2 != null) { // right part convert
-			n3 = n2.next; // n3 -> save next node
-			n2.next = n1; // next of right node convert
-			n1 = n2; // n1 move
-			n2 = n3; // n2 move
-		}
-		n3 = n1; // n3 -> save last node
-		n2 = head;// n2 -> left first node
-		boolean res = true;
-		while (n1 != null && n2 != null) { // check palindrome
-			if (n1.value != n2.value) {
-				res = false;
-				break;
-			}
-			n1 = n1.next; // left to mid
-			n2 = n2.next; // right to mid
-		}
-		n1 = n3.next;
-		n3.next = null;
-		while (n1 != null) { // recover list
-			n2 = n1.next;
-			n1.next = n3;
-			n3 = n1;
-			n1 = n2;
-		}
-		return res;
-	}
+        Node head = null;
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-	public static void printLinkedList(Node node) {
-		System.out.print("Linked List: ");
-		while (node != null) {
-			System.out.print(node.value + " ");
-			node = node.next;
-		}
-		System.out.println();
-	}
+        head = new Node(1);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-	public static void main(String[] args) {
+        head = new Node(1);
+        head.next = new Node(2);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-		Node head = null;
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
+        head = new Node(1);
+        head.next = new Node(1);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-		head = new Node(1);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
+        head = new Node(1);
+        head.next = new Node(2);
+        head.next.next = new Node(3);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-		head = new Node(1);
-		head.next = new Node(2);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
+        head = new Node(1);
+        head.next = new Node(2);
+        head.next.next = new Node(1);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-		head = new Node(1);
-		head.next = new Node(1);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
+        head = new Node(1);
+        head.next = new Node(2);
+        head.next.next = new Node(3);
+        head.next.next.next = new Node(1);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-		head = new Node(1);
-		head.next = new Node(2);
-		head.next.next = new Node(3);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
+        head = new Node(1);
+        head.next = new Node(2);
+        head.next.next = new Node(2);
+        head.next.next.next = new Node(1);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-		head = new Node(1);
-		head.next = new Node(2);
-		head.next.next = new Node(1);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
+        head = new Node(1);
+        head.next = new Node(2);
+        head.next.next = new Node(3);
+        head.next.next.next = new Node(2);
+        head.next.next.next.next = new Node(1);
+        printLinkedList(head);
+        System.out.print(isPalindromeByStack(head) + " | ");
+        System.out.print(isPalindromeByHalfStack(head) + " | ");
+        System.out.println(isPalindrome(head) + " | ");
+        printLinkedList(head);
+        System.out.println("=========================");
 
-		head = new Node(1);
-		head.next = new Node(2);
-		head.next.next = new Node(3);
-		head.next.next.next = new Node(1);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
+    }
 
-		head = new Node(1);
-		head.next = new Node(2);
-		head.next.next = new Node(2);
-		head.next.next.next = new Node(1);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
-
-		head = new Node(1);
-		head.next = new Node(2);
-		head.next.next = new Node(3);
-		head.next.next.next = new Node(2);
-		head.next.next.next.next = new Node(1);
-		printLinkedList(head);
-		System.out.print(isPalindrome1(head) + " | ");
-		System.out.print(isPalindrome2(head) + " | ");
-		System.out.println(isPalindrome3(head) + " | ");
-		printLinkedList(head);
-		System.out.println("=========================");
-
-	}
+    private static void printLinkedList(Node node) {
+        System.out.print("Linked List: ");
+        while (node != null) {
+            System.out.print(node.val + " ");
+            node = node.next;
+        }
+        System.out.println();
+    }
 
 }

@@ -1,138 +1,106 @@
 package com.yw.advance.course.class09;
 
+import com.yw.entity.Node;
+
+/**
+ * @author yangwei
+ */
 public class Code03_SmallerEqualBigger {
 
-	public static class Node {
-		public int value;
-		public Node next;
+    // 方法一：借助数组分区
+    public static Node listPartitionByArray(Node head, int pivot) {
+        if (head == null) return null;
+        // 1. 遍历链表，计算链表节点个数
+        Node cur = head;
+        int cnt = 0;
+        while (cur != null) {
+            cnt++;
+            cur = cur.next;
+        }
+        // 2. 创建一个Node数组，再次遍历原链表，将每个节点加入数组中
+        Node[] nodes = new Node[cnt];
+        cur = head;
+        for (int i = 0; i < cnt; i++) {
+            nodes[i] = cur;
+            cur = cur.next;
+        }
+        // 3. 分区
+        int small = -1, big = cnt, idx = 0;
+        while (idx < big) {
+            if (nodes[idx].val == pivot) idx++;
+            else if (nodes[idx].val < pivot) swap(nodes, ++small, idx++);
+            else swap(nodes, --big, idx);
+        }
+        // 4. 将数组中的节点串联起来
+        for (int i = 1; i < cnt; i++) nodes[i - 1].next = nodes[i];
+        nodes[cnt - 1].next = null;
+        return nodes[0];
+    }
 
-		public Node(int data) {
-			this.value = data;
-		}
-	}
+    private static void swap(Node[] nodes, int i, int j) {
+        if (i == j) return;
+        Node tmp = nodes[i];
+        nodes[i] = nodes[j];
+        nodes[j] = tmp;
+    }
 
-	public static Node listPartition1(Node head, int pivot) {
-		if (head == null) {
-			return head;
-		}
-		Node cur = head;
-		int i = 0;
-		while (cur != null) {
-			i++;
-			cur = cur.next;
-		}
-		Node[] nodeArr = new Node[i];
-		i = 0;
-		cur = head;
-		for (i = 0; i != nodeArr.length; i++) {
-			nodeArr[i] = cur;
-			cur = cur.next;
-		}
-		arrPartition(nodeArr, pivot);
-		for (i = 1; i != nodeArr.length; i++) {
-			nodeArr[i - 1].next = nodeArr[i];
-		}
-		nodeArr[i - 1].next = null;
-		return nodeArr[0];
-	}
+    // 方法二：不借助容器
+    public static Node listPartition(Node head, int pivot) {
+        // 定义6个变量分别是 小于区、等于区、大于区 的头和尾指针，和
+        Node sh = null, st = null, eh = null, et = null, bh = null, bt = null;
+        // 定义一个cur用于遍历head链表，next用于记录下一步
+        Node cur = head, next;
+        // 遍历原链表进行分区
+        while (cur != null) {
+            next = cur.next;
+            cur.next = null;
+            if (cur.val < pivot) {
+                if (sh == null) sh = cur;
+                else st.next = cur;
+                st = cur;
+            } else if (cur.val == pivot) {
+                if (eh == null) eh = cur;
+                else et.next = cur;
+                et = cur;
+            } else {
+                if (bh == null) bh = cur;
+                else bt.next = cur;
+                bt = cur;
+            }
+            cur = next;
+        }
+        // 用小于区域的尾巴，去连等于区域的头
+        if (st != null) {
+            // 如果有小于区域
+            st.next = eh;
+            // 下一步，谁去连大于区域的头，谁就变成eT
+            et = et == null ? st : et;
+        }
+        // 用等于区域的尾巴，去连大于区域的头
+        if (et != null) et.next = bh;
 
-	public static void arrPartition(Node[] nodeArr, int pivot) {
-		int small = -1;
-		int big = nodeArr.length;
-		int index = 0;
-		while (index != big) {
-			if (nodeArr[index].value < pivot) {
-				swap(nodeArr, ++small, index++);
-			} else if (nodeArr[index].value == pivot) {
-				index++;
-			} else {
-				swap(nodeArr, --big, index);
-			}
-		}
-	}
+        return sh != null ? sh : (eh != null ? eh : bh);
+    }
 
-	public static void swap(Node[] nodeArr, int a, int b) {
-		Node tmp = nodeArr[a];
-		nodeArr[a] = nodeArr[b];
-		nodeArr[b] = tmp;
-	}
+    public static void main(String[] args) {
+        Node head = new Node(7,
+                new Node(9,
+                        new Node(1,
+                                new Node(8,
+                                        new Node(5,
+                                                new Node(2, new Node(5)))))));
+        printLinkedList(head);
+//        head = listPartitionByArray(head, 4);
+		head = listPartition(head, 5);
+        printLinkedList(head);
+    }
 
-	public static Node listPartition2(Node head, int pivot) {
-		Node sH = null; // small head
-		Node sT = null; // small tail
-		Node eH = null; // equal head
-		Node eT = null; // equal tail
-		Node mH = null; // big head
-		Node mT = null; // big tail
-		Node next = null; // save next node
-		// every node distributed to three lists
-		while (head != null) {
-			next = head.next;
-			head.next = null;
-			if (head.value < pivot) {
-				if (sH == null) {
-					sH = head;
-					sT = head;
-				} else {
-					sT.next = head;
-					sT = head;
-				}
-			} else if (head.value == pivot) {
-				if (eH == null) {
-					eH = head;
-					eT = head;
-				} else {
-					eT.next = head;
-					eT = head;
-				}
-			} else {
-				if (mH == null) {
-					mH = head;
-					mT = head;
-				} else {
-					mT.next = head;
-					mT = head;
-				}
-			}
-			head = next;
-		}
-		// 小于区域的尾巴，连等于区域的头，等于区域的尾巴连大于区域的头
-		if (sT != null) { // 如果有小于区域
-			sT.next = eH;
-			eT = eT == null ? sT : eT; // 下一步，谁去连大于区域的头，谁就变成eT
-		}
-		// 下一步，一定是需要用eT 去接 大于区域的头
-		// 有等于区域，eT -> 等于区域的尾结点
-		// 无等于区域，eT -> 小于区域的尾结点
-		// eT 尽量不为空的尾巴节点
-		if (eT != null) { // 如果小于区域和等于区域，不是都没有
-			eT.next = mH;
-		}
-		return sH != null ? sH : (eH != null ? eH : mH);
-	}
-
-	public static void printLinkedList(Node node) {
-		System.out.print("Linked List: ");
-		while (node != null) {
-			System.out.print(node.value + " ");
-			node = node.next;
-		}
-		System.out.println();
-	}
-
-	public static void main(String[] args) {
-		Node head1 = new Node(7);
-		head1.next = new Node(9);
-		head1.next.next = new Node(1);
-		head1.next.next.next = new Node(8);
-		head1.next.next.next.next = new Node(5);
-		head1.next.next.next.next.next = new Node(2);
-		head1.next.next.next.next.next.next = new Node(5);
-		printLinkedList(head1);
-		// head1 = listPartition1(head1, 4);
-		head1 = listPartition2(head1, 5);
-		printLinkedList(head1);
-
-	}
-
+    private static void printLinkedList(Node node) {
+        System.out.print("Linked List: ");
+        while (node != null) {
+            System.out.print(node.val + " ");
+            node = node.next;
+        }
+        System.out.println();
+    }
 }

@@ -2,8 +2,103 @@ package com.yw.advance.course.class08;
 
 import java.util.HashMap;
 
-// 该程序完全正确
+/**
+ * 该程序完全正确
+ * @author yangwei
+ */
 public class Code02_TrieTree {
+
+	/**
+	 * 定义前缀树节点数据结构
+	 */
+	public static class Node {
+		int p;
+		int e;
+		Node[] nexts;
+		public Node() {
+			this.p = 0;
+			this.e = 0;
+			// 0    a
+			// 1    b
+			// 2    c
+			// ..   ..
+			// 25   z
+			// nexts[i] == null   i方向的路不存在
+			// nexts[i] != null   i方向的路存在
+			nexts = new Node[26];
+		}
+	}
+	/**
+	 * 实现前缀树
+	 */
+	public static class Trie {
+		private final Node root;
+		public Trie() {
+			root = new Node();
+		}
+		// 添加单词
+		public void insert(String word) {
+			if (word == null || word.length() == 0) return;
+			Node node = root;	// 拿到根节点
+			node.p++;
+			for (char c : word.toCharArray()) {	// 依次遍历字符
+				int path = c - 'a'; 	// 字符统一减'a'，对应成走向哪条路
+				// 如果这条路不存在，则创建之
+				if (node.nexts[path] == null) node.nexts[path] = new Node();
+				// 然后node往下走
+				node = node.nexts[path];
+				// 经过次数 p++
+				node.p++;
+			}
+			// 最后结尾 e++
+			node.e++;
+		}
+		// 删除单词
+		public void delete(String word) {
+			// 先查一下，如果不存在，则直接返回
+			if (search(word) == 0) return;
+			Node node = root;
+			for (char c : word.toCharArray()) {
+				int path = c - 'a';
+				if (--node.nexts[path].p == 0) {
+					// 若进过次数p减到0了，则将这条路整个删掉，防止内存泄漏
+					node.nexts[path] = null;
+					return;
+				}
+				// 否则继续往下找
+				node = node.nexts[path];
+			}
+			node.e--;
+		}
+		// 查找单词出现次数
+		public int search(String word) {
+			if (word == null || word.length() == 0) return 0;
+			Node node = root;
+			for (char c : word.toCharArray()) {
+				int path = c - 'a';
+				// 如果这条路不存在，说明查找单词不存在，直接返回0
+				if (node.nexts[path] == null) return 0;
+				// 否则存在，继续往下找
+				node = node.nexts[path];
+			}
+			// 循环退出，说明找到了，e值就是单词出现的次数
+			return node.e;
+		}
+		// 查找某个前缀的单词出现次数
+		public int searchPrefix(String prefix) {
+			if (prefix == null || prefix.length() == 0) return 0;
+			Node node = root;
+			for (char c : prefix.toCharArray()) {
+				int path = c - 'a';
+				// 如果这条路不存在，说明查找单词前缀不存在，直接返回0
+				if (node.nexts[path] == null) return 0;
+				// 否则存在，继续往下找
+				node = node.nexts[path];
+			}
+			// 循环退出，说明找到了，p值就是单词前缀出现的次数
+			return node.p;
+		}
+	}
 
 	public static class Node1 {
 		public int pass;

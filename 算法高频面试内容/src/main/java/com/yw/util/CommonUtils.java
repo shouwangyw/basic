@@ -3,10 +3,7 @@ package com.yw.util;
 import com.yw.entity.DoubleNode;
 import com.yw.entity.Node;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author yangwei
@@ -120,10 +117,14 @@ public class CommonUtils {
         if (arr == null) {
             return;
         }
-        for (int value : arr) {
-            System.out.print(value + " ");
+        System.out.println(Arrays.toString(arr));
+    }
+
+    public static void printArray(boolean[] arr) {
+        if (arr == null) {
+            return;
         }
-        System.out.println();
+        System.out.println(Arrays.toString(arr));
     }
 
     public static Node generateRandomLinkedList(int len, int value) {
