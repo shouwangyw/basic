@@ -1,89 +1,48 @@
 package com.yw.advance.course.class12;
 
+import com.yw.entity.TreeNode;
+
+import static com.yw.util.CommonUtils.generateRandomBST;
+
+/**
+ * @author yangwei
+ */
 public class Code03_IsBalanced {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
-
-		public Node(int data) {
-			this.value = data;
-		}
+	// 方法一：普通递归方式-基于平衡树定义
+	public static boolean isBalancedByDef(TreeNode root) {
+		if (root == null) return true;
+		// 任何左右子树都是平衡树，且左右子树高度差小于等于1
+		return isBalancedByDef(root.left) && isBalancedByDef(root.right)
+				&& Math.abs(getHeight(root.left) - getHeight(root.right)) <= 1;
+	}
+	private static int getHeight(TreeNode root) {
+		return root == null ? 0 : Math.max(getHeight(root.left), getHeight(root.right)) + 1;
 	}
 
-	public static boolean isBalanced1(Node head) {
-		boolean[] ans = new boolean[1];
-		ans[0] = true;
-		process1(head, ans);
-		return ans[0];
+	// 方法二：基于递归套路
+	public static boolean isBalanced(TreeNode root) {
+		return process(root).is;
 	}
+	// 1. 封装信息
+	private static class Info {
+		boolean is;
+		int height;
+		public Info(boolean is, int height) {
+			this.is = is;
+			this.height = height;
+		}
+	}
+	// 2. 实现递归
+	private static Info process(TreeNode root) {
+		if (root == null) return new Info(true, 0);
+		Info leftInfo = process(root.left);
+		Info rightInfo = process(root.right);
 
-	public static int process1(Node head, boolean[] ans) {
-		if (!ans[0] || head == null) {
-			return -1;
-		}
-		int leftHeight = process1(head.left, ans);
-		int rightHeight = process1(head.right, ans);
-		if (Math.abs(leftHeight - rightHeight) > 1) {
-			ans[0] = false;
-		}
-		return Math.max(leftHeight, rightHeight) + 1;
-	}
+		boolean is = leftInfo.is && rightInfo.is && Math.abs((leftInfo.height - rightInfo.height)) <= 1;
+		int height = Math.max(leftInfo.height, rightInfo.height) + 1;
 
-	public static boolean isBalanced2(Node head) {
-		return process(head).isBalanced;
-	}
-	
-	public static class Info{
-		public boolean isBalanced;
-		public int height;
-		
-		public Info(boolean i, int h) {
-			isBalanced = i;
-			height = h;
-		}
-	}
-	
-	public static Info process(Node x) {
-		if(x == null) {
-			return new Info(true, 0);
-		}
-		Info leftInfo = process(x.left);
-		Info rightInfo = process(x.right);
-		int height = Math.max(leftInfo.height, rightInfo.height)  + 1;
-		boolean isBalanced = true;
-		if(!leftInfo.isBalanced) {
-			isBalanced = false;
-		}
-		if(!rightInfo.isBalanced) {
-			isBalanced = false;
-		}
-		if(Math.abs(leftInfo.height - rightInfo.height) > 1) {
-			isBalanced = false;
-		}
-		return new Info(isBalanced, height);
-	}
-	
-	
-	
-	
-	
-
-	// for test
-	public static Node generateRandomBST(int maxLevel, int maxValue) {
-		return generate(1, maxLevel, maxValue);
-	}
-
-	// for test
-	public static Node generate(int level, int maxLevel, int maxValue) {
-		if (level > maxLevel || Math.random() < 0.5) {
-			return null;
-		}
-		Node head = new Node((int) (Math.random() * maxValue));
-		head.left = generate(level + 1, maxLevel, maxValue);
-		head.right = generate(level + 1, maxLevel, maxValue);
-		return head;
+		return new Info(is, height);
 	}
 
 	public static void main(String[] args) {
@@ -91,8 +50,8 @@ public class Code03_IsBalanced {
 		int maxValue = 100;
 		int testTimes = 1000000;
 		for (int i = 0; i < testTimes; i++) {
-			Node head = generateRandomBST(maxLevel, maxValue);
-			if (isBalanced1(head) != isBalanced2(head)) {
+			TreeNode root = generateRandomBST(maxLevel, maxValue);
+			if (isBalancedByDef(root) != isBalanced(root)) {
 				System.out.println("Oops!");
 			}
 		}

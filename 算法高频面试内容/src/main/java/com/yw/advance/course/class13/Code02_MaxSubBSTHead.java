@@ -1,132 +1,104 @@
 package com.yw.advance.course.class13;
 
-import java.util.ArrayList;
+import com.yw.entity.TreeNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.yw.util.CommonUtils.generateRandomBST;
+
+/**
+ * @author yangwei
+ */
 public class Code02_MaxSubBSTHead {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
-
-		public Node(int data) {
-			this.value = data;
+	// 方法一：中序遍历、暴力
+	public static TreeNode getMaxSubBst(TreeNode root) {
+		if (root == null) return null;
+		if (getBstSize(root) != 0) return root;
+		TreeNode left = getMaxSubBst(root.left);
+		TreeNode right = getMaxSubBst(root.right);
+		return getBstSize(left) >= getBstSize(right) ? left : right;
+	}
+	private static int getBstSize(TreeNode root) {
+		if (root == null) return 0;
+		List<Integer> ins = new ArrayList<>();
+		inOrder(root, ins);
+		for (int i = 1; i < ins.size(); i++) {
+			if (ins.get(i) <= ins.get(i - 1)) return 0;
+		}
+		return ins.size();
+	}
+	private static void inOrder(TreeNode root, List<Integer> ins) {
+		if (root == null) return;
+		inOrder(root.left, ins);
+		ins.add(root.val);
+		inOrder(root.right, ins);
+	}
+	// 方法二：递归套路
+	public static TreeNode maxSubBst(TreeNode root) {
+		if (root == null) return null;
+		return process(root).maxBst;
+	}
+	// 1. 封装信息
+	private static class Info {
+		int min;
+		int max;
+		int maxBstSize;
+		TreeNode maxBst;
+		public Info(int min, int max, int maxBstSize, TreeNode maxBst) {
+			this.min = min;
+			this.max = max;
+			this.maxBstSize = maxBstSize;
+			this.maxBst = maxBst;
 		}
 	}
+	// 2. 处理递归
+	private static Info process(TreeNode root) {
+		if (root == null) return null;
+		Info leftInfo = process(root.left);
+		Info rightInfo = process(root.right);
 
-	public static int getBSTSize(Node head) {
-		if (head == null) {
-			return 0;
-		}
-		ArrayList<Node> arr = new ArrayList<>();
-		in(head, arr);
-		for (int i = 1; i < arr.size(); i++) {
-			if (arr.get(i).value <= arr.get(i - 1).value) {
-				return 0;
-			}
-		}
-		return arr.size();
-	}
+		int min = root.val;
+		int max = root.val;
+		int maxBstSize = -1;
+		TreeNode maxBst = root;
+		boolean isBst = true;
 
-	public static void in(Node head, ArrayList<Node> arr) {
-		if (head == null) {
-			return;
-		}
-		in(head.left, arr);
-		arr.add(head);
-		in(head.right, arr);
-	}
-
-	public static Node maxSubBSTHead1(Node head) {
-		if (head == null) {
-			return null;
-		}
-		if (getBSTSize(head) != 0) {
-			return head;
-		}
-		Node leftAns = maxSubBSTHead1(head.left);
-		Node rightAns = maxSubBSTHead1(head.right);
-		return getBSTSize(leftAns) >= getBSTSize(rightAns) ? leftAns : rightAns;
-	}
-
-	public static Node maxSubBSTHead2(Node head) {
-		if (head == null) {
-			return null;
-		}
-		return process(head).maxSubBSTHead;
-	}
-
-	// 每一棵子树
-	public static class Info {
-		public Node maxSubBSTHead;
-		public int maxSubBSTSize;
-		public int min;
-		public int max;
-
-		public Info(Node h, int size, int mi, int ma) {
-			maxSubBSTHead = h;
-			maxSubBSTSize = size;
-			min = mi;
-			max = ma;
-		}
-	}
-
-	public static Info process(Node X) {
-		if (X == null) {
-			return null;
-		}
-		Info leftInfo = process(X.left);
-		Info rightInfo = process(X.right);
-		int min = X.value;
-		int max = X.value;
-		Node maxSubBSTHead = null;
-		int maxSubBSTSize = 0;
 		if (leftInfo != null) {
-			min = Math.min(min, leftInfo.min);
-			max = Math.max(max, leftInfo.max);
-			maxSubBSTHead = leftInfo.maxSubBSTHead;
-			maxSubBSTSize = leftInfo.maxSubBSTSize;
+			isBst = (leftInfo.maxBst == root.left && leftInfo.max < root.val);
+			min = Math.min(leftInfo.min, min);
+			max = Math.max(leftInfo.max, max);
+			if (maxBstSize < leftInfo.maxBstSize) {
+				maxBstSize = leftInfo.maxBstSize;
+				maxBst = leftInfo.maxBst;
+			}
 		}
 		if (rightInfo != null) {
-			min = Math.min(min, rightInfo.min);
-			max = Math.max(max, rightInfo.max);
-			if (rightInfo.maxSubBSTSize > maxSubBSTSize) {
-				maxSubBSTHead = rightInfo.maxSubBSTHead;
-				maxSubBSTSize = rightInfo.maxSubBSTSize;
+			isBst &= (rightInfo.maxBst == root.right && rightInfo.min > root.val);
+			min = Math.min(rightInfo.min, min);
+			max = Math.max(rightInfo.max, max);
+			if (maxBstSize < rightInfo.maxBstSize) {
+				maxBstSize = rightInfo.maxBstSize;
+				maxBst = rightInfo.maxBst;
 			}
 		}
-		if ((leftInfo == null ? true : (leftInfo.maxSubBSTHead == X.left && leftInfo.max < X.value))
-				&& (rightInfo == null ? true : (rightInfo.maxSubBSTHead == X.right && rightInfo.min > X.value))) {
-			maxSubBSTHead = X;
-			maxSubBSTSize = (leftInfo == null ? 0 : leftInfo.maxSubBSTSize)
-					+ (rightInfo == null ? 0 : rightInfo.maxSubBSTSize) + 1;
+		if (isBst) {
+			maxBstSize = (leftInfo == null ? 0 : leftInfo.maxBstSize) +
+					(rightInfo == null ? 0 : rightInfo.maxBstSize) + 1;
+			maxBst = root;
 		}
-		return new Info(maxSubBSTHead, maxSubBSTSize, min, max);
-	}
 
-	// for test
-	public static Node generateRandomBST(int maxLevel, int maxValue) {
-		return generate(1, maxLevel, maxValue);
-	}
-
-	// for test
-	public static Node generate(int level, int maxLevel, int maxValue) {
-		if (level > maxLevel || Math.random() < 0.5) {
-			return null;
-		}
-		Node head = new Node((int) (Math.random() * maxValue));
-		head.left = generate(level + 1, maxLevel, maxValue);
-		head.right = generate(level + 1, maxLevel, maxValue);
-		return head;
+		return new Info(min, max, maxBstSize, maxBst);
 	}
 
 	public static void main(String[] args) {
 		int maxLevel = 4;
-		int maxValue = 100;
+		int maxVal = 100;
 		int testTimes = 1000000;
 		for (int i = 0; i < testTimes; i++) {
-			Node head = generateRandomBST(maxLevel, maxValue);
-			if (maxSubBSTHead1(head) != maxSubBSTHead2(head)) {
+			TreeNode root = generateRandomBST(maxLevel, maxVal);
+			if (getMaxSubBst(root) != maxSubBst(root)) {
 				System.out.println("Oops!");
 			}
 		}

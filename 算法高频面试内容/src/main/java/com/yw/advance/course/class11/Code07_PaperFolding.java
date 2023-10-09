@@ -1,9 +1,12 @@
 package com.yw.advance.course.class11;
 
+/**
+ * @author yangwei
+ */
 public class Code07_PaperFolding {
 
-	public static void printAllFolds(int N) {
-		process(1, N, true);
+	public static void printAllFolds(int n) {
+		process(1, n, true);
 		System.out.println();
 	}
 
@@ -12,17 +15,15 @@ public class Code07_PaperFolding {
 	// 这个节点如果是凹的话，down = T
 	// 这个节点如果是凸的话，down = F
 	// 函数的功能：中序打印以你想象的节点为头的整棵树！
-	public static void process(int i, int N, boolean down) {
-		if (i > N) {
-			return;
-		}
-		process(i + 1, N, true);
+	public static void process(int i, int n, boolean down) {
+		if (i > n) return;
+		process(i + 1, n, true);
 		System.out.print(down ? "凹 " : "凸 ");
-		process(i + 1, N, false);
+		process(i + 1, n, false);
 	}
 
 	public static void main(String[] args) {
-		int N = 4;
-		printAllFolds(N);
+		printAllFolds(4);
+		printAllFolds(10);
 	}
 }

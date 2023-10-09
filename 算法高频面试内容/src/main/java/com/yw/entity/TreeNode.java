@@ -1,5 +1,7 @@
 package com.yw.entity;
 
+import java.util.Objects;
+
 /**
  * @author yangwei
  */
@@ -16,5 +18,16 @@ public class TreeNode {
         this.val = val;
         this.left = left;
         this.right = right;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

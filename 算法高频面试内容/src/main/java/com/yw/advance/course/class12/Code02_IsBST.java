@@ -1,125 +1,88 @@
 package com.yw.advance.course.class12;
 
-import java.util.ArrayList;
+import com.yw.entity.TreeNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.yw.util.CommonUtils.generateRandomBST;
+
+/**
+ * @author yangwei
+ */
 public class Code02_IsBST {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
+    // 方法一：基于中序遍历，中序收集所有值，判断是否升序
+    public static boolean isBstByInOrder(TreeNode root) {
+        if (root == null) return true;
+        List<Integer> ins = new ArrayList<>();
+        inOrder(root, ins);
+        for (int i = 1; i < ins.size(); i++) {
+            // !!!必须: 左边 < 根 < 右边，等于都不是搜索二叉树
+            if (ins.get(i) <= ins.get(i - 1)) return false;
+        }
+        return true;
+    }
 
-		public Node(int data) {
-			this.value = data;
-		}
-	}
+    private static void inOrder(TreeNode root, List<Integer> ins) {
+        if (root == null) return;
+        inOrder(root.left, ins);
+        ins.add(root.val);
+        inOrder(root.right, ins);
+    }
 
-	public static boolean isBST1(Node head) {
-		if (head == null) {
-			return true;
-		}
-		ArrayList<Node> arr = new ArrayList<>();
-		in(head, arr);
-		for (int i = 1; i < arr.size(); i++) {
-			if (arr.get(i).value <= arr.get(i - 1).value) {
-				return false;
-			}
-		}
-		return true;
-	}
+    // 方法二：基于递归套路
+    public static boolean isBst(TreeNode root) {
+        if (root == null) return true;
+        return process(root).bst;
+    }
 
-	public static void in(Node head, ArrayList<Node> arr) {
-		if (head == null) {
-			return;
-		}
-		in(head.left, arr);
-		arr.add(head);
-		in(head.right, arr);
-	}
+    // 1. 封装信息
+    private static class Info {
+        boolean bst;
+        int min;
+        int max;
 
-	public static boolean isBST2(Node head) {
-		if (head == null) {
-			return true;
-		}
-		return process(head).isBST;
-	}
+        public Info(boolean bst, int min, int max) {
+            this.bst = bst;
+            this.min = min;
+            this.max = max;
+        }
+    }
 
-	public static class Info {
-		public boolean isBST;
-		public int max;
-		public int min;
+    // 2. 实现递归
+    private static Info process(TreeNode root) {
+        if (root == null) return null;
+        Info leftInfo = process(root.left);
+        Info rightInfo = process(root.right);
 
-		public Info(boolean i, int ma, int mi) {
-			isBST = i;
-			max = ma;
-			min = mi;
-		}
+        boolean bst = true;
+        int max = root.val;
+        int min = root.val;
+        if (leftInfo != null) {
+            min = Math.min(min, leftInfo.min);
+            max = Math.max(max, leftInfo.max);
+            bst = leftInfo.bst && leftInfo.max < root.val;
+        }
+        if (rightInfo != null) {
+            min = Math.min(min, rightInfo.min);
+            max = Math.max(max, rightInfo.max);
+            bst = bst & (rightInfo.bst && rightInfo.min > root.val);
+        }
 
-	}
+        return new Info(bst, min, max);
+    }
 
-	public static Info process(Node x) {
-		if (x == null) {
-			return null;
-		}
-		Info leftInfo = process(x.left);
-		Info rightInfo = process(x.right);
-		int max = x.value;
-		if (leftInfo != null) {
-			max = Math.max(max, leftInfo.max);
-		}
-		if (rightInfo != null) {
-			max = Math.max(max, rightInfo.max);
-		}
-		int min = x.value;
-		if (leftInfo != null) {
-			min = Math.min(min, leftInfo.min);
-		}
-		if (rightInfo != null) {
-			min = Math.min(min, rightInfo.min);
-		}
-		boolean isBST = true;
-		if (leftInfo != null && !leftInfo.isBST) {
-			isBST = false;
-		}
-		if (rightInfo != null && !rightInfo.isBST) {
-			isBST = false;
-		}
-		if (leftInfo != null && leftInfo.max >= x.value) {
-			isBST = false;
-		}
-		if (rightInfo != null && rightInfo.min <= x.value) {
-			isBST = false;
-		}
-		return new Info(isBST, max, min);
-	}
-
-	// for test
-	public static Node generateRandomBST(int maxLevel, int maxValue) {
-		return generate(1, maxLevel, maxValue);
-	}
-
-	// for test
-	public static Node generate(int level, int maxLevel, int maxValue) {
-		if (level > maxLevel || Math.random() < 0.5) {
-			return null;
-		}
-		Node head = new Node((int) (Math.random() * maxValue));
-		head.left = generate(level + 1, maxLevel, maxValue);
-		head.right = generate(level + 1, maxLevel, maxValue);
-		return head;
-	}
-
-	public static void main(String[] args) {
-		int maxLevel = 4;
-		int maxValue = 100;
-		int testTimes = 1000000;
-		for (int i = 0; i < testTimes; i++) {
-			Node head = generateRandomBST(maxLevel, maxValue);
-			if (isBST1(head) != isBST2(head)) {
-				System.out.println("Oops!");
-			}
-		}
-		System.out.println("finish!");
-	}
-
+    public static void main(String[] args) {
+        int maxLevel = 4;
+        int maxVal = 100;
+        int testTimes = 1000000;
+        for (int i = 0; i < testTimes; i++) {
+            TreeNode root = generateRandomBST(maxLevel, maxVal);
+            if (isBstByInOrder(root) != isBst(root)) {
+                System.out.println("Oops!");
+            }
+        }
+        System.out.println("finish!");
+    }
 }

@@ -1,167 +1,107 @@
 package com.yw.advance.course.class12;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import com.yw.entity.TreeNode;
 
+import java.util.*;
+
+import static com.yw.util.CommonUtils.generateRandomBST;
+
+/**
+ * @author yangwei
+ */
 public class Code06_MaxDistance {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
-
-		public Node(int data) {
-			this.value = data;
-		}
-	}
-
-	public static int maxDistance1(Node head) {
-		if (head == null) {
-			return 0;
-		}
-		ArrayList<Node> arr = getPrelist(head);
-		HashMap<Node, Node> parentMap = getParentMap(head);
+	// 方法一：暴力穷举任意两个节点之间的距离
+	public static int getMaxDistance(TreeNode root) {
+		if (root == null) return 0;
+		// 先序遍历，拿到所有节点 List
+		List<TreeNode> nodes = new ArrayList<>();
+		preOrder(root, nodes);
+		// 获取每个节点与父节点的映射关系 Map
+		Map<TreeNode, TreeNode> nodeMap = new HashMap<>();
+		fillNodeMap(root, nodeMap);
+		// 暴力求两个节点之间的距离，从中求一个最大值
 		int max = 0;
-		for (int i = 0; i < arr.size(); i++) {
-			for (int j = i; j < arr.size(); j++) {
-				max = Math.max(max, distance(parentMap, arr.get(i), arr.get(j)));
+		for (int i = 0; i < nodes.size(); i++) {
+			for (int j = i; j < nodes.size(); j++) {
+				max = Math.max(max, getDistance(nodes.get(i), nodes.get(j), nodeMap));
 			}
 		}
 		return max;
 	}
-
-	public static ArrayList<Node> getPrelist(Node head) {
-		ArrayList<Node> arr = new ArrayList<>();
-		fillPrelist(head, arr);
-		return arr;
+	private static void preOrder(TreeNode root, List<TreeNode> nodes) {
+		if (root == null) return;
+		nodes.add(root);
+		preOrder(root.left, nodes);
+		preOrder(root.right, nodes);
 	}
-
-	public static void fillPrelist(Node head, ArrayList<Node> arr) {
-		if (head == null) {
-			return;
+	private static void fillNodeMap(TreeNode root, Map<TreeNode, TreeNode> nodeMap) {
+		if (root == null) return;
+		if (root.left != null) {
+			nodeMap.put(root.left, root);
+			fillNodeMap(root.left, nodeMap);
 		}
-		arr.add(head);
-		fillPrelist(head.left, arr);
-		fillPrelist(head.right, arr);
-	}
-
-	public static HashMap<Node, Node> getParentMap(Node head) {
-		HashMap<Node, Node> map = new HashMap<>();
-		map.put(head, null);
-		fillParentMap(head, map);
-		return map;
-	}
-
-	public static void fillParentMap(Node head, HashMap<Node, Node> parentMap) {
-		if (head.left != null) {
-			parentMap.put(head.left, head);
-			fillParentMap(head.left, parentMap);
-		}
-		if (head.right != null) {
-			parentMap.put(head.right, head);
-			fillParentMap(head.right, parentMap);
+		if (root.right != null) {
+			nodeMap.put(root.right, root);
+			fillNodeMap(root.right, nodeMap);
 		}
 	}
-
-	public static int distance(HashMap<Node, Node> parentMap, Node o1, Node o2) {
-		HashSet<Node> o1Set = new HashSet<>();
-		Node cur = o1;
-		o1Set.add(cur);
-		while (parentMap.get(cur) != null) {
-			cur = parentMap.get(cur);
-			o1Set.add(cur);
+	private static int getDistance(TreeNode node1, TreeNode node2, Map<TreeNode, TreeNode> nodeMap) {
+		// 先拿到node1的所有祖先节点
+		Set<TreeNode> nodeSet = new HashSet<>();
+		nodeSet.add(node1);
+		TreeNode cur = node1;
+		while (nodeMap.containsKey(cur)) {
+			cur = nodeMap.get(cur);
+			nodeSet.add(cur);
 		}
-		cur = o2;
-		while (!o1Set.contains(cur)) {
-			cur = parentMap.get(cur);
-		}
-		Node lowestAncestor = cur;
-		cur = o1;
-		int distance1 = 1;
+		// 获取最近公共祖先节点
+		TreeNode lowestAncestor = node2;
+		while (!nodeSet.contains(lowestAncestor)) lowestAncestor = nodeMap.get(lowestAncestor);
+		// 分别求node1、node2到公共祖先节点的距离
+		int dis1 = 1, dis2 = 1;
+		cur = node1;
 		while (cur != lowestAncestor) {
-			cur = parentMap.get(cur);
-			distance1++;
+			cur = nodeMap.get(cur);
+			dis1++;
 		}
-		cur = o2;
-		int distance2 = 1;
+		cur = node2;
 		while (cur != lowestAncestor) {
-			cur = parentMap.get(cur);
-			distance2++;
+			cur = nodeMap.get(cur);
+			dis2++;
 		}
-		return distance1 + distance2 - 1;
+		return dis1 + dis2 - 1;
 	}
-
-//	public static int maxDistance2(Node head) {
-//		return process(head).maxDistance;
-//	}
-//
-//	public static class Info {
-//		public int maxDistance;
-//		public int height;
-//
-//		public Info(int dis, int h) {
-//			maxDistance = dis;
-//			height = h;
-//		}
-//	}
-//
-//	public static Info process(Node X) {
-//		if (X == null) {
-//			return new Info(0, 0);
-//		}
-//		Info leftInfo = process(X.left);
-//		Info rightInfo = process(X.right);
-//		int height = Math.max(leftInfo.height, rightInfo.height) + 1;
-//		int maxDistance = Math.max(
-//				Math.max(leftInfo.maxDistance, rightInfo.maxDistance),
-//				leftInfo.height + rightInfo.height + 1);
-//		return new Info(maxDistance, height);
-//	}
-
-	public static int maxDistance2(Node head) {
-		return process(head).maxDistance;
+	// 方法二：基于递归套路
+	public static int maxDistance(TreeNode root) {
+		return process(root).maxDistance;
 	}
-
-	public static class Info {
-		public int maxDistance;
-		public int height;
-
-		public Info(int m, int h) {
-			maxDistance = m;
-			height = h;
+	// 1. 封装信息
+	private static class Info {
+		int maxDistance;
+		int height;
+		public Info(int maxDistance, int height) {
+			this.maxDistance = maxDistance;
+			this.height = height;
 		}
-
 	}
+	// 2. 处理递归
+	private static Info process(TreeNode root) {
+		if (root == null) return new Info(0, 0);
+		Info leftInfo = process(root.left);
+		Info rightInfo = process(root.right);
 
-	public static Info process(Node x) {
-		if (x == null) {
-			return new Info(0, 0);
-		}
-		Info leftInfo = process(x.left);
-		Info rightInfo = process(x.right);
 		int height = Math.max(leftInfo.height, rightInfo.height) + 1;
-		int p1 = leftInfo.maxDistance;
-		int p2 = rightInfo.maxDistance;
-		int p3 = leftInfo.height + rightInfo.height + 1;
-		int maxDistance = Math.max(Math.max(p1, p2), p3);
+		/**
+		 * 1. 左子树 maxDistance
+		 * 2. 右子树 maxDistance
+		 * 3. 左子树最远(maxHeight) + 根节点 + 右子树最远(maxHeight)
+		 * 三者求一个最大值
+		 */
+		int maxDistance = Math.max(Math.max(leftInfo.maxDistance, rightInfo.maxDistance),
+				leftInfo.height + rightInfo.height + 1);
+
 		return new Info(maxDistance, height);
-	}
-
-	// for test
-	public static Node generateRandomBST(int maxLevel, int maxValue) {
-		return generate(1, maxLevel, maxValue);
-	}
-
-	// for test
-	public static Node generate(int level, int maxLevel, int maxValue) {
-		if (level > maxLevel || Math.random() < 0.5) {
-			return null;
-		}
-		Node head = new Node((int) (Math.random() * maxValue));
-		head.left = generate(level + 1, maxLevel, maxValue);
-		head.right = generate(level + 1, maxLevel, maxValue);
-		return head;
 	}
 
 	public static void main(String[] args) {
@@ -169,12 +109,14 @@ public class Code06_MaxDistance {
 		int maxValue = 100;
 		int testTimes = 1000000;
 		for (int i = 0; i < testTimes; i++) {
-			Node head = generateRandomBST(maxLevel, maxValue);
-			if (maxDistance1(head) != maxDistance2(head)) {
+			TreeNode root = generateRandomBST(maxLevel, maxValue);
+			int ans1 = getMaxDistance(root);
+			int ans2 = maxDistance(root);
+			if (ans1 != ans2) {
+				System.out.println(ans1 + " " + ans2);
 				System.out.println("Oops!");
 			}
 		}
 		System.out.println("finish!");
 	}
-
 }

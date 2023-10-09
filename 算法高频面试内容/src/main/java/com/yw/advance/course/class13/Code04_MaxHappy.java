@@ -3,23 +3,22 @@ package com.yw.advance.course.class13;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Code04_MaxHappy {
 
-	public static class Employee {
-		public int happy;
-		public List<Employee> nexts;
-
+	private static class Employee {
+		int happy;
+		List<Employee> subordinates;
 		public Employee(int h) {
 			happy = h;
-			nexts = new ArrayList<>();
+			subordinates = new ArrayList<>();
 		}
-
 	}
 
 	public static int maxHappy1(Employee boss) {
-		if (boss == null) {
-			return 0;
-		}
+		if (boss == null) return 0;
 		return process1(boss, false);
 	}
 
@@ -31,14 +30,14 @@ public class Code04_MaxHappy {
 	public static int process1(Employee cur, boolean up) {
 		if (up) { // 如果cur的上级来的话，cur没得选，只能不来
 			int ans = 0;
-			for (Employee next : cur.nexts) {
+			for (Employee next : cur.subordinates) {
 				ans += process1(next, false);
 			}
 			return ans;
 		} else { // 如果cur的上级不来的话，cur可以选，可以来也可以不来
 			int p1 = cur.happy;
 			int p2 = 0;
-			for (Employee next : cur.nexts) {
+			for (Employee next : cur.subordinates) {
 				p1 += process1(next, true);
 				p2 += process1(next, false);
 			}
@@ -46,67 +45,59 @@ public class Code04_MaxHappy {
 		}
 	}
 
-	public static int maxHappy2(Employee head) {
-		Info allInfo = process(head);
+	public static int maxHappy(Employee root) {
+		Info allInfo = process(root);
 		return Math.max(allInfo.no, allInfo.yes);
 	}
-
-	public static class Info {
-		public int no;
-		public int yes;
-
+	private static class Info {
+		int no;
+		int yes;
 		public Info(int n, int y) {
 			no = n;
 			yes = y;
 		}
 	}
-
-	public static Info process(Employee x) {
-		if (x == null) {
-			return new Info(0, 0);
-		}
+	private static Info process(Employee root) {
+		if (root == null) return new Info(0, 0);
 		int no = 0;
-		int yes = x.happy;
-		for (Employee next : x.nexts) {
-			Info nextInfo = process(next);
+		int yes = root.happy;
+		for (Employee employee : root.subordinates) {
+			Info nextInfo = process(employee);
 			no += Math.max(nextInfo.no, nextInfo.yes);
 			yes += nextInfo.no;
-
 		}
 		return new Info(no, yes);
 	}
 
 	// for test
-	public static Employee genarateBoss(int maxLevel, int maxNexts, int maxHappy) {
+	public static Employee generateBoss(int maxLevel, int maxSubordinates, int maxHappy) {
 		if (Math.random() < 0.02) {
 			return null;
 		}
 		Employee boss = new Employee((int) (Math.random() * (maxHappy + 1)));
-		genarateNexts(boss, 1, maxLevel, maxNexts, maxHappy);
+		generateSubordinates(boss, 1, maxLevel, maxSubordinates, maxHappy);
 		return boss;
 	}
 
 	// for test
-	public static void genarateNexts(Employee e, int level, int maxLevel, int maxNexts, int maxHappy) {
-		if (level > maxLevel) {
-			return;
-		}
-		int nextsSize = (int) (Math.random() * (maxNexts + 1));
-		for (int i = 0; i < nextsSize; i++) {
+	public static void generateSubordinates(Employee e, int level, int maxLevel, int maxSubordinates, int maxHappy) {
+		if (level > maxLevel) return;
+		int subordinatesSize = (int) (Math.random() * (maxSubordinates + 1));
+		for (int i = 0; i < subordinatesSize; i++) {
 			Employee next = new Employee((int) (Math.random() * (maxHappy + 1)));
-			e.nexts.add(next);
-			genarateNexts(next, level + 1, maxLevel, maxNexts, maxHappy);
+			e.subordinates.add(next);
+			generateSubordinates(next, level + 1, maxLevel, maxSubordinates, maxHappy);
 		}
 	}
 
 	public static void main(String[] args) {
 		int maxLevel = 4;
-		int maxNexts = 7;
+		int maxSubordinates = 7;
 		int maxHappy = 100;
 		int testTimes = 100000;
 		for (int i = 0; i < testTimes; i++) {
-			Employee boss = genarateBoss(maxLevel, maxNexts, maxHappy);
-			if (maxHappy1(boss) != maxHappy2(boss)) {
+			Employee boss = generateBoss(maxLevel, maxSubordinates, maxHappy);
+			if (maxHappy1(boss) != maxHappy(boss)) {
 				System.out.println("Oops!");
 			}
 		}

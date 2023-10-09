@@ -1,126 +1,79 @@
 package com.yw.advance.course.class13;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import com.yw.entity.TreeNode;
 
+import java.util.*;
+
+import static com.yw.util.CommonUtils.generateRandomBST;
+import static com.yw.util.CommonUtils.pickRandomOne;
+
+/**
+ * @author yangwei
+ */
 public class Code03_lowestAncestor {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
-
-		public Node(int data) {
-			this.value = data;
+	// 方法一：利用HashMap记录每个节点的父节点
+	public static TreeNode lowestCommonAncestorByMap(TreeNode root, TreeNode node1, TreeNode node2) {
+		if (root == null) return null;
+		Map<TreeNode, TreeNode> nodeMap = new HashMap<>();
+		fillNodeMap(root, nodeMap);
+		// 先拿到node1的所有祖先节点
+		Set<TreeNode> nodeSet = new HashSet<>();
+		nodeSet.add(node1);
+		TreeNode cur = node1;
+		while (nodeMap.containsKey(cur)) {
+			cur = nodeMap.get(cur);
+			nodeSet.add(cur);
 		}
-	}
-
-	public static Node lowestAncestor1(Node head, Node o1, Node o2) {
-		if (head == null) {
-			return null;
-		}
-		// key的父节点是value
-		HashMap<Node, Node> parentMap = new HashMap<>();
-		parentMap.put(head, null);
-		fillParentMap(head, parentMap);
-		HashSet<Node> o1Set = new HashSet<>();
-		Node cur = o1;
-		o1Set.add(cur);
-		while (parentMap.get(cur) != null) {
-			cur = parentMap.get(cur);
-			o1Set.add(cur);
-		}
-		cur = o2;
-		while (!o1Set.contains(cur)) {
-			cur = parentMap.get(cur);
+		// 依次找node2的祖先节点，找到最近公共祖先节点
+		cur = node2;
+		while (!nodeSet.contains(cur)) {
+			cur = nodeMap.get(cur);
 		}
 		return cur;
 	}
-
-	public static void fillParentMap(Node head, HashMap<Node, Node> parentMap) {
-		if (head.left != null) {
-			parentMap.put(head.left, head);
-			fillParentMap(head.left, parentMap);
+	private static void fillNodeMap(TreeNode root, Map<TreeNode, TreeNode> nodeMap) {
+		if (root == null) return;
+		if (root.left != null) {
+			nodeMap.put(root.left, root);
+			fillNodeMap(root.left, nodeMap);
 		}
-		if (head.right != null) {
-			parentMap.put(head.right, head);
-			fillParentMap(head.right, parentMap);
-		}
-	}
-
-	public static Node lowestAncestor2(Node head, Node a, Node b) {
-		return process(head, a, b).ans;
-	}
-
-	public static class Info {
-		public boolean findA;
-		public boolean findB;
-		public Node ans;
-
-		public Info(boolean fA, boolean fB, Node an) {
-			findA = fA;
-			findB = fB;
-			ans = an;
+		if (root.right != null) {
+			nodeMap.put(root.right, root);
+			fillNodeMap(root.right, nodeMap);
 		}
 	}
-
-	public static Info process(Node x, Node a, Node b) {
-		if (x == null) {
-			return new Info(false, false, null);
-		}
-		Info leftInfo = process(x.left, a, b);
-		Info rightInfo = process(x.right, a, b);
-		boolean findA = (x == a) || leftInfo.findA || rightInfo.findA;
-		boolean findB = (x == b) || leftInfo.findB || rightInfo.findB;
-		Node ans = null;
-		if (leftInfo.ans != null) {
-			ans = leftInfo.ans;
-		} else if (rightInfo.ans != null) {
-			ans = rightInfo.ans;
-		} else {
-			if (findA && findB) {
-				ans = x;
-			}
-		}
-		return new Info(findA, findB, ans);
+	// 方法一：基于递归套路
+	public static TreeNode lowestCommonAncestor(TreeNode root, TreeNode node1, TreeNode node2) {
+		return process(root, node1, node2).lowestAncestor;
 	}
-
-	// for test
-	public static Node generateRandomBST(int maxLevel, int maxValue) {
-		return generate(1, maxLevel, maxValue);
-	}
-
-	// for test
-	public static Node generate(int level, int maxLevel, int maxValue) {
-		if (level > maxLevel || Math.random() < 0.5) {
-			return null;
+	// 1. 封装信息
+	private static class Info {
+		boolean find1;
+		boolean find2;
+		TreeNode lowestAncestor;
+		public Info(boolean find1, boolean find2, TreeNode lowestAncestor) {
+			this.find1 = find1;
+			this.find2 = find2;
+			this.lowestAncestor = lowestAncestor;
 		}
-		Node head = new Node((int) (Math.random() * maxValue));
-		head.left = generate(level + 1, maxLevel, maxValue);
-		head.right = generate(level + 1, maxLevel, maxValue);
-		return head;
 	}
+	// 2. 处理递归
+	private static Info process(TreeNode root, TreeNode node1, TreeNode node2) {
+		if (root == null) return new Info(false, false, null);
+		Info leftInfo = process(root.left, node1, node2);
+		Info rightInfo = process(root.right, node1, node2);
 
-	// for test
-	public static Node pickRandomOne(Node head) {
-		if (head == null) {
-			return null;
-		}
-		ArrayList<Node> arr = new ArrayList<>();
-		fillPrelist(head, arr);
-		int randomIndex = (int) (Math.random() * arr.size());
-		return arr.get(randomIndex);
-	}
+		// 找到node1: 就是当前节点、在左子树上 或者 在右子树上
+		boolean find1 = root == node1 || leftInfo.find1 || rightInfo.find1;
+		// 找到node2: 就是当前节点、在左子树上 或者 在右子树上
+		boolean find2 = root == node2 || leftInfo.find2 || rightInfo.find2;
+		TreeNode lowestAncestor = null;
+		if (leftInfo.lowestAncestor != null) lowestAncestor = leftInfo.lowestAncestor;
+		else if (rightInfo.lowestAncestor != null) lowestAncestor = rightInfo.lowestAncestor;
+		else if (find1 && find2) lowestAncestor = root;
 
-	// for test
-	public static void fillPrelist(Node head, ArrayList<Node> arr) {
-		if (head == null) {
-			return;
-		}
-		arr.add(head);
-		fillPrelist(head.left, arr);
-		fillPrelist(head.right, arr);
+		return new Info(find1, find2, lowestAncestor);
 	}
 
 	public static void main(String[] args) {
@@ -128,10 +81,10 @@ public class Code03_lowestAncestor {
 		int maxValue = 100;
 		int testTimes = 1000000;
 		for (int i = 0; i < testTimes; i++) {
-			Node head = generateRandomBST(maxLevel, maxValue);
-			Node o1 = pickRandomOne(head);
-			Node o2 = pickRandomOne(head);
-			if (lowestAncestor1(head, o1, o2) != lowestAncestor2(head, o1, o2)) {
+			TreeNode head = generateRandomBST(maxLevel, maxValue);
+			TreeNode o1 = pickRandomOne(head);
+			TreeNode o2 = pickRandomOne(head);
+			if (lowestCommonAncestorByMap(head, o1, o2) != lowestCommonAncestor(head, o1, o2)) {
 				System.out.println("Oops!");
 			}
 		}

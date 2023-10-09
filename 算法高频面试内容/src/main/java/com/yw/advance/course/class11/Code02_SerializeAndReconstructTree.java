@@ -1,8 +1,11 @@
 package com.yw.advance.course.class11;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
+import com.yw.entity.TreeNode;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.yw.util.CommonUtils.*;
 
 public class Code02_SerializeAndReconstructTree {
     /*
@@ -19,246 +22,190 @@ public class Code02_SerializeAndReconstructTree {
      *          \
      *           2
      * 补足空位置的中序遍历结果都是{ null, 1, null, 2, null}
-     *       
+     *
      * */
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
+    // 先序序列化
+    public static List<Integer> serialByPreOrder(TreeNode root) {
+        List<Integer> result = new LinkedList<>();
+        preOrder(root, result);
+        return result;
+    }
+    private static void preOrder(TreeNode root, List<Integer> result) {
+        if (root == null) result.add(null);
+        else {
+            result.add(root.val);
+            preOrder(root.left, result);
+            preOrder(root.right, result);
+        }
+    }
+    // 先序反序列化
+    public static TreeNode deserialByPreOrder(List<Integer> preOrderList) {
+        if (preOrderList == null || preOrderList.size() == 0) return null;
 
-		public Node(int data) {
-			this.value = data;
-		}
-	}
+        return preOrder(preOrderList);
+    }
+    private static TreeNode preOrder(List<Integer> preOrderList) {
+        Integer val = preOrderList.remove(0);
+        if (val == null) return null;
+        TreeNode root = new TreeNode(val);
+        root.left = preOrder(preOrderList);
+        root.right = preOrder(preOrderList);
+        return root;
+    }
 
-	public static Queue<String> preSerial(Node head) {
-		Queue<String> ans = new LinkedList<>();
-		pres(head, ans);
-		return ans;
-	}
+//    public static Queue<String> inSerial(TreeNode root) {
+//        Queue<String> ans = new LinkedList<>();
+//        ins(root, ans);
+//        return ans;
+//    }
 
-	public static void pres(Node head, Queue<String> ans) {
-		if (head == null) {
-			ans.add(null);
-		} else {
-			ans.add(String.valueOf(head.value));
-			pres(head.left, ans);
-			pres(head.right, ans);
-		}
-	}
+//    public static void ins(TreeNode root, Queue<String> ans) {
+//        if (root == null) {
+//            ans.add(null);
+//        } else {
+//            ins(root.left, ans);
+//            ans.add(String.valueOf(root.val));
+//            ins(root.right, ans);
+//        }
+//    }
 
-	public static Queue<String> inSerial(Node head) {
-		Queue<String> ans = new LinkedList<>();
-		ins(head, ans);
-		return ans;
-	}
+    // 后序序列化
+    public static List<Integer> serialByPostOrder(TreeNode root) {
+        List<Integer> result = new LinkedList<>();
+        postOrder(root, result);
+        return result;
+    }
+    private static void postOrder(TreeNode root, List<Integer> result) {
+        if (root == null) result.add(null);
+        else {
+            postOrder(root.left, result);
+            postOrder(root.right, result);
+            result.add(root.val);
+        }
+    }
+    // 后序反序列化
+    public static TreeNode deserialByPostOrder(List<Integer> postOrderList) {
+        if (postOrderList == null || postOrderList.size() == 0) return null;
 
-	public static void ins(Node head, Queue<String> ans) {
-		if (head == null) {
-			ans.add(null);
-		} else {
-			ins(head.left, ans);
-			ans.add(String.valueOf(head.value));
-			ins(head.right, ans);
-		}
-	}
+        return postOrder(postOrderList);
+    }
+    private static TreeNode postOrder(List<Integer> postOrderList) {
+        // postOrderList 从左往右是 `左右根`，反过来就是 `根右左`
+        Integer val = postOrderList.remove(postOrderList.size() - 1);
+        if (val == null) return null;
+        TreeNode root = new TreeNode(val);
+        root.right = postOrder(postOrderList);
+        root.left = postOrder(postOrderList);
+        return root;
+    }
 
-	public static Queue<String> posSerial(Node head) {
-		Queue<String> ans = new LinkedList<>();
-		poss(head, ans);
-		return ans;
-	}
+    // 层序序列化
+    public static List<Integer> serialByLevelOrder(TreeNode root) {
+        List<List<Integer>> result = new LinkedList<>();
+        levelOrder(root, 0, result);
+        return result.stream().filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+    private static void levelOrder(TreeNode root, int level, List<List<Integer>> result) {
+        if (level == result.size()) result.add(new LinkedList<>());
+        if (root == null) result.get(level).add(null);
+        else {
+            result.get(level).add(root.val);
+            levelOrder(root.left, level + 1, result);
+            levelOrder(root.right, level + 1, result);
+        }
+    }
+    // 层序反序列化
+    public static TreeNode deserialBylevelOrder(List<Integer> levelOrderList) {
+        if (levelOrderList == null || levelOrderList.size() == 0) return null;
+        TreeNode root = generateTreeNode(levelOrderList.remove(0));
+        Queue<TreeNode> queue = new LinkedList<>();
+        if (root != null) queue.offer(root);
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            node.left = generateTreeNode(levelOrderList.remove(0));
+            node.right = generateTreeNode(levelOrderList.remove(0));
+            if (node.left != null) queue.add(node.left);
+            if (node.right != null) queue.add(node.right);
+        }
+        return root;
+    }
+    public static TreeNode generateTreeNode(Integer val) {
+        if (val == null) return null;
+        return new TreeNode(val);
+    }
+//    public static Queue<String> levelSerial(TreeNode root) {
+//        Queue<String> ans = new LinkedList<>();
+//        if (root == null) {
+//            ans.add(null);
+//        } else {
+//            ans.add(String.valueOf(root.val));
+//            Queue<TreeNode> queue = new LinkedList<>();
+//            queue.add(root);
+//            while (!queue.isEmpty()) {
+//                root = queue.poll(); // root 父   子
+//                if (root.left != null) {
+//                    ans.add(String.valueOf(root.left.val));
+//                    queue.add(root.left);
+//                } else {
+//                    ans.add(null);
+//                }
+//                if (root.right != null) {
+//                    ans.add(String.valueOf(root.right.val));
+//                    queue.add(root.right);
+//                } else {
+//                    ans.add(null);
+//                }
+//            }
+//        }
+//        return ans;
+//    }
+//
+//    public static TreeNode buildByLevelQueue(Queue<String> levelList) {
+//        if (levelList == null || levelList.size() == 0) {
+//            return null;
+//        }
+//        TreeNode root = generateTreeNode(levelList.poll());
+//        Queue<TreeNode> queue = new LinkedList<>();
+//        if (root != null) {
+//            queue.add(root);
+//        }
+//        TreeNode TreeNode = null;
+//        while (!queue.isEmpty()) {
+//            TreeNode = queue.poll();
+//            TreeNode.left = generateTreeNode(levelList.poll());
+//            TreeNode.right = generateTreeNode(levelList.poll());
+//            if (TreeNode.left != null) {
+//                queue.add(TreeNode.left);
+//            }
+//            if (TreeNode.right != null) {
+//                queue.add(TreeNode.right);
+//            }
+//        }
+//        return root;
+//    }
 
-	public static void poss(Node head, Queue<String> ans) {
-		if (head == null) {
-			ans.add(null);
-		} else {
-			poss(head.left, ans);
-			poss(head.right, ans);
-			ans.add(String.valueOf(head.value));
-		}
-	}
+    public static void main(String[] args) {
+        int maxLevel = 5;
+        int maxVal = 100;
+//        int testTimes = 1;
+        int testTimes = 1000000;
+        System.out.println("test begin");
+        for (int i = 0; i < testTimes; i++) {
+            TreeNode root = generateRandomBST(maxLevel, maxVal);
 
-	public static Node buildByPreQueue(Queue<String> prelist) {
-		if (prelist == null || prelist.size() == 0) {
-			return null;
-		}
-		return preb(prelist);
-	}
+            // 序列化
+            List<Integer> preOrderList = serialByPreOrder(root);
+            List<Integer> postOrderList = serialByPostOrder(root);
+            List<Integer> levelOrderList = serialByLevelOrder(root);
+            // 反序列化
+            TreeNode buildTreeByPreOrder = deserialByPreOrder(preOrderList);
+            TreeNode buildTreeByPostOrder = deserialByPostOrder(postOrderList);
+            TreeNode buildTreeByLevelOrder = deserialBylevelOrder(levelOrderList);
+            if (!isSameValStructure(buildTreeByPreOrder, buildTreeByPostOrder) || !isSameValStructure(buildTreeByPostOrder, buildTreeByLevelOrder)) {
+                System.out.println("Oops!");
+            }
+        }
+        System.out.println("test finish!");
 
-	public static Node preb(Queue<String> prelist) {
-		String value = prelist.poll();
-		if (value == null) {
-			return null;
-		}
-		Node head = new Node(Integer.valueOf(value));
-		head.left = preb(prelist);
-		head.right = preb(prelist);
-		return head;
-	}
-
-	public static Node buildByPosQueue(Queue<String> poslist) {
-		if (poslist == null || poslist.size() == 0) {
-			return null;
-		}
-		// 左右中  ->  stack(中右左)
-		Stack<String> stack = new Stack<>();
-		while (!poslist.isEmpty()) {
-			stack.push(poslist.poll());
-		}
-		return posb(stack);
-	}
-
-	public static Node posb(Stack<String> posstack) {
-		String value = posstack.pop();
-		if (value == null) {
-			return null;
-		}
-		Node head = new Node(Integer.valueOf(value));
-		head.right = posb(posstack);
-		head.left = posb(posstack);
-		return head;
-	}
-
-	public static Queue<String> levelSerial(Node head) {
-		Queue<String> ans = new LinkedList<>();
-		if (head == null) {
-			ans.add(null);
-		} else {
-			ans.add(String.valueOf(head.value));
-			Queue<Node> queue = new LinkedList<Node>();
-			queue.add(head);
-			while (!queue.isEmpty()) {
-				head = queue.poll(); // head 父   子
-				if (head.left != null) {
-					ans.add(String.valueOf(head.left.value));
-					queue.add(head.left);
-				} else {
-					ans.add(null);
-				}
-				if (head.right != null) {
-					ans.add(String.valueOf(head.right.value));
-					queue.add(head.right);
-				} else {
-					ans.add(null);
-				}
-			}
-		}
-		return ans;
-	}
-
-	public static Node buildByLevelQueue(Queue<String> levelList) {
-		if (levelList == null || levelList.size() == 0) {
-			return null;
-		}
-		Node head = generateNode(levelList.poll());
-		Queue<Node> queue = new LinkedList<Node>();
-		if (head != null) {
-			queue.add(head);
-		}
-		Node node = null;
-		while (!queue.isEmpty()) {
-			node = queue.poll();
-			node.left = generateNode(levelList.poll());
-			node.right = generateNode(levelList.poll());
-			if (node.left != null) {
-				queue.add(node.left);
-			}
-			if (node.right != null) {
-				queue.add(node.right);
-			}
-		}
-		return head;
-	}
-
-	public static Node generateNode(String val) {
-		if (val == null) {
-			return null;
-		}
-		return new Node(Integer.valueOf(val));
-	}
-
-	// for test
-	public static Node generateRandomBST(int maxLevel, int maxValue) {
-		return generate(1, maxLevel, maxValue);
-	}
-
-	// for test
-	public static Node generate(int level, int maxLevel, int maxValue) {
-		if (level > maxLevel || Math.random() < 0.5) {
-			return null;
-		}
-		Node head = new Node((int) (Math.random() * maxValue));
-		head.left = generate(level + 1, maxLevel, maxValue);
-		head.right = generate(level + 1, maxLevel, maxValue);
-		return head;
-	}
-
-	// for test
-	public static boolean isSameValueStructure(Node head1, Node head2) {
-		if (head1 == null && head2 != null) {
-			return false;
-		}
-		if (head1 != null && head2 == null) {
-			return false;
-		}
-		if (head1 == null && head2 == null) {
-			return true;
-		}
-		if (head1.value != head2.value) {
-			return false;
-		}
-		return isSameValueStructure(head1.left, head2.left) && isSameValueStructure(head1.right, head2.right);
-	}
-
-	// for test
-	public static void printTree(Node head) {
-		System.out.println("Binary Tree:");
-		printInOrder(head, 0, "H", 17);
-		System.out.println();
-	}
-
-	public static void printInOrder(Node head, int height, String to, int len) {
-		if (head == null) {
-			return;
-		}
-		printInOrder(head.right, height + 1, "v", len);
-		String val = to + head.value + to;
-		int lenM = val.length();
-		int lenL = (len - lenM) / 2;
-		int lenR = len - lenM - lenL;
-		val = getSpace(lenL) + val + getSpace(lenR);
-		System.out.println(getSpace(height * len) + val);
-		printInOrder(head.left, height + 1, "^", len);
-	}
-
-	public static String getSpace(int num) {
-		String space = " ";
-		StringBuffer buf = new StringBuffer("");
-		for (int i = 0; i < num; i++) {
-			buf.append(space);
-		}
-		return buf.toString();
-	}
-
-	public static void main(String[] args) {
-		int maxLevel = 5;
-		int maxValue = 100;
-		int testTimes = 1000000;
-		System.out.println("test begin");
-		for (int i = 0; i < testTimes; i++) {
-			Node head = generateRandomBST(maxLevel, maxValue);
-			Queue<String> pre = preSerial(head);
-			Queue<String> pos = posSerial(head);
-			Queue<String> level = levelSerial(head);
-			Node preBuild = buildByPreQueue(pre);
-			Node posBuild = buildByPosQueue(pos);
-			Node levelBuild = buildByLevelQueue(level);
-			if (!isSameValueStructure(preBuild, posBuild) || !isSameValueStructure(posBuild, levelBuild)) {
-				System.out.println("Oops!");
-			}
-		}
-		System.out.println("test finish!");
-		
-	}
+    }
 }

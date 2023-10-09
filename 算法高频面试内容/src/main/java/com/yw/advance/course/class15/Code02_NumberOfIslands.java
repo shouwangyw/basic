@@ -5,30 +5,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
-// 本题为leetcode原题
-// 测试链接：https://leetcode.com/problems/number-of-islands/
-// 所有方法都可以直接通过
+/**
+ * 测试链接：https://leetcode.cn/problems/number-of-islands/
+ * @author yangwei
+ */
 public class Code02_NumberOfIslands {
 
-	public static int numIslands3(char[][] board) {
+	// 方法一：暴力
+	public static int numIslandsTest(char[][] grid) {
 		int islands = 0;
-		for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board[0].length; j++) {
-				if (board[i][j] == '1') {
+		for (int i = 0; i < grid.length; i++) {
+			for (int j = 0; j < grid[0].length; j++) {
+				if (grid[i][j] == '1') {
 					islands++;
-					infect(board, i, j);
+					infect(grid, i, j);
 				}
 			}
 		}
 		return islands;
 	}
-
 	// 从(i,j)这个位置出发，把所有练成一片的'1'字符，变成0
-	public static void infect(char[][] board, int i, int j) {
-		if (i < 0 || i == board.length || j < 0 || j == board[0].length || board[i][j] != '1') {
-			return;
-		}
+	private static void infect(char[][] board, int i, int j) {
+		if (i < 0 || i == board.length || j < 0 || j == board[0].length || board[i][j] != '1') return;
 		board[i][j] = 0;
+		// 上下左右 四个方向都需要染色
 		infect(board, i - 1, j);
 		infect(board, i + 1, j);
 		infect(board, i, j - 1);
@@ -167,6 +167,45 @@ public class Code02_NumberOfIslands {
 		return uf.sets();
 	}
 
+	public static class UnionFind {
+		private int[] fa;
+		public UnionFind(int n) {
+			fa = new int[n + 1];
+			for (int i = 0; i <= n; i++) fa[i] = i;
+		}
+		public int find(int x) {
+			return fa[x] = fa[x] == x ? x : find(fa[x]);
+		}
+		public void union(int a, int b) {
+			fa[find(a)] = find(b);
+		}
+	}
+	int col;
+	public static int numIslands(char[][] grid) {
+		int row = grid.length, col = grid[0].length;
+		UnionFind uf = new UnionFind(row * col);
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				if (grid[i][j] == '0') continue;
+				if (i > 0 && grid[i - 1][j] == '1')
+					uf.union(idx(i, j, col), idx(i - 1, j, col));
+				if (j > 0 && grid[i][j - 1] == '1')
+					uf.union(idx(i, j, col), idx(i, j - 1, col));
+			}
+		}
+		int ans = 0;
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				if (grid[i][j] == '1' && uf.find(idx(i, j, col)) == idx(i, j, col))
+					ans++;
+			}
+		}
+		return ans;
+	}
+	private static int idx(int i, int j, int col) {
+		return i * col + j;
+	}
+
 	public static class UnionFind2 {
 		private int[] parent;
 		private int[] size;
@@ -279,7 +318,7 @@ public class Code02_NumberOfIslands {
 		System.out.println("随机生成的二维矩阵规模 : " + row + " * " + col);
 
 		start = System.currentTimeMillis();
-		System.out.println("感染方法的运行结果: " + numIslands3(board1));
+		System.out.println("感染方法的运行结果: " + numIslandsTest(board1));
 		end = System.currentTimeMillis();
 		System.out.println("感染方法的运行时间: " + (end - start) + " ms");
 
@@ -289,7 +328,7 @@ public class Code02_NumberOfIslands {
 		System.out.println("并查集(map实现)的运行时间: " + (end - start) + " ms");
 
 		start = System.currentTimeMillis();
-		System.out.println("并查集(数组实现)的运行结果: " + numIslands2(board3));
+		System.out.println("并查集(数组实现)的运行结果: " + numIslands(board3));
 		end = System.currentTimeMillis();
 		System.out.println("并查集(数组实现)的运行时间: " + (end - start) + " ms");
 
@@ -303,12 +342,12 @@ public class Code02_NumberOfIslands {
 		System.out.println("随机生成的二维矩阵规模 : " + row + " * " + col);
 
 		start = System.currentTimeMillis();
-		System.out.println("感染方法的运行结果: " + numIslands3(board1));
+		System.out.println("感染方法的运行结果: " + numIslandsTest(board1));
 		end = System.currentTimeMillis();
 		System.out.println("感染方法的运行时间: " + (end - start) + " ms");
 
 		start = System.currentTimeMillis();
-		System.out.println("并查集(数组实现)的运行结果: " + numIslands2(board3));
+		System.out.println("并查集(数组实现)的运行结果: " + numIslands(board3));
 		end = System.currentTimeMillis();
 		System.out.println("并查集(数组实现)的运行时间: " + (end - start) + " ms");
 

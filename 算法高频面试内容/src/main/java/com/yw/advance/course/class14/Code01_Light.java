@@ -2,12 +2,14 @@ package com.yw.advance.course.class14;
 
 import java.util.HashSet;
 
+/**
+ * @author yangwei
+ */
 public class Code01_Light {
 
-	public static int minLight1(String road) {
-		if (road == null || road.length() == 0) {
-			return 0;
-		}
+	// 方法一：暴力
+	public static int minLightTest(String road) {
+		if (road == null || road.length() == 0) return 0;
 		return process(road.toCharArray(), 0, new HashSet<>());
 	}
 
@@ -37,36 +39,23 @@ public class Code01_Light {
 		}
 	}
 
-	public static int minLight2(String road) {
+	// 方法二：贪心
+	public static int minLight(String road) {
 		char[] str = road.toCharArray();
 		int i = 0;
 		int light = 0;
 		while (i < str.length) {
-			if (str[i] == 'X') {
-				i++;
-			} else {
+			if (str[i] == 'X') i++;
+			else {
 				light++;
-				if (i + 1 == str.length) {
-					break;
-				} else { // 有i位置  i+ 1   X  .
-					if (str[i + 1] == 'X') {
-						i = i + 2;
-					} else {
-						i = i + 3;
-					}
+				if (i + 1 == str.length) break;
+				else {
+					if (str[i + 1] == 'X') i += 2;
+					else i += 3;
 				}
 			}
 		}
 		return light;
-	}
-
-	// for test
-	public static String randomString(int len) {
-		char[] res = new char[(int) (Math.random() * len) + 1];
-		for (int i = 0; i < res.length; i++) {
-			res[i] = Math.random() < 0.5 ? 'X' : '.';
-		}
-		return String.valueOf(res);
 	}
 
 	public static void main(String[] args) {
@@ -74,12 +63,20 @@ public class Code01_Light {
 		int testTime = 100000;
 		for (int i = 0; i < testTime; i++) {
 			String test = randomString(len);
-			int ans1 = minLight1(test);
-			int ans2 = minLight2(test);
+			int ans1 = minLightTest(test);
+			int ans2 = minLight(test);
 			if (ans1 != ans2) {
 				System.out.println("oops!");
 			}
 		}
 		System.out.println("finish!");
+	}
+
+	private static String randomString(int len) {
+		char[] res = new char[(int) (Math.random() * len) + 1];
+		for (int i = 0; i < res.length; i++) {
+			res[i] = Math.random() < 0.5 ? 'X' : '.';
+		}
+		return String.valueOf(res);
 	}
 }

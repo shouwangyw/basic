@@ -1,240 +1,145 @@
 package com.yw.advance.course.class12;
 
-import java.util.ArrayList;
+import com.yw.entity.TreeNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.yw.util.CommonUtils.generateRandomBST;
+
+/**
+ * @author yangwei
+ */
 public class Code05_MaxSubBSTSize {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
+    // 方法一：普通递归方式
+    public static int getMaxSubBstSizeByInOrder(TreeNode root) {
+        if (root == null) return 0;
+        // 递归求每一颗子树的最大子二叉搜索树大小，分为三种情况：左子树、右子树、包含当前根节点的树
+        int bstSize = getBstSize(root);
+        return Math.max(bstSize, Math.max(getMaxSubBstSizeByInOrder(root.left), getMaxSubBstSizeByInOrder(root.right)));
+    }
+    private static int getBstSize(TreeNode root) {
+        List<Integer> ins = new ArrayList<>();
+        inOrder(root, ins);
+        for (int i = 1; i < ins.size(); i++) {
+            // 如果不是二叉搜索树，返回特殊值0，交给上游处理
+            if (ins.get(i) <= ins.get(i - 1)) return 0;
+        }
+        return ins.size();
+    }
+    private static void inOrder(TreeNode root, List<Integer> ins) {
+        if (root == null) return;
+        inOrder(root.left, ins);
+        ins.add(root.val);
+        inOrder(root.right, ins);
+    }
 
-		public Node(int data) {
-			this.value = data;
-		}
-	}
+    // 方法二：基于递归套路
+    public static int getMaxSubBstSize(TreeNode root) {
+        if (root == null) return 0;
 
-	public static int getBSTSize(Node head) {
-		if (head == null) {
-			return 0;
-		}
-		ArrayList<Node> arr = new ArrayList<>();
-		in(head, arr);
-		for (int i = 1; i < arr.size(); i++) {
-			if (arr.get(i).value <= arr.get(i - 1).value) {
-				return 0;
-			}
-		}
-		return arr.size();
-	}
+        return process(root).maxBstSize;
+//		return process2(root).maxBstSize;
+    }
+    private static class Info {
+        boolean is;    // 是否二叉搜索树
+        int min;        // 子树节点最小值
+        int max;        // 子树节点最大值
+        int size;        // 二叉树节点数量
+        int maxBstSize;    // 最大二叉搜索树节点数量
 
-	public static void in(Node head, ArrayList<Node> arr) {
-		if (head == null) {
-			return;
-		}
-		in(head.left, arr);
-		arr.add(head);
-		in(head.right, arr);
-	}
+        public Info(boolean is, int min, int max, int maxBstSize) {
+            this.is = is;
+            this.min = min;
+            this.max = max;
+            this.maxBstSize = maxBstSize;
+        }
 
-	public static int maxSubBSTSize1(Node head) {
-		if (head == null) {
-			return 0;
-		}
-		int h = getBSTSize(head);
-		if (h != 0) {
-			return h;
-		}
-		return Math.max(maxSubBSTSize1(head.left), maxSubBSTSize1(head.right));
-	}
+        public Info(int min, int max, int size, int maxBstSize) {
+            this.min = min;
+            this.max = max;
+            this.size = size;
+            this.maxBstSize = maxBstSize;
+        }
+    }
+    // 信息处理方式一：基于 is、min、max、maxBstSize
+    private static Info process(TreeNode root) {
+        if (root == null) return null;
+        Info leftInfo = process(root.left);
+        Info rightInfo = process(root.right);
 
-//	public static int maxSubBSTSize2(Node head) {
-//		if (head == null) {
-//			return 0;
-//		}
-//		return process(head).maxSubBSTSize;
-//	}
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	// 任何子树
-//	public static class Info {
-//		public boolean isAllBST;
-//		public int maxSubBSTSize;
-//		public int min;
-//		public int max;
-//
-//		public Info(boolean is, int size, int mi, int ma) {
-//			isAllBST = is;
-//			maxSubBSTSize = size;
-//			min = mi;
-//			max = ma;
-//		}
-//	}
-//	
-//	
-//	
-//	
-//	public static Info process(Node X) {
-//		if(X == null) {
-//			return null;
-//		}
-//		Info leftInfo = process(X.left);
-//		Info rightInfo = process(X.right);
-//		
-//		
-//		
-//		int min = X.value;
-//		int max = X.value;
-//		
-//		if(leftInfo != null) {
-//			min = Math.min(min, leftInfo.min);
-//			max = Math.max(max, leftInfo.max);
-//		}
-//		if(rightInfo != null) {
-//			min = Math.min(min, rightInfo.min);
-//			max = Math.max(max, rightInfo.max);
-//		}
-//		
-//		
-//		
-//		
-//		
-//		
-//
-//		int maxSubBSTSize = 0;
-//		if(leftInfo != null) {
-//			maxSubBSTSize = leftInfo.maxSubBSTSize;
-//		}
-//		if(rightInfo !=null) {
-//			maxSubBSTSize = Math.max(maxSubBSTSize, rightInfo.maxSubBSTSize);
-//		}
-//		boolean isAllBST = false;
-//		
-//		
-//		if(
-//				// 左树整体需要是搜索二叉树
-//				(  leftInfo == null ? true : leftInfo.isAllBST    )
-//				&&
-//				(  rightInfo == null ? true : rightInfo.isAllBST    )
-//				&&
-//				// 左树最大值<x
-//				(leftInfo == null ? true : leftInfo.max < X.value)
-//				&&
-//				(rightInfo == null ? true : rightInfo.min > X.value)
-//				
-//				
-//				) {
-//			
-//			maxSubBSTSize = 
-//					(leftInfo == null ? 0 : leftInfo.maxSubBSTSize)
-//					+
-//					(rightInfo == null ? 0 : rightInfo.maxSubBSTSize)
-//					+
-//					1;
-//					isAllBST = true;
-//			
-//			
-//		}
-//		return new Info(isAllBST, maxSubBSTSize, min, max);
-//	}
+        boolean is = true;
+        int min = root.val;
+        int max = root.val;
+        int maxBstSize = 1;
+        if (leftInfo != null) {
+            is = leftInfo.is && leftInfo.max < root.val;
+            min = Math.min(leftInfo.min, min);
+            max = Math.max(leftInfo.max, max);
+            maxBstSize = Math.max(leftInfo.maxBstSize, maxBstSize);
+        }
+        if (rightInfo != null) {
+            is &= rightInfo.is && root.val < rightInfo.min;
+            min = Math.min(rightInfo.min, min);
+            max = Math.max(rightInfo.max, max);
+            maxBstSize = Math.max(rightInfo.maxBstSize, maxBstSize);
+        }
+        if (is) {
+            // 如果当前是二叉搜索树，则最大值有三种情况：左+根、右+根、左+根+右
+            if (leftInfo != null && rightInfo != null) {
+                maxBstSize = leftInfo.maxBstSize + rightInfo.maxBstSize + 1;
+            } else if (leftInfo != null) maxBstSize = Math.max(maxBstSize, leftInfo.maxBstSize + 1);
+            else if (rightInfo != null) maxBstSize = Math.max(maxBstSize, rightInfo.maxBstSize + 1);
+        }
 
-	public static int maxSubBSTSize2(Node head) {
-		if(head == null) {
-			return 0;
-		}
-		return process(head).maxBSTSubtreeSize;
-	}
+        return new Info(is, min, max, maxBstSize);
+    }
+    // 信息处理方式二：基于 min、max、size、maxBstSize（因为size==maxBstSize等价于isBst）
+    private static Info process2(TreeNode root) {
+        if (root == null) return null;
+        Info leftInfo = process2(root.left);
+        Info rightInfo = process2(root.right);
 
-	public static class Info {
-		public int maxBSTSubtreeSize;
-		public int allSize;
-		public int max;
-		public int min;
+        int min = root.val;
+        int max = root.val;
+        int size = 1;
+        int maxBstSize = 1;
+        boolean is = true;
+        if (leftInfo != null) {
+            min = Math.min(leftInfo.min, min);
+            max = Math.max(leftInfo.max, max);
+            size += leftInfo.size;
+            maxBstSize = Math.max(leftInfo.maxBstSize, maxBstSize);
+            is = leftInfo.size == leftInfo.maxBstSize && leftInfo.max < root.val;
+        }
+        if (rightInfo != null) {
+            min = Math.min(rightInfo.min, min);
+            max = Math.max(rightInfo.max, max);
+            size += rightInfo.size;
+            maxBstSize = Math.max(rightInfo.maxBstSize, maxBstSize);
+            is &= rightInfo.size == rightInfo.maxBstSize && root.val < rightInfo.min;
+        }
+        if (is) {
+            if (leftInfo != null && rightInfo != null) {
+                maxBstSize = leftInfo.maxBstSize + rightInfo.maxBstSize + 1;
+            } else if (leftInfo != null) maxBstSize = Math.max(maxBstSize, leftInfo.maxBstSize + 1);
+            else if (rightInfo != null) maxBstSize = Math.max(maxBstSize, rightInfo.maxBstSize + 1);
+        }
 
-		public Info(int m, int a, int ma, int mi) {
-			maxBSTSubtreeSize = m;
-			allSize = a;
-			max = ma;
-			min = mi;
-		}
-	}
+        return new Info(min, max, size, maxBstSize);
+    }
 
-	public static Info process(Node x) {
-		if (x == null) {
-			return null;
-		}
-		Info leftInfo = process(x.left);
-		Info rightInfo = process(x.right);
-		int max = x.value;
-		int min = x.value;
-		int allSize = 1;
-		if (leftInfo != null) {
-			max = Math.max(leftInfo.max, max);
-			min = Math.min(leftInfo.min, min);
-			allSize += leftInfo.allSize;
-		}
-		if (rightInfo != null) {
-			max = Math.max(rightInfo.max, max);
-			min = Math.min(rightInfo.min, min);
-			allSize += rightInfo.allSize;
-		}
-		int p1 = -1;
-		if (leftInfo != null) {
-			p1 = leftInfo.maxBSTSubtreeSize;
-		}
-		int p2 = -1;
-		if (rightInfo != null) {
-			p2 = rightInfo.maxBSTSubtreeSize;
-		}
-		int p3 = -1;
-		boolean leftBST = leftInfo == null ? true : (leftInfo.maxBSTSubtreeSize == leftInfo.allSize);
-		boolean rightBST = rightInfo == null ? true : (rightInfo.maxBSTSubtreeSize == rightInfo.allSize);
-		if (leftBST && rightBST) {
-			boolean leftMaxLessX = leftInfo == null ? true : (leftInfo.max < x.value);
-			boolean rightMinMoreX = rightInfo == null ? true : (x.value < rightInfo.min);
-			if (leftMaxLessX && rightMinMoreX) {
-				int leftSize = leftInfo == null ? 0 : leftInfo.allSize;
-				int rightSize = rightInfo == null ? 0 : rightInfo.allSize;
-				p3 = leftSize + rightSize + 1;
-			}
-		}
-		return new Info(Math.max(p1, Math.max(p2, p3)), allSize, max, min);
-	}
-
-	// for test
-	public static Node generateRandomBST(int maxLevel, int maxValue) {
-		return generate(1, maxLevel, maxValue);
-	}
-
-	// for test
-	public static Node generate(int level, int maxLevel, int maxValue) {
-		if (level > maxLevel || Math.random() < 0.5) {
-			return null;
-		}
-		Node head = new Node((int) (Math.random() * maxValue));
-		head.left = generate(level + 1, maxLevel, maxValue);
-		head.right = generate(level + 1, maxLevel, maxValue);
-		return head;
-	}
-
-	public static void main(String[] args) {
-		int maxLevel = 4;
-		int maxValue = 100;
-		int testTimes = 1000000;
-		for (int i = 0; i < testTimes; i++) {
-			Node head = generateRandomBST(maxLevel, maxValue);
-			if (maxSubBSTSize1(head) != maxSubBSTSize2(head)) {
-				System.out.println("Oops!");
-			}
-		}
-		System.out.println("finish!");
-	}
-
+    public static void main(String[] args) {
+        int maxLevel = 4;
+        int maxVal = 100;
+        int testTimes = 1000000;
+        for (int i = 0; i < testTimes; i++) {
+            TreeNode root = generateRandomBST(maxLevel, maxVal);
+            if (getMaxSubBstSizeByInOrder(root) != getMaxSubBstSize(root)) {
+                System.out.println("Oops!");
+            }
+        }
+        System.out.println("finish!");
+    }
 }

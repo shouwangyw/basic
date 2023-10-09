@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// 本题为leetcode原题
-// 测试链接：https://leetcode.com/problems/number-of-islands-ii/
-// 所有方法都可以直接通过
+import static com.yw.advance.course.class15.Code02_NumberOfIslands.copy;
+import static com.yw.advance.course.class15.Code02_NumberOfIslands.generateRandomMatrix;
+
+/**
+ * 测试链接：https://leetcode.cn/problems/number-of-islands-ii/
+ * @author yangwei
+ */
 public class Code03_NumberOfIslandsII {
 
-	public static List<Integer> numIslands21(int m, int n, int[][] positions) {
-		UnionFind1 uf = new UnionFind1(m, n);
+	public static List<Integer> numIslands2(int m, int n, int[][] positions) {
+		UnionFind uf = new UnionFind(m, n);
 		List<Integer> ans = new ArrayList<>();
 		for (int[] position : positions) {
 			ans.add(uf.connect(position[0], position[1]));
@@ -18,77 +22,60 @@ public class Code03_NumberOfIslandsII {
 		return ans;
 	}
 
-	public static class UnionFind1 {
-		private int[] parent;
+	public static class UnionFind {
+		private int[] fa;
 		private int[] size;
-		private int[] help;
+		private int count;
 		private final int row;
 		private final int col;
-		private int sets;
 
-		public UnionFind1(int m, int n) {
-			row = m;
-			col = n;
-			sets = 0;
+		public UnionFind(int m, int n) {
+			this.row = m;
+			this.col = n;
 			int len = row * col;
-			parent = new int[len];
-			size = new int[len];
-			help = new int[len];
+			this.fa = new int[len];
+			this.size = new int[len];
+			this.count = 0;
 		}
 
-		private int index(int r, int c) {
-			return r * col + c;
-		}
-
-		private int find(int i) {
-			int hi = 0;
-			while (i != parent[i]) {
-				help[hi++] = i;
-				i = parent[i];
-			}
-			for (hi--; hi >= 0; hi--) {
-				parent[help[hi]] = i;
-			}
-			return i;
+		private int find(int x) {
+			return fa[x] = fa[x] == x ? x : find(fa[x]);
 		}
 
 		private void union(int r1, int c1, int r2, int c2) {
-			if (r1 < 0 || r1 == row || r2 < 0 || r2 == row || c1 < 0 || c1 == col || c2 < 0 || c2 == col) {
-				return;
-			}
+			if (r1 < 0 || r1 >= row || c1 < 0 || c1 >= col || r2 < 0 || r2 >= row || c2 < 0 || c2 >= col) return;
 			int i1 = index(r1, c1);
 			int i2 = index(r2, c2);
-			if (size[i1] == 0 || size[i2] == 0) {
-				return;
+			if (size[i1] == 0 || size[i2] == 0) return;
+			int f1 = find(i1), f2 = find(i2);
+			if (f1 == f2) return;
+			if (size[f1] >= size[f2]) {
+				fa[f2] = f1;
+				size[f1] += size[f2];
+			} else {
+				fa[f1] = f2;
+				size[f2] += size[f1];
 			}
-			int f1 = find(i1);
-			int f2 = find(i2);
-			if (f1 != f2) {
-				if (size[f1] >= size[f2]) {
-					size[f1] += size[f2];
-					parent[f2] = f1;
-				} else {
-					size[f2] += size[f1];
-					parent[f1] = f2;
-				}
-				sets--;
-			}
+			count--;
 		}
 
 		public int connect(int r, int c) {
-			int index = index(r, c);
-			if (size[index] == 0) {
-				parent[index] = index;
-				size[index] = 1;
-				sets++;
+			int idx = index(r, c);
+			if (size[idx] == 0) {
+				fa[idx] = idx;
+				size[idx] = 1;
+				count++;
 				union(r - 1, c, r, c);
 				union(r + 1, c, r, c);
 				union(r, c - 1, r, c);
 				union(r, c + 1, r, c);
 			}
-			return sets;
+			return count;
 		}
 
+		private int index(int r, int c) {
+			return r * col + c;
+		}
 	}
 
 	// 课上讲的如果m*n比较大，会经历很重的初始化，而k比较小，怎么优化的方法
@@ -143,23 +130,18 @@ public class Code03_NumberOfIslandsII {
 		}
 
 		public int connect(int r, int c) {
-			String key = String.valueOf(r) + "_" + String.valueOf(c);
+			String key = r + "_" + c;
 			if (!parent.containsKey(key)) {
 				parent.put(key, key);
 				size.put(key, 1);
 				sets++;
-				String up = String.valueOf(r - 1) + "_" + String.valueOf(c);
-				String down = String.valueOf(r + 1) + "_" + String.valueOf(c);
-				String left = String.valueOf(r) + "_" + String.valueOf(c - 1);
-				String right = String.valueOf(r) + "_" + String.valueOf(c + 1);
-				union(up, key);
-				union(down, key);
-				union(left, key);
-				union(right, key);
+				union((r - 1) + "_" + c, key);
+				union((r + 1) + "_" + c, key);
+				union(r + "_" + (c - 1), key);
+				union(r + "_" + (c + 1), key);
 			}
 			return sets;
 		}
 
 	}
-
 }

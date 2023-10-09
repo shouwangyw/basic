@@ -1,49 +1,60 @@
 package com.yw.advance.course.class11;
 
+import com.yw.entity.TreeNode;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
+/**
+ * @author yangwei
+ */
 public class Code01_LevelTraversalBT {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
-
-		public Node(int v) {
-			value = v;
-		}
-	}
-
-	public static void level(Node head) {
-		if (head == null) {
-			return;
-		}
-		Queue<Node> queue = new LinkedList<>();
-		queue.add(head);
+	// 层序遍历-基于队列实现
+	public static void levelOrder(TreeNode root) {
+		if (root == null) return;
+		Queue<TreeNode> queue = new LinkedList<>();
+		queue.offer(root);
 		while (!queue.isEmpty()) {
-			Node cur = queue.poll();
-			System.out.println(cur.value);
-			if (cur.left != null) {
-				queue.add(cur.left);
-			}
-			if (cur.right != null) {
-				queue.add(cur.right);
-			}
+			TreeNode node = queue.poll();
+			System.out.print(node.val + " ");
+			if (node.left != null) queue.offer(node.left);
+			if (node.right != null) queue.offer(node.right);
 		}
+		System.out.println();
+	}
+	// 层序遍历-基于递归
+	public static void levelOrder(TreeNode root, int level, List<List<Integer>> levelResults) {
+		if (root == null) return;
+		if (level == levelResults.size()) levelResults.add(new ArrayList<>());
+		levelResults.get(level).add(root.val);
+		levelOrder(root.left, level + 1, levelResults);
+		levelOrder(root.right, level + 1, levelResults);
 	}
 
 	public static void main(String[] args) {
-		Node head = new Node(1);
-		head.left = new Node(2);
-		head.right = new Node(3);
-		head.left.left = new Node(4);
-		head.left.right = new Node(5);
-		head.right.left = new Node(6);
-		head.right.right = new Node(7);
+		TreeNode root = new TreeNode(1);
+		root.left = new TreeNode(2);
+		root.right = new TreeNode(3);
+		root.left.left = new TreeNode(4);
+		root.left.right = new TreeNode(5);
+		root.right.left = new TreeNode(6);
+		root.right.right = new TreeNode(7);
 
-		level(head);
+		levelOrder(root);
 		System.out.println("========");
+
+		List<List<Integer>> levelResults = new ArrayList<>();
+		levelOrder(root, 0, levelResults);
+		for (List<Integer> results : levelResults) {
+			for (Integer result : results) {
+				System.out.print(result + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
 	}
 
 }

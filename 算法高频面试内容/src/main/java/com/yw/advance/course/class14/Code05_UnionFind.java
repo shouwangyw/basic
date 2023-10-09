@@ -1,70 +1,60 @@
 package com.yw.advance.course.class14;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
+/**
+ * @author yangwei
+ */
 public class Code05_UnionFind {
 
-	public static class Node<V> {
-		V value;
+    public static class UnionFind<V> {
+        Map<V, V> parentMap;
+        Map<V, Integer> sizeMap;
 
-		public Node(V v) {
-			value = v;
-		}
-	}
+        public UnionFind(V... values) {
+            this(Arrays.asList(values));
+        }
+        public UnionFind(List<V> values) {
+            parentMap = new HashMap<>();
+            sizeMap = new HashMap<>();
+            for (V x : values) {
+                parentMap.put(x, x);
+                sizeMap.put(x, 1);
+            }
+        }
 
-	public static class UnionFind<V> {
-		public HashMap<V, Node<V>> nodes;
-		public HashMap<Node<V>, Node<V>> parents;
-		public HashMap<Node<V>, Integer> sizeMap;
+        // 给你一个节点，请你往上到不能再往上，把代表返回
+        private V findFather(V cur) {
+            Stack<V> path = new Stack<>();
+            while (cur != parentMap.get(cur)) {
+                path.push(cur);
+                cur = parentMap.get(cur);
+            }
+            // 路径压缩
+            while (!path.isEmpty()) parentMap.put(path.pop(), cur);
+            return cur;
+        }
 
-		public UnionFind(List<V> values) {
-			nodes = new HashMap<>();
-			parents = new HashMap<>();
-			sizeMap = new HashMap<>();
-			for (V cur : values) {
-				Node<V> node = new Node<>(cur);
-				nodes.put(cur, node);
-				parents.put(node, node);
-				sizeMap.put(node, 1);
-			}
-		}
+        public boolean isSameSet(V a, V b) {
+            return findFather(a) == findFather(b);
+        }
 
-		// 给你一个节点，请你往上到不能再往上，把代表返回
-		public Node<V> findFather(Node<V> cur) {
-			Stack<Node<V>> path = new Stack<>();
-			while (cur != parents.get(cur)) {
-				path.push(cur);
-				cur = parents.get(cur);
-			}
-			while (!path.isEmpty()) {
-				parents.put(path.pop(), cur);
-			}
-			return cur;
-		}
+        public void union(V a, V b) {
+            V fa = findFather(a);
+            V fb = findFather(b);
+            if (fa == fb) return;
+            int sa = sizeMap.get(fa);
+            int sb = sizeMap.get(fb);
+            V big = sa >= sb ? fa : fb;
+            V small = big == fa ? fb : fa;
+            parentMap.put(small, big);
+            sizeMap.put(big, sa + sb);
+            sizeMap.remove(small);
+        }
 
-		public boolean isSameSet(V a, V b) {
-			return findFather(nodes.get(a)) == findFather(nodes.get(b));
-		}
+        public int size() {
+            return sizeMap.size();
+        }
+    }
 
-		public void union(V a, V b) {
-			Node<V> aHead = findFather(nodes.get(a));
-			Node<V> bHead = findFather(nodes.get(b));
-			if (aHead != bHead) {
-				int aSetSize = sizeMap.get(aHead);
-				int bSetSize = sizeMap.get(bHead);
-				Node<V> big = aSetSize >= bSetSize ? aHead : bHead;
-				Node<V> small = big == aHead ? bHead : aHead;
-				parents.put(small, big);
-				sizeMap.put(big, aSetSize + bSetSize);
-				sizeMap.remove(small);
-			}
-		}
-
-		public int sets() {
-			return sizeMap.size();
-		}
-
-	}
 }

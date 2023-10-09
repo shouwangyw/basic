@@ -2,6 +2,7 @@ package com.yw.util;
 
 import com.yw.entity.DoubleNode;
 import com.yw.entity.Node;
+import com.yw.entity.TreeNode;
 
 import java.util.*;
 
@@ -188,5 +189,115 @@ public class CommonUtils {
             head = head.next;
         }
         System.out.println();
+    }
+
+    public static TreeNode generateRandomBST(int maxLevel, int maxVal) {
+        return generate(1, maxLevel, maxVal);
+    }
+
+    public static TreeNode generate(int level, int maxLevel, int maxVal) {
+        if (level > maxLevel || Math.random() < 0.5) {
+            return null;
+        }
+        TreeNode root = new TreeNode((int) (Math.random() * maxVal));
+        root.left = generate(level + 1, maxLevel, maxVal);
+        root.right = generate(level + 1, maxLevel, maxVal);
+        return root;
+    }
+
+    public static boolean isSameValStructure(TreeNode root1, TreeNode root2) {
+        if (root1 == null && root2 != null) {
+            return false;
+        }
+        if (root1 != null && root2 == null) {
+            return false;
+        }
+        if (root1 == null && root2 == null) {
+            return true;
+        }
+        if (root1.val != root2.val) {
+            return false;
+        }
+        return isSameValStructure(root1.left, root2.left) && isSameValStructure(root1.right, root2.right);
+    }
+
+    public static void printTree(TreeNode root) {
+        System.out.println("Binary Tree:");
+        printInOrder(root, 0, "H", 17);
+        System.out.println();
+    }
+
+    public static void printInOrder(TreeNode root, int height, String to, int len) {
+        if (root == null) {
+            return;
+        }
+        printInOrder(root.right, height + 1, "v", len);
+        String val = to + root.val + to;
+        int lenM = val.length();
+        int lenL = (len - lenM) / 2;
+        int lenR = len - lenM - lenL;
+        val = getSpace(lenL) + val + getSpace(lenR);
+        System.out.println(getSpace(height * len) + val);
+        printInOrder(root.left, height + 1, "^", len);
+    }
+
+    public static String getSpace(int num) {
+        String space = " ";
+        StringBuffer buf = new StringBuffer("");
+        for (int i = 0; i < num; i++) {
+            buf.append(space);
+        }
+        return buf.toString();
+    }
+
+    public static TreeNode generateTreeNode(String val) {
+        if (val == null) {
+            return null;
+        }
+        return new TreeNode(Integer.valueOf(val));
+    }
+
+    public static TreeNode pickRandomOne(TreeNode head) {
+        if (head == null) {
+            return null;
+        }
+        ArrayList<TreeNode> arr = new ArrayList<>();
+        fillPreList(head, arr);
+        int randomIndex = (int) (Math.random() * arr.size());
+        return arr.get(randomIndex);
+    }
+
+    private static void fillPreList(TreeNode head, ArrayList<TreeNode> arr) {
+        if (head == null) {
+            return;
+        }
+        arr.add(head);
+        fillPreList(head.left, arr);
+        fillPreList(head.right, arr);
+    }
+
+    public static String[] generateRandomStringArray(int arrLen, int strLen) {
+        String[] ans = new String[(int) (Math.random() * arrLen) + 1];
+        for (int i = 0; i < ans.length; i++) {
+            ans[i] = generateRandomString(strLen);
+        }
+        return ans;
+    }
+
+    private static String generateRandomString(int strLen) {
+        char[] ans = new char[(int) (Math.random() * strLen) + 1];
+        for (int i = 0; i < ans.length; i++) {
+            int value = (int) (Math.random() * 5);
+            ans[i] = (Math.random() <= 0.5) ? (char) (65 + value) : (char) (97 + value);
+        }
+        return String.valueOf(ans);
+    }
+
+    public static String[] copyStringArray(String[] arr) {
+        String[] ans = new String[arr.length];
+        for (int i = 0; i < ans.length; i++) {
+            ans[i] = String.valueOf(arr[i]);
+        }
+        return ans;
     }
 }
