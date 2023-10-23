@@ -40,7 +40,7 @@ public class Code01_LinkedListMid {
 
     // 输入链表头节点，奇数长度返回中点前一个，偶数长度返回上中点前一个
     public static Node midOrUpMidPreNode(Node head) {
-        // 空节点、1个节点、2个节点，都是返回head
+        // 空节点、1个节点、2个节点，都是返回null
         if (head == null || head.next == null || head.next.next == null) return null;
         // 3个节点或以上，定义快、慢指针
         Node slow = head, fast = head;
@@ -56,7 +56,7 @@ public class Code01_LinkedListMid {
 
     // 输入链表头节点，奇数长度返回中点前一个，偶数长度返回下中点前一个
     public static Node midOrDownMidPreNode(Node head) {
-        // 空节点、1个节点，都是返回head
+        // 空节点、1个节点，都是返回null
         if (head == null || head.next == null) return null;
         // 2个节点，返回head
         if (head.next.next == null) return head;

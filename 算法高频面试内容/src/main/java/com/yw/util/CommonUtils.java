@@ -88,6 +88,15 @@ public class CommonUtils {
         return arr;
     }
 
+    public static int[] randomArray(int maxLen, int maxValue) {
+        int n = (int) (Math.random() * maxLen);
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = (int) (Math.random() * maxValue) + 1;
+        }
+        return arr;
+    }
+
     public static int[] copyArray(int[] arr) {
         if (arr == null) {
             return null;
@@ -299,5 +308,27 @@ public class CommonUtils {
             ans[i] = String.valueOf(arr[i]);
         }
         return ans;
+    }
+
+    public static int[][] generateRandomMatrix(int rowSize, int colSize) {
+        if (rowSize < 0 || colSize < 0) {
+            return null;
+        }
+        int[][] result = new int[rowSize][colSize];
+        for (int i = 0; i != result.length; i++) {
+            for (int j = 0; j != result[0].length; j++) {
+                result[i][j] = (int) (Math.random() * 100);
+            }
+        }
+        return result;
+    }
+
+    public static void printMatrix(int[][] matrix) {
+        for (int i = 0; i != matrix.length; i++) {
+            for (int j = 0; j != matrix[0].length; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 }

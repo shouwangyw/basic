@@ -1,30 +1,32 @@
 package com.yw.advance.course.class16;
 
+import com.yw.entity.Vertex;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
+/**
+ * @author yangwei
+ */
 public class Code01_BFS {
 
-	// 从node出发，进行宽度优先遍历
-	public static void bfs(Node start) {
-		if (start == null) {
-			return;
-		}
-		Queue<Node> queue = new LinkedList<>();
-		HashSet<Node> set = new HashSet<>();
+	// 宽度优先遍历
+	public static void bfs(Vertex start) {
+		if (start == null) return;
+		Queue<Vertex> queue = new LinkedList<>();
+		Set<Vertex> set = new HashSet<>();
 		queue.add(start);
 		set.add(start);
 		while (!queue.isEmpty()) {
-			Node cur = queue.poll();
-			System.out.println(cur.value);
-			for (Node next : cur.nexts) {
-				if (!set.contains(next)) {
-					set.add(next);
-					queue.add(next);
-				}
+			Vertex cur = queue.poll();
+			System.out.println(cur.val);
+			for (Vertex next : cur.nexts) {
+				if (set.contains(next)) continue;
+				queue.add(next);
+				set.add(next);
 			}
 		}
 	}
-
 }
