@@ -123,6 +123,19 @@ public class CommonUtils {
         return true;
     }
 
+    public static boolean isEqual(int[][] arr1, int[][] arr2) {
+        if (arr1.length != arr2.length) {
+            return false;
+        }
+        for (int i = 0; i < arr1.length; i++) {
+            if (arr1[i][0] != arr2[i][0] || arr1[i][1] != arr2[i][1]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static void printArray(int[] arr) {
         if (arr == null) {
             return;
