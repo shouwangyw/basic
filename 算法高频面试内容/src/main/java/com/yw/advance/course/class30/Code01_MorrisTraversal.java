@@ -1,233 +1,139 @@
 package com.yw.advance.course.class30;
 
+import com.yw.entity.TreeNode;
+
+import static com.yw.util.CommonUtils.printTree;
+
 /**
  * @author yangwei
  */
 public class Code01_MorrisTraversal {
 
-	public static class Node {
-		public int value;
-		Node left;
-		Node right;
-
-		public Node(int data) {
-			this.value = data;
-		}
-	}
-
-	public static void process(Node root) {
-		if (root == null) {
-			return;
-		}
-		// 1
+	public static void process(TreeNode root) {
+		if (root == null) return;
+		// 1 前序
 		process(root.left);
-		// 2
+		// 2 中序
 		process(root.right);
-		// 3
+		// 3 后序
 	}
 
-	public static void morris(Node head) {
-		if (head == null) {
-			return;
-		}
-		Node cur = head;
-		Node mostRight = null;
+	// morris遍历
+	public static void morris(TreeNode root) {
+		if (root == null) return;
+		TreeNode cur = root, mostRight;
 		while (cur != null) {
 			mostRight = cur.left;
 			if (mostRight != null) {
-				while (mostRight.right != null && mostRight.right != cur) {
-					mostRight = mostRight.right;
-				}
+				while (mostRight.right != null && mostRight.right != cur) mostRight = mostRight.right;
 				if (mostRight.right == null) {
 					mostRight.right = cur;
 					cur = cur.left;
 					continue;
-				} else {
-					mostRight.right = null;
-				}
+				} else mostRight.right = null;
 			}
 			cur = cur.right;
 		}
 	}
 
-	public static void morrisPre(Node head) {
-		if (head == null) {
-			return;
-		}
-		Node cur = head;
-		Node mostRight = null;
+	// morris前序遍历
+	public static void morrisPre(TreeNode root) {
+		if (root == null) return;
+		TreeNode cur = root, mostRight;
 		while (cur != null) {
 			mostRight = cur.left;
 			if (mostRight != null) {
-				while (mostRight.right != null && mostRight.right != cur) {
-					mostRight = mostRight.right;
-				}
+				while (mostRight.right != null && mostRight.right != cur) mostRight = mostRight.right;
 				if (mostRight.right == null) {
-					System.out.print(cur.value + " ");
+					// 第1次访问到当前节点时打印
+					System.out.print(cur.val + " ");
 					mostRight.right = cur;
 					cur = cur.left;
 					continue;
-				} else {
-					mostRight.right = null;
-				}
+				} else mostRight.right = null;
 			} else {
-				System.out.print(cur.value + " ");
+				// 第1次访问到当前节点时打印
+				System.out.print(cur.val + " ");
 			}
 			cur = cur.right;
 		}
 		System.out.println();
 	}
-
-	public static void morrisIn(Node head) {
-		if (head == null) {
-			return;
-		}
-		Node cur = head;
-		Node mostRight = null;
+	// morris中序遍历
+	public static void morrisIn(TreeNode root) {
+		if (root == null) return;
+		TreeNode cur = root, mostRight;
 		while (cur != null) {
 			mostRight = cur.left;
 			if (mostRight != null) {
-				while (mostRight.right != null && mostRight.right != cur) {
-					mostRight = mostRight.right;
-				}
+				while (mostRight.right != null && mostRight.right != cur) mostRight = mostRight.right;
+				if (mostRight.right == null) {
+					mostRight.right = cur;
+					cur = cur.left;
+					continue;
+				} else mostRight.right = null;
+			}
+			// 第2次访问到当前节点时打印
+			System.out.print(cur.val + " ");
+			cur = cur.right;
+		}
+		System.out.println();
+	}
+	// morris后序遍历
+	public static void morrisPost(TreeNode root) {
+		if (root == null) return;
+		TreeNode cur = root, mostRight;
+		while (cur != null) {
+			mostRight = cur.left;
+			if (mostRight != null) {
+				while (mostRight.right != null && mostRight.right != cur) mostRight = mostRight.right;
 				if (mostRight.right == null) {
 					mostRight.right = cur;
 					cur = cur.left;
 					continue;
 				} else {
 					mostRight.right = null;
-				}
-			}
-			System.out.print(cur.value + " ");
-			cur = cur.right;
-		}
-		System.out.println();
-	}
-
-	public static void morrisPos(Node head) {
-		if (head == null) {
-			return;
-		}
-		Node cur = head;
-		Node mostRight = null;
-		while (cur != null) {
-			mostRight = cur.left;
-			if (mostRight != null) {
-				while (mostRight.right != null && mostRight.right != cur) {
-					mostRight = mostRight.right;
-				}
-				if (mostRight.right == null) {
-					mostRight.right = cur;
-					cur = cur.left;
-					continue;
-				} else {
-					mostRight.right = null;
-					printEdge(cur.left);
+					// 第2次访问到当前节点时，逆序打印左树的右边界
+					reversePrintEdge(cur.left);
 				}
 			}
 			cur = cur.right;
 		}
-		printEdge(head);
+		// 最后打印整体右边界
+		reversePrintEdge(root);
 		System.out.println();
 	}
-
-	public static void printEdge(Node head) {
-		Node tail = reverseEdge(head);
-		Node cur = tail;
+	private static void reversePrintEdge(TreeNode root) {
+		TreeNode node = reverseNode(root), cur = node;
 		while (cur != null) {
-			System.out.print(cur.value + " ");
+			System.out.print(cur.val + " ");
 			cur = cur.right;
 		}
-		reverseEdge(tail);
+		reverseNode(node);
 	}
-
-	public static Node reverseEdge(Node from) {
-		Node pre = null;
-		Node next = null;
-		while (from != null) {
-			next = from.right;
-			from.right = pre;
-			pre = from;
-			from = next;
+	private static TreeNode reverseNode(TreeNode node) {
+		TreeNode pre = null, next;
+		while (node != null) {
+			next = node.right;
+			node.right = pre;
+			pre = node;
+			node = next;
 		}
 		return pre;
 	}
 
-	// for test -- print tree
-	public static void printTree(Node head) {
-		System.out.println("Binary Tree:");
-		printInOrder(head, 0, "H", 17);
-		System.out.println();
-	}
-
-	public static void printInOrder(Node head, int height, String to, int len) {
-		if (head == null) {
-			return;
-		}
-		printInOrder(head.right, height + 1, "v", len);
-		String val = to + head.value + to;
-		int lenM = val.length();
-		int lenL = (len - lenM) / 2;
-		int lenR = len - lenM - lenL;
-		val = getSpace(lenL) + val + getSpace(lenR);
-		System.out.println(getSpace(height * len) + val);
-		printInOrder(head.left, height + 1, "^", len);
-	}
-
-	public static String getSpace(int num) {
-		String space = " ";
-		StringBuffer buf = new StringBuffer("");
-		for (int i = 0; i < num; i++) {
-			buf.append(space);
-		}
-		return buf.toString();
-	}
-
-	public static boolean isBST(Node head) {
-		if (head == null) {
-			return true;
-		}
-		Node cur = head;
-		Node mostRight = null;
-		Integer pre = null;
-		boolean ans = true;
-		while (cur != null) {
-			mostRight = cur.left;
-			if (mostRight != null) {
-				while (mostRight.right != null && mostRight.right != cur) {
-					mostRight = mostRight.right;
-				}
-				if (mostRight.right == null) {
-					mostRight.right = cur;
-					cur = cur.left;
-					continue;
-				} else {
-					mostRight.right = null;
-				}
-			}
-			if (pre != null && pre >= cur.value) {
-				ans = false;
-			}
-			pre = cur.value;
-			cur = cur.right;
-		}
-		return ans;
-	}
-
 	public static void main(String[] args) {
-		Node head = new Node(4);
-		head.left = new Node(2);
-		head.right = new Node(6);
-		head.left.left = new Node(1);
-		head.left.right = new Node(3);
-		head.right.left = new Node(5);
-		head.right.right = new Node(7);
-		printTree(head);
-		morrisIn(head);
-		morrisPre(head);
-		morrisPos(head);
-		printTree(head);
-
+		TreeNode root = new TreeNode(4);
+		root.left = new TreeNode(2);
+		root.right = new TreeNode(6);
+		root.left.left = new TreeNode(1);
+		root.left.right = new TreeNode(3);
+		root.right.left = new TreeNode(5);
+		root.right.right = new TreeNode(7);
+		printTree(root);
+		morrisPre(root);
+		morrisIn(root);
+		morrisPost(root);
+		printTree(root);
 	}
-
 }

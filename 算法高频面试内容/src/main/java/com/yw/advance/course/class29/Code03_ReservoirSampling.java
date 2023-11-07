@@ -7,38 +7,27 @@ public class Code03_ReservoirSampling {
 
 	public static class RandomBox {
 		private int[] bag;
-		private int N;
+		private int n;
 		private int count;
 
 		public RandomBox(int capacity) {
 			bag = new int[capacity];
-			N = capacity;
+			n = capacity;
 			count = 0;
 		}
-
+		public void add(int num) {
+			count++;
+			if (count <= n) bag[count - 1] = num;
+			else if (rand(count) <= n) bag[rand(n) - 1] = num;
+		}
 		private int rand(int max) {
 			return (int) (Math.random() * max) + 1;
 		}
-
-		public void add(int num) {
-			count++;
-			if (count <= N) {
-				bag[count - 1] = num;
-			} else {
-				if (rand(count) <= N) {
-					bag[rand(N) - 1] = num;
-				}
-			}
-		}
-
 		public int[] choices() {
-			int[] ans = new int[N];
-			for (int i = 0; i < N; i++) {
-				ans[i] = bag[i];
-			}
+			int[] ans = new int[n];
+			System.arraycopy(bag, 0, ans, 0, n);
 			return ans;
 		}
-
 	}
 
 	// 请等概率返回1~i中的一个数字
@@ -58,12 +47,12 @@ public class Code03_ReservoirSampling {
 				if (num <= 10) {
 					bag[bagi++] = num;
 				} else { // num > 10
-					if (random(num) <= 10) { // 一定要把num球入袋子
+					if (random(num) <= 10) {
+						// 一定要把num球入袋子
 						bagi = (int) (Math.random() * 10);
 						bag[bagi] = num;
 					}
 				}
-
 			}
 			for (int num : bag) {
 				count[num]++;
@@ -84,8 +73,8 @@ public class Code03_ReservoirSampling {
 				box.add(num);
 			}
 			int[] ans = box.choices();
-			for (int j = 0; j < ans.length; j++) {
-				counts[ans[j]]++;
+			for (int x : ans) {
+				counts[x]++;
 			}
 		}
 
