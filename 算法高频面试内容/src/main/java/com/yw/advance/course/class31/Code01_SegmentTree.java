@@ -6,63 +6,30 @@ package com.yw.advance.course.class31;
 public class Code01_SegmentTree {
 
 	public static class SegmentTree {
-		// arr[]为原序列的信息从0开始，但在arr里是从1开始的
-		// sum[]模拟线段树维护区间和
-		// lazy[]为累加和懒惰标记
-		// change[]为更新的值
-		// update[]为更新慵懒标记
-		private int MAXN;
-		private int[] arr;
-		private int[] sum;
-		private int[] lazy;
-		private int[] change;
-		private boolean[] update;
+		private int[] arr;			// 原序列的信息从0开始，但在arr里是从1开始的
+		private int[] sum;			// 模拟线段树维护区间和
+		private int[] lazy;			// 累加和懒标记
+		private int[] change;		// 更新的值
+		private boolean[] update;	// 更新总懒标记
 
 		public SegmentTree(int[] origin) {
-			MAXN = origin.length + 1;
-			arr = new int[MAXN]; // arr[0] 不用 从1开始使用
-			for (int i = 1; i < MAXN; i++) {
-				arr[i] = origin[i - 1];
-			}
-			sum = new int[MAXN << 2]; // 用来支持脑补概念中，某一个范围的累加和信息
-			lazy = new int[MAXN << 2]; // 用来支持脑补概念中，某一个范围沒有往下傳遞的纍加任務
-			change = new int[MAXN << 2]; // 用来支持脑补概念中，某一个范围有没有更新操作的任务
-			update = new boolean[MAXN << 2]; // 用来支持脑补概念中，某一个范围更新任务，更新成了什么
+			int maxN = origin.length + 1;
+			arr = new int[maxN]; // arr[0] 不用 从1开始使用
+			System.arraycopy(origin, 0, arr, 1, maxN - 1);
+
+			sum = new int[maxN << 2]; 		// 用来支持脑补概念中，某一个范围的累加和信息
+			lazy = new int[maxN << 2]; 		// 用来支持脑补概念中，某一个范围没有往下传递的累加任务
+			change = new int[maxN << 2]; 	// 用来支持脑补概念中，某一个范围有没有更新操作的任务
+			update = new boolean[maxN << 2];// 用来支持脑补概念中，某一个范围更新任务，更新成了什么
 		}
 
-		private void pushUp(int rt) {
-			sum[rt] = sum[rt << 1] + sum[rt << 1 | 1];
-		}
-
-		// 之前的，所有懒增加，和懒更新，从父范围，发给左右两个子范围
-		// 分发策略是什么
-		// ln表示左子树元素结点个数，rn表示右子树结点个数
-		private void pushDown(int rt, int ln, int rn) {
-			if (update[rt]) {
-				update[rt << 1] = true;
-				update[rt << 1 | 1] = true;
-				change[rt << 1] = change[rt];
-				change[rt << 1 | 1] = change[rt];
-				lazy[rt << 1] = 0;
-				lazy[rt << 1 | 1] = 0;
-				sum[rt << 1] = change[rt] * ln;
-				sum[rt << 1 | 1] = change[rt] * rn;
-				update[rt] = false;
-			}
-			if (lazy[rt] != 0) {
-				lazy[rt << 1] += lazy[rt];
-				sum[rt << 1] += lazy[rt] * ln;
-				lazy[rt << 1 | 1] += lazy[rt];
-				sum[rt << 1 | 1] += lazy[rt] * rn;
-				lazy[rt] = 0;
-			}
-		}
-
-		// 在初始化阶段，先把sum数组，填好
-		// 在arr[l~r]范围上，去build，1~N，
-		// rt : 这个范围在sum中的下标
+		/**
+		 * 构建线段树
+		 * 在初始化阶段，先把sum数组，填好
+		 * 在arr[l~r]范围上，去build 1~N，rt: 这个范围在sum中的下标
+		 */
 		public void build(int l, int r, int rt) {
-			if (l == r) {
+			if (l == r) { // 叶节点
 				sum[rt] = arr[l];
 				return;
 			}
@@ -72,9 +39,28 @@ public class Code01_SegmentTree {
 			pushUp(rt);
 		}
 
-		
-		// L~R  所有的值变成C
-		// l~r  rt
+		/**
+		 * 当前来到rt位置(该位置代表的范围是[l,r])时，在[L,R]范围将每个位置的数加C
+		 */
+		public void add(int L, int R, int C, int l, int r, int rt) {
+			// 任务如果把此时的范围全包了！
+			if (L <= l && r <= R) {
+				sum[rt] += C * (r - l + 1);
+				lazy[rt] += C; // 懒增加
+				return;
+			}
+			// 任务没有把你全包！
+			// l  r  mid = (l+r)/2
+			int mid = (l + r) >> 1;
+				pushDown(rt, mid - l + 1, r - mid);				// 先往下发一层
+			if (L <= mid) add(L, R, C, l, mid, rt << 1);			 	// 任务下发给左边
+			if (R > mid) add(L, R, C, mid + 1, r, rt << 1 | 1);	// 任务下发给右边
+			pushUp(rt);
+		}
+
+		/**
+		 * 当前来到rt位置(该位置代表的范围是[l,r])时，在[L,R]范围将每个位置的数更新成C
+		 */
 		public void update(int L, int R, int C, int l, int r, int rt) {
 			if (L <= l && r <= R) {
 				update[rt] = true;
@@ -85,97 +71,78 @@ public class Code01_SegmentTree {
 			}
 			// 当前任务躲不掉，无法懒更新，要往下发
 			int mid = (l + r) >> 1;
-			pushDown(rt, mid - l + 1, r - mid);
-			if (L <= mid) {
-				update(L, R, C, l, mid, rt << 1);
-			}
-			if (R > mid) {
-				update(L, R, C, mid + 1, r, rt << 1 | 1);
-			}
+			pushDown(rt, mid - l + 1, r - mid);					// 先往下发一层
+			if (L <= mid) update(L, R, C, l, mid, rt << 1);			// 任务下发给左边
+			if (R > mid) update(L, R, C, mid + 1, r, rt << 1 | 1);	// 任务下发给右边
 			pushUp(rt);
 		}
 
-		// L~R, C 任务！
-		// rt，l~r
-		public void add(int L, int R, int C, int l, int r, int rt) {
-			// 任务如果把此时的范围全包了！
-			if (L <= l && r <= R) {
-				sum[rt] += C * (r - l + 1);
-				lazy[rt] += C;
-				return;
-			}
-			// 任务没有把你全包！
-			// l  r  mid = (l+r)/2
-			int mid = (l + r) >> 1;
-			pushDown(rt, mid - l + 1, r - mid);
-			// L~R
-			if (L <= mid) {
-				add(L, R, C, l, mid, rt << 1);
-			}
-			if (R > mid) {
-				add(L, R, C, mid + 1, r, rt << 1 | 1);
-			}
-			pushUp(rt);
-		}
-
-		// 1~6 累加和是多少？ 1~8 rt
+		/**
+		 * 当前来到rt位置(该位置代表的范围是[l,r])时，求[L,R]范围上所有数的累加和
+		 */
 		public long query(int L, int R, int l, int r, int rt) {
-			if (L <= l && r <= R) {
-				return sum[rt];
-			}
+			// 任务全包
+			if (L <= l && r <= R) return sum[rt];
+			// 任务没全包
 			int mid = (l + r) >> 1;
-			pushDown(rt, mid - l + 1, r - mid);
+			pushDown(rt, mid - l + 1, r - mid);						// 先往下发一层
 			long ans = 0;
-			if (L <= mid) {
-				ans += query(L, R, l, mid, rt << 1);
-			}
-			if (R > mid) {
-				ans += query(L, R, mid + 1, r, rt << 1 | 1);
-			}
+			if (L <= mid) ans += query(L, R, l, mid, rt << 1);			// 任务下发给左边
+			if (R > mid) ans += query(L, R, mid + 1, r, rt << 1 | 1);	// 任务下发给右边
 			return ans;
 		}
 
+		private void pushUp(int rt) {
+			sum[rt] = sum[rt << 1] + sum[rt << 1 | 1];
+		}
+
+		/**
+		 * 之前的所有懒增加和懒更新，从父范围，发给左右两个子范围
+		 * 分发策略是什么？
+		 * ln: 表示左子树元素结点个数，rn: 表示右子树结点个数
+		 */
+		private void pushDown(int rt, int ln, int rn) {
+			int left = rt << 1, right = rt << 1 | 1;
+			if (update[rt]) {
+				update[left] = true;
+				update[right] = true;
+				change[left] = change[rt];
+				change[right] = change[rt];
+				lazy[left] = 0;
+				lazy[right] = 0;
+				sum[left] = change[rt] * ln;
+				sum[right] = change[rt] * rn;
+				update[rt] = false;
+			}
+			if (lazy[rt] != 0) {
+				lazy[left] += lazy[rt];
+				lazy[right] += lazy[rt];
+				sum[left] += lazy[rt] * ln;
+				sum[right] += lazy[rt] * rn;
+				lazy[rt] = 0;
+			}
+		}
 	}
 
 	public static class Right {
 		public int[] arr;
-
 		public Right(int[] origin) {
 			arr = new int[origin.length + 1];
 			for (int i = 0; i < origin.length; i++) {
 				arr[i + 1] = origin[i];
 			}
 		}
-
 		public void update(int L, int R, int C) {
-			for (int i = L; i <= R; i++) {
-				arr[i] = C;
-			}
+			for (int i = L; i <= R; i++) arr[i] = C;
 		}
-
 		public void add(int L, int R, int C) {
-			for (int i = L; i <= R; i++) {
-				arr[i] += C;
-			}
+			for (int i = L; i <= R; i++) arr[i] += C;
 		}
-
 		public long query(int L, int R) {
 			long ans = 0;
-			for (int i = L; i <= R; i++) {
-				ans += arr[i];
-			}
+			for (int i = L; i <= R; i++) ans += arr[i];
 			return ans;
 		}
-
-	}
-
-	public static int[] genarateRandomArray(int len, int max) {
-		int size = (int) (Math.random() * len) + 1;
-		int[] origin = new int[size];
-		for (int i = 0; i < size; i++) {
-			origin[i] = (int) (Math.random() * max) - (int) (Math.random() * max);
-		}
-		return origin;
 	}
 
 	public static boolean test() {
@@ -185,7 +152,7 @@ public class Code01_SegmentTree {
 		int addOrUpdateTimes = 1000;
 		int queryTimes = 500;
 		for (int i = 0; i < testTimes; i++) {
-			int[] origin = genarateRandomArray(len, max);
+			int[] origin = generateRandomArray(len, max);
 			SegmentTree seg = new SegmentTree(origin);
 			int S = 1;
 			int N = origin.length;
@@ -245,4 +212,12 @@ public class Code01_SegmentTree {
 
 	}
 
+	private static int[] generateRandomArray(int len, int max) {
+		int size = (int) (Math.random() * len) + 1;
+		int[] origin = new int[size];
+		for (int i = 0; i < size; i++) {
+			origin[i] = (int) (Math.random() * max) - (int) (Math.random() * max);
+		}
+		return origin;
+	}
 }

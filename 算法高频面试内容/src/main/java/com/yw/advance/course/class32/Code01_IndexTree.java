@@ -5,35 +5,30 @@ package com.yw.advance.course.class32;
  */
 public class Code01_IndexTree {
 
-	// 下标从1开始！
 	public static class IndexTree {
-
 		private int[] tree;
-		private int N;
-
-		// 0位置弃而不用！
-		public IndexTree(int size) {
-			N = size;
-			tree = new int[N + 1];
+		private int n;
+		public IndexTree(int n) {
+			this.n = n;
+			// 0位置弃而不用，下标从1开始
+			this.tree = new int[n + 1];
 		}
-
-		// 1~index 累加和是多少？
-		public int sum(int index) {
-			int ret = 0;
-			while (index > 0) {
-				ret += tree[index];
-				index -= index & -index;
+		// 求[1,idx]的累加和
+		public int sum(int idx) {
+			int ans = 0;
+			while (idx > 0) {
+				ans += tree[idx];
+				// idx & -idx : 提取出idx最右侧的1
+				// 比如 idx = 11001000，那么 idx & -idx = 00001000
+				idx -= idx & -idx;
 			}
-			return ret;
+			return ans;
 		}
-
-		// index & -index : 提取出index最右侧的1出来
-		// index :           0011001000
-		// index & -index :  0000001000
-		public void add(int index, int d) {
-			while (index <= N) {
-				tree[index] += d;
-				index += index & -index;
+		// 将原数组idx位置的数加d
+		public void add(int idx, int d) {
+			while (idx <= n) {
+				tree[idx] += d;
+				idx += idx & -idx;
 			}
 		}
 	}
