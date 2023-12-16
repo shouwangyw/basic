@@ -2,13 +2,16 @@ package com.yw.advance.course.class37;
 
 import java.util.ArrayList;
 
+/**
+ * @author yangwei
+ */
 public class Code03_AddRemoveGetIndexGreat {
 
 	public static class SBTNode<V> {
-		public V value;
-		public SBTNode<V> l;
-		public SBTNode<V> r;
-		public int size;
+		private V value;
+		private SBTNode<V> l;
+		private SBTNode<V> r;
+		private int size;
 
 		public SBTNode(V v) {
 			value = v;
@@ -37,10 +40,8 @@ public class Code03_AddRemoveGetIndexGreat {
 			return rightNode;
 		}
 
-		private SBTNode<V> maintain(SBTNode<V> cur) {
-			if (cur == null) {
-				return null;
-			}
+		private SBTNode<V> reBalance(SBTNode<V> cur) {
+			if (cur == null) return null;
 			int leftSize = cur.l != null ? cur.l.size : 0;
 			int leftLeftSize = cur.l != null && cur.l.l != null ? cur.l.l.size : 0;
 			int leftRightSize = cur.l != null && cur.l.r != null ? cur.l.r.size : 0;
@@ -49,24 +50,24 @@ public class Code03_AddRemoveGetIndexGreat {
 			int rightRightSize = cur.r != null && cur.r.r != null ? cur.r.r.size : 0;
 			if (leftLeftSize > rightSize) {
 				cur = rightRotate(cur);
-				cur.r = maintain(cur.r);
-				cur = maintain(cur);
+				cur.r = reBalance(cur.r);
+				cur = reBalance(cur);
 			} else if (leftRightSize > rightSize) {
 				cur.l = leftRotate(cur.l);
 				cur = rightRotate(cur);
-				cur.l = maintain(cur.l);
-				cur.r = maintain(cur.r);
-				cur = maintain(cur);
+				cur.l = reBalance(cur.l);
+				cur.r = reBalance(cur.r);
+				cur = reBalance(cur);
 			} else if (rightRightSize > leftSize) {
 				cur = leftRotate(cur);
-				cur.l = maintain(cur.l);
-				cur = maintain(cur);
+				cur.l = reBalance(cur.l);
+				cur = reBalance(cur);
 			} else if (rightLeftSize > leftSize) {
 				cur.r = rightRotate(cur.r);
 				cur = leftRotate(cur);
-				cur.l = maintain(cur.l);
-				cur.r = maintain(cur.r);
-				cur = maintain(cur);
+				cur.l = reBalance(cur.l);
+				cur.r = reBalance(cur.r);
+				cur = reBalance(cur);
 			}
 			return cur;
 		}
@@ -82,7 +83,7 @@ public class Code03_AddRemoveGetIndexGreat {
 			} else {
 				root.r = add(root.r, index - leftAndHeadSize, cur);
 			}
-			root = maintain(root);
+			root = reBalance(root);
 			return root;
 		}
 
@@ -91,6 +92,7 @@ public class Code03_AddRemoveGetIndexGreat {
 			int rootIndex = root.l != null ? root.l.size : 0;
 			if (index != rootIndex) {
 				if (index < rootIndex) {
+					assert root.l != null;
 					root.l = remove(root.l, index);
 				} else {
 					root.r = remove(root.r, index - rootIndex - 1);
@@ -126,6 +128,7 @@ public class Code03_AddRemoveGetIndexGreat {
 		private SBTNode<V> get(SBTNode<V> root, int index) {
 			int leftSize = root.l != null ? root.l.size : 0;
 			if (index < leftSize) {
+				assert root.l != null;
 				return get(root.l, index);
 			} else if (index == leftSize) {
 				return root;
@@ -135,7 +138,7 @@ public class Code03_AddRemoveGetIndexGreat {
 		}
 
 		public void add(int index, V num) {
-			SBTNode<V> cur = new SBTNode<V>(num);
+			SBTNode<V> cur = new SBTNode<>(num);
 			if (root == null) {
 				root = cur;
 			} else {
@@ -159,7 +162,6 @@ public class Code03_AddRemoveGetIndexGreat {
 		public int size() {
 			return root == null ? 0 : root.size;
 		}
-
 	}
 
 	// 通过以下这个测试，
@@ -253,7 +255,5 @@ public class Code03_AddRemoveGetIndexGreat {
 		}
 		end = System.currentTimeMillis();
 		System.out.println("SbtList删除总时长(毫秒) :  " + (end - start));
-
 	}
-
 }

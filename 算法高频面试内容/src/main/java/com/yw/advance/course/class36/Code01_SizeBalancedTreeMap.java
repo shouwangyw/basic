@@ -23,6 +23,7 @@ public class Code01_SizeBalancedTreeMap {
 			SBTNode<K, V> leftNode = cur.l;
 			cur.l = leftNode.r;
 			leftNode.r = cur;
+			// 区别于AVL树，这里是互换size
 			leftNode.size = cur.size;
 			cur.size = (cur.l != null ? cur.l.size : 0) + (cur.r != null ? cur.r.size : 0) + 1;
 			return leftNode;
@@ -32,41 +33,40 @@ public class Code01_SizeBalancedTreeMap {
 			SBTNode<K, V> rightNode = cur.r;
 			cur.r = rightNode.l;
 			rightNode.l = cur;
+			// 区别于AVL树，这里是互换size
 			rightNode.size = cur.size;
 			cur.size = (cur.l != null ? cur.l.size : 0) + (cur.r != null ? cur.r.size : 0) + 1;
 			return rightNode;
 		}
 
-		private SBTNode<K, V> maintain(SBTNode<K, V> cur) {
-			if (cur == null) {
-				return null;
-			}
+		private SBTNode<K, V> reBalance(SBTNode<K, V> cur) {
+			if (cur == null) return null;
 			int leftSize = cur.l != null ? cur.l.size : 0;
 			int leftLeftSize = cur.l != null && cur.l.l != null ? cur.l.l.size : 0;
 			int leftRightSize = cur.l != null && cur.l.r != null ? cur.l.r.size : 0;
 			int rightSize = cur.r != null ? cur.r.size : 0;
 			int rightLeftSize = cur.r != null && cur.r.l != null ? cur.r.l.size : 0;
 			int rightRightSize = cur.r != null && cur.r.r != null ? cur.r.r.size : 0;
-			if (leftLeftSize > rightSize) {
+			if (leftLeftSize > rightSize) { // LL
 				cur = rightRotate(cur);
-				cur.r = maintain(cur.r);
-				cur = maintain(cur);
-			} else if (leftRightSize > rightSize) {
+				cur.r = reBalance(cur.r);
+				cur = reBalance(cur);
+			} else if (leftRightSize > rightSize) { // LR
 				cur.l = leftRotate(cur.l);
 				cur = rightRotate(cur);
-				cur.l = maintain(cur.l);
-				cur.r = maintain(cur.r);
-				cur = maintain(cur);
-			} else if (rightRightSize > leftSize) {
+				cur.l = reBalance(cur.l);
+				cur.r = reBalance(cur.r);
+				cur = reBalance(cur);
+			} else if (rightRightSize > leftSize) { // RR
 				cur = leftRotate(cur);
-				cur.l = maintain(cur.l);
-				cur = maintain(cur);
-			} else if (rightLeftSize > leftSize) {
+				cur.l = reBalance(cur.l);
+				cur = reBalance(cur);
+			} else if (rightLeftSize > leftSize) { // RR
 				cur.r = rightRotate(cur.r);
 				cur = leftRotate(cur);
-				cur.l = maintain(cur.l);
-				cur.r = maintain(cur.r);
-				cur = maintain(cur);
+				cur.l = reBalance(cur.l);
+				cur.r = reBalance(cur.r);
+				cur = reBalance(cur);
 			}
 			return cur;
 		}
@@ -125,17 +125,11 @@ public class Code01_SizeBalancedTreeMap {
 		// 加完之后，会对cur做检查，该调整调整
 		// 返回，调整完之后，整棵树的新头部
 		private SBTNode<K, V> add(SBTNode<K, V> cur, K key, V value) {
-			if (cur == null) {
-				return new SBTNode<K, V>(key, value);
-			} else {
-				cur.size++;
-				if (key.compareTo(cur.key) < 0) {
-					cur.l = add(cur.l, key, value);
-				} else {
-					cur.r = add(cur.r, key, value);
-				}
-				return maintain(cur);
-			}
+			if (cur == null) return new SBTNode<>(key, value);
+			cur.size++;
+			if (key.compareTo(cur.key) < 0) cur.l = add(cur.l, key, value);
+			else cur.r = add(cur.r, key, value);
+			return reBalance(cur);
 		}
 
 		// 在cur这棵树上，删掉key所代表的节点
@@ -150,10 +144,10 @@ public class Code01_SizeBalancedTreeMap {
 				if (cur.l == null && cur.r == null) {
 					// free cur memory -> C++
 					cur = null;
-				} else if (cur.l == null && cur.r != null) {
+				} else if (cur.l == null) {
 					// free cur memory -> C++
 					cur = cur.r;
-				} else if (cur.l != null && cur.r == null) {
+				} else if (cur.r == null) {
 					// free cur memory -> C++
 					cur = cur.l;
 				} else { // 有左有右
@@ -175,7 +169,8 @@ public class Code01_SizeBalancedTreeMap {
 					cur = des;
 				}
 			}
-			// cur = maintain(cur);
+			// 删除的时候可以不用调整，失衡就失衡
+			// cur = reBalance(cur);
 			return cur;
 		}
 
@@ -183,6 +178,7 @@ public class Code01_SizeBalancedTreeMap {
 			if (kth == (cur.l != null ? cur.l.size : 0) + 1) {
 				return cur;
 			} else if (kth <= (cur.l != null ? cur.l.size : 0)) {
+				assert cur.l != null;
 				return getIndex(cur.l, kth);
 			} else {
 				return getIndex(cur.r, kth - (cur.l != null ? cur.l.size : 0) - 1);
@@ -194,18 +190,14 @@ public class Code01_SizeBalancedTreeMap {
 		}
 
 		public boolean containsKey(K key) {
-			if (key == null) {
-				throw new RuntimeException("invalid parameter.");
-			}
+			if (key == null) throw new RuntimeException("invalid parameter.");
 			SBTNode<K, V> lastNode = findLastIndex(key);
-			return lastNode != null && key.compareTo(lastNode.key) == 0 ? true : false;
+			return lastNode != null && key.compareTo(lastNode.key) == 0;
 		}
 
 		// （key，value） put -> 有序表 新增、改value
 		public void put(K key, V value) {
-			if (key == null) {
-				throw new RuntimeException("invalid parameter.");
-			}
+			if (key == null) throw new RuntimeException("invalid parameter.");
 			SBTNode<K, V> lastNode = findLastIndex(key);
 			if (lastNode != null && key.compareTo(lastNode.key) == 0) {
 				lastNode.value = value;
@@ -215,32 +207,24 @@ public class Code01_SizeBalancedTreeMap {
 		}
 
 		public void remove(K key) {
-			if (key == null) {
-				throw new RuntimeException("invalid parameter.");
-			}
+			if (key == null) throw new RuntimeException("invalid parameter.");
 			if (containsKey(key)) {
 				root = delete(root, key);
 			}
 		}
 
 		public K getIndexKey(int index) {
-			if (index < 0 || index >= this.size()) {
-				throw new RuntimeException("invalid parameter.");
-			}
+			if (index < 0 || index >= this.size()) throw new RuntimeException("invalid parameter.");
 			return getIndex(root, index + 1).key;
 		}
 
 		public V getIndexValue(int index) {
-			if (index < 0 || index >= this.size()) {
-				throw new RuntimeException("invalid parameter.");
-			}
+			if (index < 0 || index >= this.size()) throw new RuntimeException("invalid parameter.");
 			return getIndex(root, index + 1).value;
 		}
 
 		public V get(K key) {
-			if (key == null) {
-				throw new RuntimeException("invalid parameter.");
-			}
+			if (key == null) throw new RuntimeException("invalid parameter.");
 			SBTNode<K, V> lastNode = findLastIndex(key);
 			if (lastNode != null && key.compareTo(lastNode.key) == 0) {
 				return lastNode.value;
@@ -250,9 +234,7 @@ public class Code01_SizeBalancedTreeMap {
 		}
 
 		public K firstKey() {
-			if (root == null) {
-				return null;
-			}
+			if (root == null) return null;
 			SBTNode<K, V> cur = root;
 			while (cur.l != null) {
 				cur = cur.l;
@@ -289,38 +271,6 @@ public class Code01_SizeBalancedTreeMap {
 
 	}
 
-	// for test
-	public static void printAll(SBTNode<String, Integer> head) {
-		System.out.println("Binary Tree:");
-		printInOrder(head, 0, "H", 17);
-		System.out.println();
-	}
-
-	// for test
-	public static void printInOrder(SBTNode<String, Integer> head, int height, String to, int len) {
-		if (head == null) {
-			return;
-		}
-		printInOrder(head.r, height + 1, "v", len);
-		String val = to + "(" + head.key + "," + head.value + ")" + to;
-		int lenM = val.length();
-		int lenL = (len - lenM) / 2;
-		int lenR = len - lenM - lenL;
-		val = getSpace(lenL) + val + getSpace(lenR);
-		System.out.println(getSpace(height * len) + val);
-		printInOrder(head.l, height + 1, "^", len);
-	}
-
-	// for test
-	public static String getSpace(int num) {
-		String space = " ";
-		StringBuffer buf = new StringBuffer("");
-		for (int i = 0; i < num; i++) {
-			buf.append(space);
-		}
-		return buf.toString();
-	}
-
 	public static void main(String[] args) {
 		SizeBalancedTreeMap<String, Integer> sbt = new SizeBalancedTreeMap<String, Integer>();
 		sbt.put("d", 4);
@@ -355,6 +305,38 @@ public class Code01_SizeBalancedTreeMap {
 		sbt.remove("f");
 		printAll(sbt.root);
 
+	}
+
+	// for test
+	public static void printAll(SBTNode<String, Integer> head) {
+		System.out.println("Binary Tree:");
+		printInOrder(head, 0, "H", 17);
+		System.out.println();
+	}
+
+	// for test
+	public static void printInOrder(SBTNode<String, Integer> head, int height, String to, int len) {
+		if (head == null) {
+			return;
+		}
+		printInOrder(head.r, height + 1, "v", len);
+		String val = to + "(" + head.key + "," + head.value + ")" + to;
+		int lenM = val.length();
+		int lenL = (len - lenM) / 2;
+		int lenR = len - lenM - lenL;
+		val = getSpace(lenL) + val + getSpace(lenR);
+		System.out.println(getSpace(height * len) + val);
+		printInOrder(head.l, height + 1, "^", len);
+	}
+
+	// for test
+	public static String getSpace(int num) {
+		String space = " ";
+		StringBuffer buf = new StringBuffer("");
+		for (int i = 0; i < num; i++) {
+			buf.append(space);
+		}
+		return buf.toString();
 	}
 
 }

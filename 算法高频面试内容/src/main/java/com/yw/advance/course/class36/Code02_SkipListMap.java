@@ -1,6 +1,7 @@
 package com.yw.advance.course.class36;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Code02_SkipListMap {
 
@@ -8,12 +9,12 @@ public class Code02_SkipListMap {
 	public static class SkipListNode<K extends Comparable<K>, V> {
 		public K key;
 		public V val;
-		public ArrayList<SkipListNode<K, V>> nextNodes;
+		public List<SkipListNode<K, V>> nextNodes;
 
 		public SkipListNode(K k, V v) {
 			key = k;
 			val = v;
-			nextNodes = new ArrayList<SkipListNode<K, V>>();
+			nextNodes = new ArrayList<>();
 		}
 
 		// 遍历的时候，如果是往右遍历到的null(next == null), 遍历结束
@@ -39,7 +40,7 @@ public class Code02_SkipListMap {
 		private int maxLevel;
 
 		public SkipListMap() {
-			head = new SkipListNode<K, V>(null, null);
+			head = new SkipListNode<>(null, null);
 			head.nextNodes.add(null); // 0
 			size = 0;
 			maxLevel = 0;
@@ -84,9 +85,7 @@ public class Code02_SkipListMap {
 
 		// 新增、改value
 		public void put(K key, V value) {
-			if (key == null) {
-				return;
-			}
+			if (key == null) return;
 			// 0层上，最右一个，< key 的Node -> >key
 			SkipListNode<K, V> less = mostRightLessNodeInTree(key);
 			SkipListNode<K, V> find = less.nextNodes.get(0);
@@ -103,7 +102,7 @@ public class Code02_SkipListMap {
 					head.nextNodes.add(null);
 					maxLevel++;
 				}
-				SkipListNode<K, V> newNode = new SkipListNode<K, V>(key, value);
+				SkipListNode<K, V> newNode = new SkipListNode<>(key, value);
 				for (int i = 0; i <= newNodeLevel; i++) {
 					newNode.nextNodes.add(null);
 				}
@@ -197,20 +196,6 @@ public class Code02_SkipListMap {
 
 	}
 
-	// for test
-	public static void printAll(SkipListMap<String, String> obj) {
-		for (int i = obj.maxLevel; i >= 0; i--) {
-			System.out.print("Level " + i + " : ");
-			SkipListNode<String, String> cur = obj.head;
-			while (cur.nextNodes.get(i) != null) {
-				SkipListNode<String, String> next = cur.nextNodes.get(i);
-				System.out.print("(" + next.key + " , " + next.val + ") ");
-				cur = next;
-			}
-			System.out.println();
-		}
-	}
-
 	public static void main(String[] args) {
 		SkipListMap<String, String> test = new SkipListMap<>();
 		printAll(test);
@@ -241,8 +226,22 @@ public class Code02_SkipListMap {
 		System.out.println("======================");
 		System.out.println(test.floorKey("D"));
 		System.out.println(test.ceilingKey("D"));
-		
 
+
+	}
+
+	// for test
+	public static void printAll(SkipListMap<String, String> obj) {
+		for (int i = obj.maxLevel; i >= 0; i--) {
+			System.out.print("Level " + i + " : ");
+			SkipListNode<String, String> cur = obj.head;
+			while (cur.nextNodes.get(i) != null) {
+				SkipListNode<String, String> next = cur.nextNodes.get(i);
+				System.out.print("(" + next.key + " , " + next.val + ") ");
+				cur = next;
+			}
+			System.out.println();
+		}
 	}
 
 }
