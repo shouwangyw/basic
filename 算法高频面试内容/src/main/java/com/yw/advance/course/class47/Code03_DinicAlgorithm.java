@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+/**
+ * @author yangwei
+ */
 public class Code03_DinicAlgorithm {
 
 	public static class Edge {

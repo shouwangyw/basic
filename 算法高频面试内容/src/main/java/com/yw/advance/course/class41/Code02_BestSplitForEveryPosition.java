@@ -1,5 +1,8 @@
 package com.yw.advance.course.class41;
 
+/**
+ * @author yangwei
+ */
 public class Code02_BestSplitForEveryPosition {
 
 	public static int[] bestSplit1(int[] arr) {

@@ -2,6 +2,9 @@ package com.yw.advance.course.class42;
 
 import java.util.Arrays;
 
+/**
+ * @author yangwei
+ */
 public class Code01_PostOfficeProblem {
 
 	public static int min1(int[] arr, int num) {

@@ -1,28 +1,22 @@
 package com.yw.advance.course.class40;
 
+/**
+ * @author yangwei
+ */
 public class Code01_LongestSumSubArrayLengthInPositiveArray {
 
-	public static int getMaxLength(int[] arr, int K) {
-		if (arr == null || arr.length == 0 || K <= 0) {
-			return 0;
-		}
-		int left = 0;
-		int right = 0;
-		int sum = arr[0];
-		int len = 0;
-		while (right < arr.length) {
-			if (sum == K) {
-				len = Math.max(len, right - left + 1);
-				sum -= arr[left++];
-			} else if (sum < K) {
-				right++;
-				if (right == arr.length) {
-					break;
-				}
-				sum += arr[right];
-			} else {
-				sum -= arr[left++];
-			}
+	public static int maxLengthSubArraySum(int[] arr, int k) {
+		if (arr == null || arr.length == 0 || k < 0) return 0;
+		int l = 0, r = 0, sum = arr[0], len = 0;
+		while (true) {
+			if (sum == k) {
+				len = Math.max(len, r - l + 1);
+				sum -= arr[l++];
+			} else if (sum < k) {
+				r++;
+				if (r == arr.length) break;
+				sum += arr[r];
+			} else sum -= arr[l++];
 		}
 		return len;
 	}
@@ -40,13 +34,34 @@ public class Code01_LongestSumSubArrayLengthInPositiveArray {
 		return max;
 	}
 
-	// for test
-	public static boolean valid(int[] arr, int L, int R, int K) {
+	private static boolean valid(int[] arr, int L, int R, int K) {
 		int sum = 0;
 		for (int i = L; i <= R; i++) {
 			sum += arr[i];
 		}
 		return sum == K;
+	}
+
+	public static void main(String[] args) {
+		int len = 50;
+		int value = 100;
+		int testTime = 500000;
+		System.out.println("test begin");
+		for (int i = 0; i < testTime; i++) {
+			int[] arr = generatePositiveArray(len, value);
+			int K = (int) (Math.random() * value) + 1;
+			int ans1 = maxLengthSubArraySum(arr, K);
+			int ans2 = right(arr, K);
+			if (ans1 != ans2) {
+				System.out.println("Oops!");
+				printArray(arr);
+				System.out.println("K : " + K);
+				System.out.println(ans1);
+				System.out.println(ans2);
+				break;
+			}
+		}
+		System.out.println("test end");
 	}
 
 	// for test
@@ -64,28 +79,6 @@ public class Code01_LongestSumSubArrayLengthInPositiveArray {
 			System.out.print(arr[i] + " ");
 		}
 		System.out.println();
-	}
-
-	public static void main(String[] args) {
-		int len = 50;
-		int value = 100;
-		int testTime = 500000;
-		System.out.println("test begin");
-		for (int i = 0; i < testTime; i++) {
-			int[] arr = generatePositiveArray(len, value);
-			int K = (int) (Math.random() * value) + 1;
-			int ans1 = getMaxLength(arr, K);
-			int ans2 = right(arr, K);
-			if (ans1 != ans2) {
-				System.out.println("Oops!");
-				printArray(arr);
-				System.out.println("K : " + K);
-				System.out.println(ans1);
-				System.out.println(ans2);
-				break;
-			}
-		}
-		System.out.println("test end");
 	}
 
 }

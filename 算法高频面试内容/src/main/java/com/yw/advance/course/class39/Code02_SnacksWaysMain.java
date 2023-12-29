@@ -1,125 +1,97 @@
 //不要拷贝包信息的内容
 package com.yw.advance.course.class39;
 
-//本文件是Code02_SnacksWays问题的牛客题目解答
-//但是用的分治的方法
-//这是牛客的测试链接：
-//https://www.nowcoder.com/questionTerminal/d94bb2fa461d42bcb4c0f2b94f5d4281
-//把如下的全部代码拷贝进编辑器（java）
-//可以直接通过
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+/**
+ * 测试链接：https://www.nowcoder.com/questionTerminal/d94bb2fa461d42bcb4c0f2b94f5d4281
+ * @author yangwei
+ */
 public class Code02_SnacksWaysMain {
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
-		int N = sc.nextInt();
-		int bag = sc.nextInt();
-		int[] arr = new int[N];
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = sc.nextInt();
-		}
-		long ways = ways(arr, bag);
-		System.out.println(ways);
+		int n = sc.nextInt(), bag = sc.nextInt();
+		int[] arr = new int[n];
+		for (int i = 0; i < n; i++) arr[i] = sc.nextInt();
+		System.out.println(ways(arr, bag));
 		sc.close();
 	}
+	// 方法一：
+	private static long ways0(int[] arr, int bag) {
+		if (arr == null || arr.length == 0) return 0;
+		int n = arr.length, sum = 0;
+		for (int x : arr) sum += x;
+		sum = Math.min(sum, bag);
 
-	public static long ways(int[] arr, int bag) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		if (arr.length == 1) {
-			return arr[0] <= bag ? 2 : 1;
-		}
-		int mid = (arr.length - 1) >> 1;
-		TreeMap<Long, Long> lmap = new TreeMap<>();
-		long ways = process(arr, 0, 0, mid, bag, lmap);
-		TreeMap<Long, Long> rmap = new TreeMap<>();
-		ways += process(arr, mid + 1, 0, arr.length - 1, bag, rmap);
-		TreeMap<Long, Long> rpre = new TreeMap<>();
-		long pre = 0;
-		for (Entry<Long, Long> entry : rmap.entrySet()) {
-			pre += entry.getValue();
-			rpre.put(entry.getKey(), pre);
-		}
-		for (Entry<Long, Long> entry : lmap.entrySet()) {
-			long lweight = entry.getKey();
-			long lways = entry.getValue();
-			Long floor = rpre.floorKey(bag - lweight);
-			if (floor != null) {
-				long rways = rpre.get(floor);
-				ways += lways * rways;
+//		return process(arr, bag, n - 1, sum);
+
+		long[][] dp = new long[n][sum + 1];
+		for (int j = 0; j <= sum; j++) dp[0][j] = 2;
+		for (int i = 1; i < n; i++) {
+			for (int j = 0; j <= sum; j++) {
+				dp[i][j] = dp[i - 1][j];
+				if (j >= arr[i]) dp[i][j] += dp[i - 1][j - arr[i]];
 			}
 		}
+		return dp[n - 1][sum];
+	}
+	private static long process(int[] arr, int bag, int idx, long sum) {
+		if (sum > bag) return 0;
+		if (idx == 0) return 2;
+
+		return process(arr, bag, idx - 1, sum)
+				+ (sum >= arr[idx] ? process(arr, bag, idx - 1, sum - arr[idx]) : 0);
+	}
+	// 方法二：
+	private static long ways(int[] arr, int bag) {
+		if (arr == null || arr.length == 0) return 0;
+		int n = arr.length;
+		if (n == 1) return arr[0] <= bag ? 2 : 1;
+		int mid = (n - 1) >> 1;
+		Map<Long, Long> leftMap = new TreeMap<>(), rightMap = new TreeMap<>();
+		long ways = process(arr, 0, mid, 0, bag, leftMap);
+		ways += process(arr, mid + 1, n - 1, 0, bag, rightMap);
+		// 转化rightMap: {1:3, 2: 2, 4: 6} -> {1:3, 2: 5, 4: 11} (value是前缀和)
+		TreeMap<Long, Long> rightPreMap = new TreeMap<>();
+		long pre = 0;
+		for (Entry<Long, Long> entry : rightMap.entrySet()) {
+			pre += entry.getValue();
+			rightPreMap.put(entry.getKey(), pre);
+		}
+		for (Entry<Long, Long> entry : leftMap.entrySet()) {
+			Long rightFloor = rightPreMap.floorKey(bag - entry.getKey());
+			if (rightFloor == null) continue;
+			ways += entry.getValue() * rightPreMap.get(rightFloor);
+		}
+		// +1: 什么也不拿的单独算
 		return ways + 1;
 	}
-
-	
-	
-	
-	// arr 30
-	// func(arr, 0, 14, 0, bag, map)
-	
-	// func(arr, 15, 29, 0, bag, map)
-	
-	// 从index出发，到end结束
-	// 之前的选择，已经形成的累加和sum
-	// 零食[index....end]自由选择，出来的所有累加和，不能超过bag，每一种累加和对应的方法数，填在map里
-	// 最后不能什么货都没选
-	// [3,3,3,3] bag = 6
-	// 0 1 2 3
-	// - - - - 0 -> （0 : 1）
-	// - - - $ 3 -> （0 : 1）(3, 1)
-	// - - $ - 3 -> （0 : 1）(3, 2)
-	public static long func(int[] arr, int index, int end, long sum, long bag, TreeMap<Long, Long> map) {
-		if(sum > bag) {
-			return 0;
-		}
+	/**
+	 * 从idx出发，到end结束，之前的选择已经形成的累加和sum
+	 * 零食在[idx, end]范围自由选择，所有累加和不能超过bag，每一种累加和对应的方法数放入map里
+	 * 比如:[3,3,3,3] bag = 6
+	 * 		0 1 2 3			map
+	 * 		× × × × 0	->	{0: 1}
+	 * 		× × × √ 3 	-> 	{0: 1}{3: 1}
+	 * 		× × √ × 3 	-> 	{0: 1}{3: 2}
+	 */
+	private static long process(int[] arr, int idx, int end, long sum, long bag, Map<Long, Long> map) {
+		if (sum > bag) return 0;
 		// sum <= bag
-		if(index > end) { // 所有商品自由选择完了！
-			// sum
-			if(sum != 0) {
-				if (!map.containsKey(sum)) {
-					map.put(sum, 1L);
-				} else {
-					map.put(sum, map.get(sum) + 1);
-				}
-				return 1;
-			} else {
-				return 0;
-			}			
+		// idx > end : 所有商品自由选择完了
+		if(idx > end) {
+			// 最后不能什么都不选
+			if (sum == 0) return 0;
+			map.compute(sum, (k, v) -> v == null ? 1 : v + 1);
+			return 1;
 		}
-		// sum <= bag 并且 index <= end(还有货)
-		// 1) 不要当前index位置的货
-		long ways = func(arr, index + 1, end, sum, bag, map);
-		
-		// 2) 要当前index位置的货
-		ways += func(arr, index + 1, end, sum + arr[index], bag, map);
-		return ways;
+		// idx <= end : 还有货
+		// 不要当前idx位置的货 + 要当前index位置的货
+		return process(arr, idx + 1, end, sum, bag, map) +
+				process(arr, idx + 1, end, sum + arr[idx], bag, map);
 	}
-
-	public static long process(int[] arr, int index, long w, int end, int bag, TreeMap<Long, Long> map) {
-		if (w > bag) {
-			return 0;
-		}
-		if (index > end) {
-			if (w != 0) {
-				if (!map.containsKey(w)) {
-					map.put(w, 1L);
-				} else {
-					map.put(w, map.get(w) + 1);
-				}
-				return 1;
-			} else {
-				return 0;
-			}
-		} else {
-			long ways = process(arr, index + 1, w, end, bag, map);
-			ways += process(arr, index + 1, w + arr[index], end, bag, map);
-			return ways;
-		}
-	}
-
 }

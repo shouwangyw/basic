@@ -1,6 +1,9 @@
 package com.yw.advance.course.class43;
 
-// leetcode 464题
+/**
+ * leetcode 464题
+ * @author yangwei
+ */
 public class Code01_CanIWin {
 
 	// 1~choose 拥有的数字

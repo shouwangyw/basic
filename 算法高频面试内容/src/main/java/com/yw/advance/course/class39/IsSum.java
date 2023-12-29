@@ -3,7 +3,9 @@ package com.yw.advance.course.class39;
 import java.util.HashMap;
 import java.util.HashSet;
 
-// 这道题是一个小小的补充，课上没有讲
+/**
+ * @author yangwei
+ */ // 这道题是一个小小的补充，课上没有讲
 // 但是如果你听过体系学习班动态规划专题和本节课的话
 // 这道题就是一道水题
 public class IsSum {

@@ -1,8 +1,32 @@
 package com.yw.advance.course.class40;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import static com.yw.util.CommonUtils.printArray;
+
+/**
+ * @author yangwei
+ */
 public class Code02_LongestSumSubArrayLength {
+
+	public static int maxLengthSubArraySum(int[] arr, int k) {
+		if (arr == null || arr.length == 0) return 0;
+		// key: 前缀和，value: 最早出现这个前缀和key的位置
+		Map<Integer, Integer> map = new HashMap<>();
+		map.put(0, -1); // !!!important
+		int len = 0, sum = 0;
+		for (int i = 0; i < arr.length; i++) {
+			sum += arr[i];
+			if (map.containsKey(sum - k)) {
+				len = Math.max(len, i - map.get(sum - k));
+			}
+			if (!map.containsKey(sum)) {
+				map.put(sum, i);
+			}
+		}
+		return len;
+	}
 
 	public static int maxLength(int[] arr, int k) {
 		if (arr == null || arr.length == 0) {
@@ -10,7 +34,7 @@ public class Code02_LongestSumSubArrayLength {
 		}
 		// key:前缀和
 		// value : 0~value这个前缀和是最早出现key这个值的
-		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> map = new HashMap<>();
 		map.put(0, -1); // important
 		int len = 0;
 		int sum = 0;
@@ -48,23 +72,6 @@ public class Code02_LongestSumSubArrayLength {
 		return sum == K;
 	}
 
-	// for test
-	public static int[] generateRandomArray(int size, int value) {
-		int[] ans = new int[(int) (Math.random() * size) + 1];
-		for (int i = 0; i < ans.length; i++) {
-			ans[i] = (int) (Math.random() * value) - (int) (Math.random() * value);
-		}
-		return ans;
-	}
-
-	// for test
-	public static void printArray(int[] arr) {
-		for (int i = 0; i != arr.length; i++) {
-			System.out.print(arr[i] + " ");
-		}
-		System.out.println();
-	}
-
 	public static void main(String[] args) {
 		int len = 50;
 		int value = 100;
@@ -74,7 +81,7 @@ public class Code02_LongestSumSubArrayLength {
 		for (int i = 0; i < testTime; i++) {
 			int[] arr = generateRandomArray(len, value);
 			int K = (int) (Math.random() * value) - (int) (Math.random() * value);
-			int ans1 = maxLength(arr, K);
+			int ans1 = maxLengthSubArraySum(arr, K);
 			int ans2 = right(arr, K);
 			if (ans1 != ans2) {
 				System.out.println("Oops!");
@@ -87,6 +94,15 @@ public class Code02_LongestSumSubArrayLength {
 		}
 		System.out.println("test end");
 
+	}
+
+	// for test
+	public static int[] generateRandomArray(int size, int value) {
+		int[] ans = new int[(int) (Math.random() * size) + 1];
+		for (int i = 0; i < ans.length; i++) {
+			ans[i] = (int) (Math.random() * value) - (int) (Math.random() * value);
+		}
+		return ans;
 	}
 
 }

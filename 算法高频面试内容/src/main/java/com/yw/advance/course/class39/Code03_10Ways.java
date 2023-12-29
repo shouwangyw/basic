@@ -2,6 +2,9 @@ package com.yw.advance.course.class39;
 
 import java.util.LinkedList;
 
+/**
+ * @author yangwei
+ */
 public class Code03_10Ways {
 
 	public static long ways1(int N) {

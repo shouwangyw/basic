@@ -1,5 +1,8 @@
 package com.yw.advance.course.class39;
 
+/**
+ * @author yangwei
+ */
 public class Code04_DifferentBTNum {
 
 //	k(0) = 1, k(1) = 1

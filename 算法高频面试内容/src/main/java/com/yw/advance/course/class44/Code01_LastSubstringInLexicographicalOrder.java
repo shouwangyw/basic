@@ -1,6 +1,10 @@
 package com.yw.advance.course.class44;
 
-// 测试链接: https://leetcode.com/problems/last-substring-in-lexicographical-order/
+/**
+ * 测试链接: https://leetcode.cn/problems/last-substring-in-lexicographical-order/
+ *
+ * @author yangwei
+ */
 public class Code01_LastSubstringInLexicographicalOrder {
 
 	public static String lastSubstring(String s) {

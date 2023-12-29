@@ -1,34 +1,23 @@
 package com.yw.advance.course.class40;
 
+/**
+ * @author yangwei
+ */
 public class Code06_RotateMatrix {
 
 	public static void rotate(int[][] matrix) {
-		int a = 0;
-		int b = 0;
-		int c = matrix.length - 1;
-		int d = matrix[0].length - 1;
-		while (a < c) {
-			rotateEdge(matrix, a++, b++, c--, d--);
+		int tr = 0, tc = 0, dr = matrix.length - 1, dc = matrix[0].length - 1;
+		while (tr < dr) {
+			rotateEdge(matrix, tr++, tc++, dr--, dc--);
 		}
 	}
-
-	public static void rotateEdge(int[][] m, int a, int b, int c, int d) {
-		int tmp = 0;
-		for (int i = 0; i < d - b; i++) {
-			tmp = m[a][b + i];
-			m[a][b + i] = m[c - i][b];
-			m[c - i][b] = m[c][d - i];
-			m[c][d - i] = m[a + i][d];
-			m[a + i][d] = tmp;
-		}
-	}
-
-	public static void printMatrix(int[][] matrix) {
-		for (int i = 0; i != matrix.length; i++) {
-			for (int j = 0; j != matrix[0].length; j++) {
-				System.out.print(matrix[i][j] + " ");
-			}
-			System.out.println();
+	private static void rotateEdge(int[][] m, int tr, int tc, int dr, int dc) {
+		for (int i = 0; i < dc - tc; i++) {
+			int tmp = m[tr][tc + i];
+			m[tr][tc + i] = m[dr - i][tc];
+			m[dr - i][tc] = m[dr][dc - i];
+			m[dr][dc - i] = m[tr + i][dc];
+			m[tr + i][dc] = tmp;
 		}
 	}
 
@@ -41,4 +30,12 @@ public class Code06_RotateMatrix {
 
 	}
 
+	public static void printMatrix(int[][] matrix) {
+		for (int i = 0; i != matrix.length; i++) {
+			for (int j = 0; j != matrix[0].length; j++) {
+				System.out.printf("%5d", matrix[i][j]);
+			}
+			System.out.println();
+		}
+	}
 }

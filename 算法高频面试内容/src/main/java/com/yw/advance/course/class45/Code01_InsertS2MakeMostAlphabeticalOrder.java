@@ -1,5 +1,8 @@
 package com.yw.advance.course.class45;
 
+/**
+ * @author yangwei
+ */
 public class Code01_InsertS2MakeMostAlphabeticalOrder {
 
 	// 暴力方法
