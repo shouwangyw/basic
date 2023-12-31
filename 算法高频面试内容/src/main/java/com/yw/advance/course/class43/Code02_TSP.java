@@ -1,152 +1,101 @@
 package com.yw.advance.course.class43;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * @author yangwei
  */
 public class Code02_TSP {
-
-	public static int t1(int[][] matrix) {
-		int N = matrix.length; // 0...N-1
-		// set
-		// set.get(i) != null i这座城市在集合里
-		// set.get(i) == null i这座城市不在集合里
-		List<Integer> set = new ArrayList<>();
-		for (int i = 0; i < N; i++) {
-			set.add(1);
-		}
-		return func1(matrix, set, 0);
+	// 方法一：暴力尝试、深度优先遍历
+	public static int minTravelDistance0(int[][] matrix) {
+		int n = matrix.length;
+		// visited[i]: true表示访问过、false表示访问过
+		boolean[] visited = new boolean[n];
+		return dfs0(matrix, 0, n - 1, visited);
 	}
-
-	// 任何两座城市之间的距离，可以在matrix里面拿到
-	// set中表示着哪些城市的集合，
-	// start这座城一定在set里，
-	// 从start出发，要把set中所有的城市过一遍，最终回到0这座城市，最小距离是多少
-	public static int func1(int[][] matrix, List<Integer> set, int start) {
-		int cityNum = 0;
-		for (int i = 0; i < set.size(); i++) {
-			if (set.get(i) != null) {
-				cityNum++;
-			}
-		}
-		if (cityNum == 1) {
-			return matrix[start][0];
-		}
-		// cityNum > 1  不只start这一座城
-		set.set(start, null);
+	// 任何两座城市之间的距离，可以在m里面拿到，还剩k座城市没访问
+	// 从start出发将剩下没有访问的城市走一遍，最终回到0出发点的最小距离
+	private static int dfs0(int[][] m, int start, int k, boolean[] visited) {
+		if (k == 0) return m[start][0];
+		// 做dfs+回溯
+		visited[start] = true;
 		int min = Integer.MAX_VALUE;
-		for (int i = 0; i < set.size(); i++) {
-			if (set.get(i) != null) {
-				// start -> i i... -> 0
-				int cur = matrix[start][i] + func1(matrix, set, i);
-				min = Math.min(min, cur);
-			}
+		for (int i = 0; i < m.length; i++) {
+			if (visited[i]) continue;
+			min = Math.min(min, m[start][i] + dfs0(m, i, k - 1, visited));
 		}
-		set.set(start, 1);
+		visited[start] = false;
 		return min;
 	}
 
-	public static int t2(int[][] matrix) {
-		int N = matrix.length; // 0...N-1
-		// 7座城 1111111
-		int allCity = (1 << N) - 1;
-		return f2(matrix, allCity, 0);
+	// 方法二：暴力尝试、深度优先遍历，利用一个整型数的位信息替代visited
+	public static int minTravelDistance(int[][] matrix) {
+		// visited: 位信息上0表示没有访问过，1表示访问过
+		int n = matrix.length, visited = 0;
+		return dfs(matrix, 0, n - 1, visited);
 	}
-
-	// 任何两座城市之间的距离，可以在matrix里面拿到
-	// set中表示着哪些城市的集合，
-	// start这座城一定在set里，
-	// 从start出发，要把set中所有的城市过一遍，最终回到0这座城市，最小距离是多少
-	public static int f2(int[][] matrix, int cityStatus, int start) {
-		// cityStatus == cityStatux & (~cityStaus + 1)
-
-		if (cityStatus == (cityStatus & (~cityStatus + 1))) {
-			return matrix[start][0];
-		}
-
-		// 把start位的1去掉，
-		cityStatus &= (~(1 << start));
+	private static int dfs(int[][] m, int start, int k, int visited) {
+		if (k == 0) return m[start][0];
+		// 将第start位置为1，表示访问到
+		visited |= (1 << start);
 		int min = Integer.MAX_VALUE;
-		// 枚举所有的城市
-		for (int move = 0; move < matrix.length; move++) {
-			if ((cityStatus & (1 << move)) != 0) {
-				int cur = matrix[start][move] + f2(matrix, cityStatus, move);
-				min = Math.min(min, cur);
-			}
+		for (int i = 0; i < m.length; i++) {
+			if ((visited & (1 << i)) != 0) continue;
+			min = Math.min(min, m[start][i] + dfs(m, i, k - 1, visited));
 		}
-		cityStatus |= (1 << start);
+		// 值传递不用回溯
+		// visited &= (~(1 << start));
 		return min;
 	}
 
-	public static int t3(int[][] matrix) {
-		int N = matrix.length; // 0...N-1
-		// 7座城 1111111
-		int allCity = (1 << N) - 1;
-		int[][] dp = new int[1 << N][N];
-		for (int i = 0; i < (1 << N); i++) {
-			for (int j = 0; j < N; j++) {
-				dp[i][j] = -1;
-			}
+	// 方法三：记忆化搜索
+	public static int minTravelDistanceRecord(int[][] matrix) {
+		// visited: 位信息上0表示没有访问过，1表示访问过
+		int n = matrix.length, visited = 0;
+		int[][] record = new int[n][1 << n];
+		for (int[] x : record) Arrays.fill(x, -1);
+		return dfs(matrix, 0, n - 1, visited, record);
+	}
+	private static int dfs(int[][] m, int start, int k, int visited, int[][] record) {
+		if (record[start][visited] != -1) return record[start][visited];
+		if (k == 0) {
+			record[start][visited] = m[start][0];
+			return record[start][visited];
 		}
-		return f3(matrix, allCity, 0, dp);
+		// 将第start位置为1，表示访问到
+		visited |= (1 << start);
+		int min = Integer.MAX_VALUE;
+		for (int i = 0; i < m.length; i++) {
+			if ((visited & (1 << i)) != 0) continue;
+			min = Math.min(min, m[start][i] + dfs(m, i, k - 1, visited, record));
+		}
+		record[start][visited] = min;
+		return record[start][visited];
 	}
 
-	// 任何两座城市之间的距离，可以在matrix里面拿到
-	// set中表示着哪些城市的集合，
-	// start这座城一定在set里，
-	// 从start出发，要把set中所有的城市过一遍，最终回到0这座城市，最小距离是多少
-	public static int f3(int[][] matrix, int cityStatus, int start, int[][] dp) {
-		if (dp[cityStatus][start] != -1) {
-			return dp[cityStatus][start];
-		}
-		if (cityStatus == (cityStatus & (~cityStatus + 1))) {
-			dp[cityStatus][start] = matrix[start][0];
-		} else {
-			// 把start位的1去掉，
-			cityStatus &= (~(1 << start));
-			int min = Integer.MAX_VALUE;
-			// 枚举所有的城市
-			for (int move = 0; move < matrix.length; move++) {
-				if (move != start && (cityStatus & (1 << move)) != 0) {
-					int cur = matrix[start][move] + f3(matrix, cityStatus, move, dp);
-					min = Math.min(min, cur);
-				}
-			}
-			cityStatus |= (1 << start);
-			dp[cityStatus][start] = min;
-		}
-		return dp[cityStatus][start];
-	}
-
-	public static int t4(int[][] matrix) {
-		int N = matrix.length; // 0...N-1
-		int statusNums = 1 << N;
-		int[][] dp = new int[statusNums][N];
-
-		for (int status = 0; status < statusNums; status++) {
-			for (int start = 0; start < N; start++) {
-				if ((status & (1 << start)) != 0) {
-					if (status == (status & (~status + 1))) {
-						dp[status][start] = matrix[start][0];
-					} else {
-						int min = Integer.MAX_VALUE;
-						// start 城市在status里去掉之后，的状态
-						int preStatus = status & (~(1 << start));
-						// start -> i
-						for (int i = 0; i < N; i++) {
-							if ((preStatus & (1 << i)) != 0) {
-								int cur = matrix[start][i] + dp[preStatus][i];
-								min = Math.min(min, cur);
-							}
+	// 方法四：动态规划
+	public static int minTravelDistanceDp(int[][] matrix) {
+		int n = matrix.length, statusNum = 1 << n;
+		int[][] dp = new int[n][statusNum];
+		for (int status = 0; status < statusNum; status++) {
+			for (int start = 0; start < n; start++) {
+				if ((status & (1 << start)) == 0) continue;
+				if (status == (status & (~status + 1))) {
+					dp[start][status] = matrix[start][0];
+				} else {
+					int min = Integer.MAX_VALUE;
+					int preStatus = status & (~(1 << start));
+					for (int i = 0; i < n; i++) {
+						if ((preStatus & (1 << i)) != 0) {
+							min = Math.min(min, matrix[start][i] + dp[i][preStatus]);
 						}
-						dp[status][start] = min;
 					}
+					dp[start][status] = min;
 				}
 			}
 		}
-		return dp[statusNums - 1][0];
+		return dp[0][statusNum - 1];
 	}
 
 	// matrix[i][j] -> i城市到j城市的距离
@@ -244,32 +193,21 @@ public class Code02_TSP {
 		return ans;
 	}
 
-	public static int[][] generateGraph(int maxSize, int maxValue) {
-		int len = (int) (Math.random() * maxSize) + 1;
-		int[][] matrix = new int[len][len];
-		for (int i = 0; i < len; i++) {
-			for (int j = 0; j < len; j++) {
-				matrix[i][j] = (int) (Math.random() * maxValue) + 1;
-			}
-		}
-		for (int i = 0; i < len; i++) {
-			matrix[i][i] = 0;
-		}
-		return matrix;
-	}
-
 	public static void main(String[] args) {
 		int len = 10;
 		int value = 100;
 		System.out.println("功能测试开始");
-		for (int i = 0; i < 20000; i++) {
+		for (int i = 0; i < 2000; i++) {
 			int[][] matrix = generateGraph(len, value);
 			int origin = (int) (Math.random() * matrix.length);
-			int ans1 = t3(matrix);
-			int ans2 = t4(matrix);
-			int ans3 = tsp2(matrix, origin);
-			if (ans1 != ans2 || ans1 != ans3) {
+			int ans1 = minTravelDistance0(matrix);
+			int ans2 = minTravelDistance(matrix);
+			int ans3 = minTravelDistanceRecord(matrix);
+			int ans4 = minTravelDistanceDp(matrix);
+			int ans5 = tsp2(matrix, origin);
+			if (ans1 != ans2 || ans2 != ans3 || ans3 != ans4 || ans4 != ans5) {
 				System.out.println("fuck");
+				break;
 			}
 		}
 		System.out.println("功能测试结束");
@@ -288,11 +226,23 @@ public class Code02_TSP {
 		long start;
 		long end;
 		start = System.currentTimeMillis();
-		t4(matrix);
+		minTravelDistanceDp(matrix);
 		end = System.currentTimeMillis();
 		System.out.println("运行时间 : " + (end - start) + " 毫秒");
 		System.out.println("性能测试结束");
-
 	}
 
+	private static int[][] generateGraph(int maxSize, int maxValue) {
+		int len = (int) (Math.random() * maxSize) + 1;
+		int[][] matrix = new int[len][len];
+		for (int i = 0; i < len; i++) {
+			for (int j = 0; j < len; j++) {
+				matrix[i][j] = (int) (Math.random() * maxValue) + 1;
+			}
+		}
+		for (int i = 0; i < len; i++) {
+			matrix[i][i] = 0;
+		}
+		return matrix;
+	}
 }
