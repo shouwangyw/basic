@@ -8,29 +8,20 @@ package com.yw.advance.course.class44;
 public class Code01_LastSubstringInLexicographicalOrder {
 
 	public static String lastSubstring(String s) {
-		if (s == null || s.length() == 0) {
-			return s;
+		if (s == null || s.length() == 0) return s;
+		int n = s.length(), min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+		char[] cs = s.toCharArray();
+		for (char x : cs) {
+			min = Math.min(min, x);
+			max = Math.max(max, x);
 		}
-		int N = s.length();
-		char[] str = s.toCharArray();
-		int min = Integer.MAX_VALUE;
-		int max = Integer.MIN_VALUE;
-		for (char cha : str) {
-			min = Math.min(min, cha);
-			max = Math.max(max, cha);
-		}
-		int[] arr = new int[N];
-		for (int i = 0; i < N; i++) {
-			arr[i] = str[i] - min + 1;
-		}
-		DC3 dc3 = new DC3(arr, max - min + 1);
-		return s.substring(dc3.sa[N - 1]);
+		int[] nums = new int[n];
+		for (int i = 0; i < n; i++) nums[i] = cs[i] - min + 1;
+		DC3 dc3 = new DC3(nums, max - min + 1);
+		return s.substring(dc3.sa[n - 1]);
 	}
-
 	public static class DC3 {
-
-		public int[] sa;
-
+		private int[] sa;
 		public DC3(int[] nums, int max) {
 			sa = sa(nums, max);
 		}
@@ -134,7 +125,5 @@ public class Code01_LastSubstringInLexicographicalOrder {
 		private boolean leq(int a1, int a2, int a3, int b1, int b2, int b3) {
 			return a1 < b1 || (a1 == b1 && leq(a2, a3, b2, b3));
 		}
-
 	}
-
 }

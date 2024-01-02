@@ -4,18 +4,34 @@ package com.yw.advance.course.class44;
  * @author yangwei
  */
 public class DC3 {
-
-	public int[] sa;
-
-	public int[] rank;
-
-	public int[] height;
+	/**
+	 * 			[a,a,b,a]
+	 *  		 0 1 2 3
+	 * sa = 	[3,0,1,2] 	第几名在原数组的位置
+	 * rank = 	[1,2,3,0]	原数组位置对应第几名
+	 * h	=	[1,1,0,0]
+	 *
+	 * h数组
+	 * h[i]：假设以i位置开始的后缀字符串的排名x，该子串与排名x-1的字符串的最长公共前缀多长
+	 * 比如：i=0是"aaba"排名1, 上一排名是0的字符串"a"，最长公共前缀"a"长度1，∴ h[0] = 1
+	 * 		i=1是"aba"排名2, 上一排名是1的字符串"aaba"，最长公共前缀"a"长度1，∴ h[1] = 1
+	 * 		i=2是"ba"排名3, 上一排名是2的字符串"aba"，最长公共前缀没有，∴ h[2] = 0
+	 * 		i=3是"a"排名0, 上一排名没有，∴ h[3] = 0
+	 * height数组
+	 * height[i]: 假设sa[i]位置的后缀字符串x，sa[i-1]位置的后缀字符串y，x与y的最长公共前缀长度
+	 * 比如：i=0对应sa[0]=3, 字符串x是"a"，sa[-1]不存在，∴ height[0] = 0
+	 * 		i=1对应sa[1]=0, 字符串x是"aaba"，sa[0]=3, 字符串y是"a"，最长公共前缀"a"长度1，∴ height[1] = 1
+	 * 		i=2对应sa[2]=1, 字符串x是"aba"，sa[1]=0, 字符串y是"aaba"，最长公共前缀"a"长度1，∴ height[2] = 1
+	 * 		i=3对应sa[3]=2, 字符串x是"ba"，sa[2]=1, 字符串y是"aba"，最长公共前缀没有，∴ height[3] = 0
+	 */
+	private int[] sa;
+	private int[] rank;
+	private int[] height;
 
 	// 构造方法的约定:
-	// 数组叫nums，如果你是字符串，请转成整型数组nums
-	// 数组中，最小值>=1
-	// 如果不满足，处理成满足的，也不会影响使用
-	// max, nums里面最大值是多少
+	// 1. 数组叫nums，如果你是字符串，请转成整型数组nums
+	// 2. 数组中，最小值>=1，如果不满足，处理成满足的，也不会影响使用
+	// 3. max是nums里面的最大值
 	public DC3(int[] nums, int max) {
 		sa = sa(nums, max);
 		rank = rank();
@@ -30,7 +46,6 @@ public class DC3 {
 		}
 		return skew(arr, n, max);
 	}
-
 	private int[] skew(int[] nums, int n, int K) {
 		int n0 = (n + 2) / 3, n1 = (n + 1) / 3, n2 = n / 3, n02 = n0 + n2;
 		int[] s12 = new int[n02 + 3], sa12 = new int[n02 + 3];
@@ -149,16 +164,6 @@ public class DC3 {
 		return ans;
 	}
 
-	// 为了测试
-	public static int[] randomArray(int len, int maxValue) {
-		int[] arr = new int[len];
-		for (int i = 0; i < len; i++) {
-			arr[i] = (int) (Math.random() * maxValue) + 1;
-		}
-		return arr;
-	}
-
-	// 为了测试
 	public static void main(String[] args) {
 		int len = 100000;
 		int maxValue = 100;
@@ -167,5 +172,11 @@ public class DC3 {
 		long end = System.currentTimeMillis();
 		System.out.println("数据量 " + len + ", 运行时间 " + (end - start) + " ms");
 	}
-
+	public static int[] randomArray(int len, int maxValue) {
+		int[] arr = new int[len];
+		for (int i = 0; i < len; i++) {
+			arr[i] = (int) (Math.random() * maxValue) + 1;
+		}
+		return arr;
+	}
 }

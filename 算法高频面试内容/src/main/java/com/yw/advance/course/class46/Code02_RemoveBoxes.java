@@ -1,84 +1,57 @@
 package com.yw.advance.course.class46;
 
 /**
- * 测试链接 : https://leetcode.com/problems/remove-boxes/
+ * 测试链接 : https://leetcode.cn/problems/remove-boxes/
  * @author yangwei
  */
 public class Code02_RemoveBoxes {
 
-	// arr[L...R]消除，而且前面跟着K个arr[L]这个数
-	// 返回：所有东西都消掉，最大得分
-	public static int func1(int[] arr, int L, int R, int K) {
-		if (L > R) {
-			return 0;
-		}
-		int ans = func1(arr, L + 1, R, 0) + (K + 1) * (K + 1);
-		
-		// 前面的K个X，和arr[L]数，合在一起了，现在有K+1个arr[L]位置的数
-		for (int i = L + 1; i <= R; i++) {
-			if (arr[i] == arr[L]) {
-				ans = Math.max(ans, func1(arr, L + 1, i - 1, 0) + func1(arr, i, R, K + 1));
+	// 方法一：暴力尝试+记忆化搜索
+	public static int removeBoxes0(int[] boxes) {
+		int n = boxes.length;
+		int[][][] record = new int[n][n][n];
+		return process0(boxes, 0, n - 1, 0, record);
+	}
+	// 在[l,r]范围消除，前面有k个boxes[l]这样的数，返回消掉所有数的最大得分
+	private static int process0(int[] boxes, int l, int r, int k, int[][][] record) {
+		if (l > r) return 0;
+		if (record[l][r][k] > 0) return record[l][r][k];
+		int ans = process0(boxes, l + 1, r, 0, record) + (k + 1) * (k + 1);
+		for (int i = l + 1; i <= r; i++) {
+			if (boxes[i] == boxes[l]) {
+				// 1. [l+1, i-1]范围0个boxes[l+1]这样的数
+				// 2. [i, r]范围k+1个boxes[l]这样的数
+				ans = Math.max(ans, process0(boxes, l + 1, i - 1, 0, record) + process0(boxes, i, r, k + 1, record));
 			}
 		}
+		record[l][r][k] = ans;
 		return ans;
 	}
 
-	public static int removeBoxes1(int[] boxes) {
-		int N = boxes.length;
-		int[][][] dp = new int[N][N][N];
-		int ans = process1(boxes, 0, N - 1, 0, dp);
-		return ans;
+	// 方法二：暴力尝试优化版+记忆化搜索
+	public static int removeBoxes(int[] boxes) {
+		int n = boxes.length;
+		int[][][] record = new int[n][n][n];
+		return process(boxes, 0, n - 1, 0, record);
 	}
-
-	public static int process1(int[] boxes, int L, int R, int K, int[][][] dp) {
-		if (L > R) {
-			return 0;
-		}
-		if (dp[L][R][K] > 0) {
-			return dp[L][R][K];
-		}
-		int ans = process1(boxes, L + 1, R, 0, dp) + (K + 1) * (K + 1);
-		for (int i = L + 1; i <= R; i++) {
-			if (boxes[i] == boxes[L]) {
-				ans = Math.max(ans, process1(boxes, L + 1, i - 1, 0, dp) + process1(boxes, i, R, K + 1, dp));
-			}
-		}
-		dp[L][R][K] = ans;
-		return ans;
-	}
-
-	public static int removeBoxes2(int[] boxes) {
-		int N = boxes.length;
-		int[][][] dp = new int[N][N][N];
-		int ans = process2(boxes, 0, N - 1, 0, dp);
-		return ans;
-	}
-
-	public static int process2(int[] boxes, int L, int R, int K, int[][][] dp) {
-		if (L > R) {
-			return 0;
-		}
-		if (dp[L][R][K] > 0) {
-			return dp[L][R][K];
-		}
+	private static int process(int[] boxes, int l, int r, int k, int[][][] record) {
+		if (l > r) return 0;
+		if (record[l][r][k] > 0) return record[l][r][k];
 		// 找到开头，
 		// 1,1,1,1,1,5
 		// 3 4 5 6 7 8
 		//         !
-		int last = L;
-		while (last + 1 <= R && boxes[last + 1] == boxes[L]) {
-			last++;
-		}
-		// K个1     (K + last - L) last
-		int pre = K + last - L;
-		int ans = (pre + 1) * (pre + 1) + process2(boxes, last + 1, R, 0, dp);
-		for (int i = last + 2; i <= R; i++) {
-			if (boxes[i] == boxes[L] && boxes[i - 1] != boxes[L]) {
-				ans = Math.max(ans, process2(boxes, last + 1, i - 1, 0, dp) + process2(boxes, i, R, pre + 1, dp));
+		int last = l;
+		while (last + 1 <= r && boxes[last + 1] == boxes[l]) last++;
+		// k个1 -->> (k+last-l) 个
+		int pre = k + last - l;
+		int ans = (pre + 1) * (pre + 1) + process(boxes, last + 1, r, 0, record);
+		for (int i = last + 2; i <= r; i++) {
+			if (boxes[i] == boxes[l] && boxes[i - 1] != boxes[l]) {
+				ans = Math.max(ans, process(boxes, last + 1, i - 1, 0, record) + process(boxes, i, r, pre + 1, record));
 			}
 		}
-		dp[L][R][K] = ans;
+		record[l][r][k] = ans;
 		return ans;
 	}
-
 }

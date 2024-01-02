@@ -1,9 +1,7 @@
 package com.yw.advance.course.class46;
 
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.PriorityQueue;
 
 /**
  * 本文件不牵扯任何byte类型的转化
@@ -16,37 +14,32 @@ import java.util.PriorityQueue;
  */
 public class Code05_HuffmanTree {
 
-    // 根据文章str, 生成词频统计表
-    public static HashMap<Character, Integer> countMap(String str) {
-        HashMap<Character, Integer> ans = new HashMap<>();
-        char[] s = str.toCharArray();
-        for (char cha : s) {
-            if (!ans.containsKey(cha)) {
-                ans.put(cha, 1);
-            } else {
-                ans.put(cha, ans.get(cha) + 1);
-            }
-        }
-        return ans;
-    }
-
     public static class Node {
-        public int count;
-        public Node left;
-        public Node right;
+        private int count;
+        private Node left;
+        private Node right;
 
         public Node(int c) {
             count = c;
         }
     }
 
-    public static class NodeComp implements Comparator<Node> {
-
-        @Override
-        public int compare(Node o1, Node o2) {
-            return o1.count - o2.count;
+    public static class TrieNode {
+        private char value;
+        private TrieNode[] nexts;
+        public TrieNode() {
+            value = 0;
+            nexts = new TrieNode[2];
         }
+    }
 
+    // 根据文章str, 生成词频统计表
+    public static Map<Character, Integer> countMap(String s) {
+        Map<Character, Integer> countMap = new HashMap<>();
+        for (char c : s.toCharArray()) {
+            countMap.compute(c, (k, v) -> v == null ? 1 : v + 1);
+        }
+        return countMap;
     }
 
     // 根据由文章生成词频表countMap，生成哈夫曼编码表
@@ -60,16 +53,16 @@ public class Code05_HuffmanTree {
     // E 000
     // F 00101
     // G 00100
-    public static HashMap<Character, String> huffmanForm(HashMap<Character, Integer> countMap) {
-        HashMap<Character, String> ans = new HashMap<>();
+    public static Map<Character, String> huffmanForm(Map<Character, Integer> countMap) {
+        Map<Character, String> ans = new HashMap<>();
         if (countMap.size() == 1) {
             for (char key : countMap.keySet()) {
                 ans.put(key, "0");
             }
             return ans;
         }
-        HashMap<Node, Character> nodes = new HashMap<>();
-        PriorityQueue<Node> heap = new PriorityQueue<>(new NodeComp());
+        Map<Node, Character> nodes = new HashMap<>();
+        Queue<Node> heap = new PriorityQueue<>(Comparator.comparingInt(o -> o.count));
         for (Entry<Character, Integer> entry : countMap.entrySet()) {
             Node cur = new Node(entry.getValue());
             char cha = entry.getKey();
@@ -89,7 +82,7 @@ public class Code05_HuffmanTree {
         return ans;
     }
 
-    public static void fillForm(Node head, String pre, HashMap<Node, Character> nodes, HashMap<Character, String> ans) {
+    public static void fillForm(Node head, String pre, Map<Node, Character> nodes, Map<Character, String> ans) {
         if (nodes.containsKey(head)) {
             ans.put(nodes.get(head), pre);
         } else {
@@ -99,7 +92,7 @@ public class Code05_HuffmanTree {
     }
 
     // 原始字符串str，根据哈夫曼编码表，转译成哈夫曼编码返回
-    public static String huffmanEncode(String str, HashMap<Character, String> huffmanForm) {
+    public static String huffmanEncode(String str, Map<Character, String> huffmanForm) {
         char[] s = str.toCharArray();
         StringBuilder builder = new StringBuilder();
         for (char cha : s) {
@@ -109,7 +102,7 @@ public class Code05_HuffmanTree {
     }
 
     // 原始字符串的哈夫曼编码huffmanEncode，根据哈夫曼编码表，还原成原始字符串
-    public static String huffmanDecode(String huffmanEncode, HashMap<Character, String> huffmanForm) {
+    public static String huffmanDecode(String huffmanEncode, Map<Character, String> huffmanForm) {
         TrieNode root = createTrie(huffmanForm);
         TrieNode cur = root;
         char[] encode = huffmanEncode.toCharArray();
@@ -125,7 +118,7 @@ public class Code05_HuffmanTree {
         return builder.toString();
     }
 
-    public static TrieNode createTrie(HashMap<Character, String> huffmanForm) {
+    public static TrieNode createTrie(Map<Character, String> huffmanForm) {
         TrieNode root = new TrieNode();
         for (char key : huffmanForm.keySet()) {
             char[] path = huffmanForm.get(key).toCharArray();
@@ -142,29 +135,9 @@ public class Code05_HuffmanTree {
         return root;
     }
 
-    public static class TrieNode {
-        public char value;
-        public TrieNode[] nexts;
-
-        public TrieNode() {
-            value = 0;
-            nexts = new TrieNode[2];
-        }
-    }
-
-    // 为了测试
-    public static String randomNumberString(int len, int range) {
-        char[] str = new char[len];
-        for (int i = 0; i < len; i++) {
-            str[i] = (char) ((int) (Math.random() * range) + 'a');
-        }
-        return String.valueOf(str);
-    }
-
-    // 为了测试
     public static void main(String[] args) {
         // 根据词频表生成哈夫曼编码表
-        HashMap<Character, Integer> map = new HashMap<>();
+        Map<Character, Integer> map = new HashMap<>();
         map.put('A', 60);
         map.put('B', 45);
         map.put('C', 13);
@@ -172,7 +145,7 @@ public class Code05_HuffmanTree {
         map.put('E', 14);
         map.put('F', 5);
         map.put('G', 3);
-        HashMap<Character, String> huffmanForm = huffmanForm(map);
+        Map<Character, String> huffmanForm = huffmanForm(map);
         for (Entry<Character, String> entry : huffmanForm.entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
@@ -181,9 +154,9 @@ public class Code05_HuffmanTree {
         String str = "CBBBAABBACAABDDEFBA";
         System.out.println(str);
         // countMap是根据str建立的词频表
-        HashMap<Character, Integer> countMap = countMap(str);
+        Map<Character, Integer> countMap = countMap(str);
         // hf是根据countMap生成的哈夫曼编码表
-        HashMap<Character, String> hf = huffmanForm(countMap);
+        Map<Character, String> hf = huffmanForm(countMap);
         // huffmanEncode是原始字符串转译后的哈夫曼编码
         String huffmanEncode = huffmanEncode(str, hf);
         System.out.println(huffmanEncode);
@@ -201,8 +174,8 @@ public class Code05_HuffmanTree {
         for (int i = 0; i < testTime; i++) {
             int N = (int) (Math.random() * len) + 1;
             String test = randomNumberString(N, range);
-            HashMap<Character, Integer> counts = countMap(test);
-            HashMap<Character, String> form = huffmanForm(counts);
+            Map<Character, Integer> counts = countMap(test);
+            Map<Character, String> form = huffmanForm(counts);
             String encode = huffmanEncode(test, form);
             String decode = huffmanDecode(encode, form);
             if (!test.equals(decode)) {
@@ -215,4 +188,11 @@ public class Code05_HuffmanTree {
         System.out.println("大样本随机测试结束");
     }
 
+    private static String randomNumberString(int len, int range) {
+        char[] str = new char[len];
+        for (int i = 0; i < len; i++) {
+            str[i] = (char) ((int) (Math.random() * range) + 'a');
+        }
+        return String.valueOf(str);
+    }
 }
