@@ -7,10 +7,7 @@
 
 package com.yw.advance.course.class47;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * @author yangwei
@@ -18,9 +15,9 @@ import java.util.Scanner;
 public class Code03_DinicAlgorithm {
 
 	public static class Edge {
-		public int from;
-		public int to;
-		public int available;
+		private int from;		// 源顶点编号
+		private int to;			// 目标顶点编号
+		private int available; 	// 这条边还有多少可用额度
 
 		public Edge(int a, int b, int c) {
 			from = a;
@@ -30,33 +27,33 @@ public class Code03_DinicAlgorithm {
 	}
 
 	public static class Dinic {
-		private int N;
-		private ArrayList<ArrayList<Integer>> nexts;
-		private ArrayList<Edge> edges;
+		private int n;						// 点的数量
+		private List<List<Integer>> nexts;	// nexts[i][j]记录i编号顶点所关联的边的编号
+		private List<Edge> edges;			// 边集合
 		private int[] depth;
 		private int[] cur;
 
 		public Dinic(int nums) {
-			N = nums + 1;
+			n = nums + 1;
 			nexts = new ArrayList<>();
-			for (int i = 0; i <= N; i++) {
-				nexts.add(new ArrayList<>());
-			}
+			for (int i = 0; i <= n; i++) nexts.add(new ArrayList<>());
 			edges = new ArrayList<>();
-			depth = new int[N];
-			cur = new int[N];
+			depth = new int[n];
+			cur = new int[n];
 		}
-
 		public void addEdge(int u, int v, int r) {
 			int m = edges.size();
-			edges.add(new Edge(u, v, r));
+			edges.add(new Edge(u, v, r));	// 当前新加的边，编号m
 			nexts.get(u).add(m);
-			edges.add(new Edge(v, u, 0));
+			edges.add(new Edge(v, u, 0)); // 反向边，编号m+1
 			nexts.get(v).add(m + 1);
 		}
-
+		/**
+		 * 最大网络流算法
+		 */
 		public int maxFlow(int s, int t) {
 			int flow = 0;
+			// 累加每一种可以从s可以到t的流量
 			while (bfs(s, t)) {
 				Arrays.fill(cur, 0);
 				flow += dfs(s, t, Integer.MAX_VALUE);
@@ -64,11 +61,10 @@ public class Code03_DinicAlgorithm {
 			}
 			return flow;
 		}
-
 		private boolean bfs(int s, int t) {
 			LinkedList<Integer> queue = new LinkedList<>();
 			queue.addFirst(s);
-			boolean[] visited = new boolean[N];
+			boolean[] visited = new boolean[n];
 			visited[s] = true;
 			while (!queue.isEmpty()) {
 				int u = queue.pollLast();
@@ -78,26 +74,18 @@ public class Code03_DinicAlgorithm {
 					if (!visited[v] && e.available > 0) {
 						visited[v] = true;
 						depth[v] = depth[u] + 1;
-						if (v == t) {
-							break;
-						}
+						if (v == t) break;
 						queue.addFirst(v);
 					}
 				}
 			}
 			return visited[t];
 		}
-
-		// 当前来到了s点，s可变
-		// 最终目标是t，t固定参数
-		// r，收到的任务
-		// 收集到的流，作为结果返回，ans <= r
+		// 当前来到了s点、s可变，最终目标是t，t固定参数，r: 收到的任务
+		// 收集到的流作为结果返回，ans <= r
 		private int dfs(int s, int t, int r) {
-			if (s == t || r == 0) {
-				return r;
-			}
-			int f = 0;
-			int flow = 0;
+			if (s == t || r == 0) return r;
+			int f, flow = 0;
 			// s点从哪条边开始试 -> cur[s]
 			for (; cur[s] < nexts.get(s).size(); cur[s]++) {
 				int ei = nexts.get(s).get(cur[s]);
@@ -108,9 +96,7 @@ public class Code03_DinicAlgorithm {
 					o.available += f;
 					flow += f;
 					r -= f;
-					if (r <= 0) {
-						break;
-					}
+					if (r <= 0) break;
 				}
 			}
 			return flow;
@@ -138,5 +124,4 @@ public class Code03_DinicAlgorithm {
 		}
 		cin.close();
 	}
-
 }

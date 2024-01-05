@@ -6,76 +6,71 @@ package com.yw.advance.course.class47;
  */
 public class Code01_StrangePrinter {
 
-	public static int strangePrinter1(String s) {
-		if (s == null || s.length() == 0) {
-			return 0;
+	// 方法一：暴力尝试
+	public static int strangePrinter0(String s) {
+		if (s == null || s.length() == 0) return 0;
+		return process(s.toCharArray(), 0, s.length() - 1);
+	}
+	// 返回 在[l,r]范围完成打印 的最少打印次数
+	private static int process(char[] cs, int l, int r) {
+		// base case: 若只剩一个字符了，最少打印1次
+		if (l == r) return 1;
+		int min = r - l + 1;
+		// 枚举每一个划分点
+		for (int i = l + 1; i <= r; i++) {
+			min = Math.min(min, process(cs, l, i - 1) + process(cs, i, r)
+					// !!! 若`左边开始位置字符=右边开始位置字符`，则可以合并一次
+					- (cs[l] == cs[i] ? 1 : 0));
 		}
-		char[] str = s.toCharArray();
-		return process1(str, 0, str.length - 1);
+		return min;
 	}
 
-	// 要想刷出str[L...R]的样子！
-	// 返回最少的转数
-	public static int process1(char[] str, int L, int R) {
-		if (L == R) {
-			return 1;
-		}
-		// L...R
-		int ans = R - L + 1;
-		for (int k = L + 1; k <= R; k++) {
-			// L...k-1 k....R
-			ans = Math.min(ans, process1(str, L, k - 1) + process1(str, k, R) - (str[L] == str[k] ? 1 : 0));
-		}
-		return ans;
+	// 方法二：暴力尝试改记忆化搜索
+	public static int strangePrinter(String s) {
+		if (s == null || s.length() == 0) return 0;
+		int n = s.length();
+		return process(s.toCharArray(), 0, n - 1, new int[n][n]);
 	}
-
-	public static int strangePrinter2(String s) {
-		if (s == null || s.length() == 0) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		int N = str.length;
-		int[][] dp = new int[N][N];
-		return process2(str, 0, N - 1, dp);
-	}
-
-	public static int process2(char[] str, int L, int R, int[][] dp) {
-		if (dp[L][R] != 0) {
-			return dp[L][R];
-		}
-		int ans = R - L + 1;
-		if (L == R) {
-			ans = 1;
-		} else {
-			for (int k = L + 1; k <= R; k++) {
-				ans = Math.min(ans, process2(str, L, k - 1, dp) + process2(str, k, R, dp) - (str[L] == str[k] ? 1 : 0));
+	private static int process(char[] cs, int l, int r, int[][] record) {
+		if (record[l][r] != 0) return record[l][r];
+		// base case: 若只剩一个字符了，最少打印1次
+		int min = r - l + 1;
+		if (l == r) min = 1;
+		else {
+			// 枚举每一个划分点
+			for (int i = l + 1; i <= r; i++) {
+				min = Math.min(min, process(cs, l, i - 1, record) + process(cs, i, r, record)
+						// !!! 若`左边开始位置字符=右边开始位置字符`，则可以合并一次
+						- (cs[l] == cs[i] ? 1 : 0));
 			}
 		}
-		dp[L][R] = ans;
-		return ans;
+		record[l][r] = min;
+		return min;
 	}
 
-	public static int strangePrinter3(String s) {
-		if (s == null || s.length() == 0) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		int N = str.length;
-		int[][] dp = new int[N][N];
-		dp[N - 1][N - 1] = 1;
-		for (int i = 0; i < N - 1; i++) {
+	// 方法三：暴力尝试改动态规划
+	public static int strangePrinterDp(String s) {
+		if (s == null || s.length() == 0) return 0;
+		char[] cs = s.toCharArray();
+		int n = cs.length;
+		int[][] dp = new int[n][n];
+		// 初始化dp表，左下半区无效不考虑
+		// 斜对角线(即只有一个字符)至少打印1次，∴ dp[i][i] = 1
+		// 斜对角线上一条线(有两个个字符)，相同则至少打印1次，否则打印2次∴ dp[i][i + 1] = cs[i] == cs[i + 1] ? 1 : 2
+		dp[n - 1][n - 1] = 1;
+		for (int i = 0; i < n - 1; i++) {
 			dp[i][i] = 1;
-			dp[i][i + 1] = str[i] == str[i + 1] ? 1 : 2;
+			dp[i][i + 1] = cs[i] == cs[i + 1] ? 1 : 2;
 		}
-		for (int L = N - 3; L >= 0; L--) {
-			for (int R = L + 2; R < N; R++) {
-				dp[L][R] = R - L + 1;
-				for (int k = L + 1; k <= R; k++) {
-					dp[L][R] = Math.min(dp[L][R], dp[L][k - 1] + dp[k][R] - (str[L] == str[k] ? 1 : 0));
+		// 普遍位置
+		for (int l = n - 3; l >= 0; l--) {
+			for (int r = l + 2; r < n; r++) {
+				dp[l][r] = r - l + 1;
+				for (int i = l + 1; i <= r; i++) {
+					dp[l][r] = Math.min(dp[l][r], dp[l][i - 1] + dp[i][r] - (cs[l] == cs[i] ? 1 : 0));
 				}
 			}
 		}
-		return dp[0][N - 1];
+		return dp[0][n - 1];
 	}
-
 }
