@@ -1,5 +1,8 @@
 package com.yw.course.coding.class01;
 
+/**
+ * @author yangwei
+ */
 public class Code04_MinSwapStep {
 
 	// 一个数组中只有两种字符'G'和'B'，

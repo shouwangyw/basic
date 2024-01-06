@@ -2,42 +2,41 @@ package com.yw.course.coding.class01;
 
 import java.util.Arrays;
 
+/**
+ * @author yangwei
+ */
 public class Code01_CordCoverMaxPoint {
 
-	public static int maxPoint1(int[] arr, int L) {
-		int res = 1;
-		for (int i = 0; i < arr.length; i++) {
-			int nearest = nearestIndex(arr, i, arr[i] - L);
-			res = Math.max(res, i - nearest + 1);
+	// 方法一：二分法
+	public static int maxPoint1(int[] arr, int k) {
+		int ans = 1;
+		// 遍历每一个点arr[i]作为绳子覆盖的右边缘点r，则绳子左边最多能到arr[i]-k
+		// 利用二分法找到左边点位置l，在所有覆盖点中求最大值max{r-l+1}
+		for (int r = 1; r < arr.length; r++) {
+			int l = binarySearch(arr, r, arr[r] - k);
+			ans = Math.max(ans, r - l + 1);
 		}
-		return res;
+		return ans;
+	}
+	private static int binarySearch(int[] arr, int r, int val) {
+		int l = 0, idx = r, mid;
+		while (l <= r) {
+			mid = l + ((r - l) >> 1);
+			if (arr[mid] >= val) {
+				idx = mid;
+				r = mid - 1;
+			} else l = mid + 1;
+		}
+		return idx;
 	}
 
-	public static int nearestIndex(int[] arr, int R, int value) {
-		int L = 0;
-		int index = R;
-		while (L <= R) {
-			int mid = L + ((R - L) >> 1);
-			if (arr[mid] >= value) {
-				index = mid;
-				R = mid - 1;
-			} else {
-				L = mid + 1;
-			}
-		}
-		return index;
-	}
-
-	public static int maxPoint2(int[] arr, int L) {
-		int left = 0;
-		int right = 0;
-		int N = arr.length;
-		int max = 0;
-		while (left < N) {
-			while (right < N && arr[right] - arr[left] <= L) {
-				right++;
-			}
-			max = Math.max(max, right - (left++));
+	// 方法二：滑动窗口法
+	public static int maxPoint2(int[] arr, int k) {
+		int l = 0, r = 0, n = arr.length, max = 0;
+		while (l < n) {
+			// 窗口: arr[r] - arr[l]
+			while (r < n && arr[r] - arr[l] <= k) r++;
+			max = Math.max(max, r - (l++));
 		}
 		return max;
 	}
@@ -53,16 +52,6 @@ public class Code01_CordCoverMaxPoint {
 			max = Math.max(max, i - pre);
 		}
 		return max;
-	}
-
-	// for test
-	public static int[] generateArray(int len, int max) {
-		int[] ans = new int[(int) (Math.random() * len) + 1];
-		for (int i = 0; i < ans.length; i++) {
-			ans[i] = (int) (Math.random() * max);
-		}
-		Arrays.sort(ans);
-		return ans;
 	}
 
 	public static void main(String[] args) {
@@ -81,7 +70,13 @@ public class Code01_CordCoverMaxPoint {
 				break;
 			}
 		}
-
 	}
-
+	private static int[] generateArray(int len, int max) {
+		int[] ans = new int[(int) (Math.random() * len) + 1];
+		for (int i = 0; i < ans.length; i++) {
+			ans[i] = (int) (Math.random() * max);
+		}
+		Arrays.sort(ans);
+		return ans;
+	}
 }

@@ -2,7 +2,9 @@ package com.yw.course.coding.class01;
 
 import java.util.Arrays;
 
-/*
+/**
+ * @author yangwei
+ */ /*
  * 给定两个数组x和hp，长度都是N。
  * x数组一定是有序的，x[i]表示i号怪兽在x轴上的位置；hp数组不要求有序，hp[i]表示i号怪兽的血量 
  * 为了方便起见，可以认为x数组和hp数组中没有负数。
