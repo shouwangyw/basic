@@ -1,48 +1,42 @@
 package com.yw.course.coding.class02;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.TreeMap;
 
+/**
+ * 测试链接：https://leetcode.cn/problems/most-profit-assigning-work/
+ * @author yangwei
+ */
 public class Code01_ChooseWork {
 
-	public static class Job {
-		public int money;
-		public int hard;
-
-		public Job(int m, int h) {
-			money = m;
-			hard = h;
+	public int[] maxProfitAssignment(int[] difficulty, int[] profit, int[] worker) {
+		// 将difficulty、profit封装成工作
+		int[][] job = new int[difficulty.length][2];
+		for (int i = 0; i < difficulty.length; i++) {
+			job[i][0] = difficulty[i];
+			job[i][1] = profit[i];
 		}
-	}
-
-	public static class JobComparator implements Comparator<Job> {
-		@Override
-		public int compare(Job o1, Job o2) {
-			return o1.hard != o2.hard ? (o1.hard - o2.hard) : (o2.money - o1.money);
-		}
-	}
-
-	public static int[] getMoneys(Job[] job, int[] ability) {
-		Arrays.sort(job, new JobComparator());
-		// key : 难度   value：报酬
+		// 对job排序: 先难度升序，难度相同按收益降序
+		Arrays.sort(job, (o1, o2) -> o1[0] != o2[0] ? o1[0] - o2[0] : o2[1] - o1[1]);
+		// 定义一个有序表，key: 难度，value: 收益
 		TreeMap<Integer, Integer> map = new TreeMap<>();
-		map.put(job[0].hard, job[0].money);
-		// pre : 上一份进入map的工作
-		Job pre = job[0];
+		map.put(0, 0); // 避免边界值判断
+		// preJob: 上一份进map的工作，至少job[0]能进map
+		int[] preJob = job[0], curJob;
+		map.put(preJob[0], preJob[1]);
 		for (int i = 1; i < job.length; i++) {
-			if (job[i].hard != pre.hard && job[i].money > pre.money) {
-				pre = job[i];
-				map.put(pre.hard, pre.money);
-			}
+			curJob = job[i];
+			// 过滤掉难度相同但收入低的，以及难度更大但收入没增加的
+			if (curJob[0] == preJob[0] || curJob[1] <= preJob[1]) continue;
+			map.put(curJob[0], curJob[1]);
+			preJob = curJob;
 		}
-		int[] ans = new int[ability.length];
-		for (int i = 0; i < ability.length; i++) {
-			// ability[i] 当前人的能力 <= ability[i]  且离它最近的
-			Integer key = map.floorKey(ability[i]);
-			ans[i] = key != null ? map.get(key) : 0;
+		// LeetCode826 改成ans的累加和即可
+		int[] ans = new int[worker.length];
+		for (int i = 0; i < worker.length; i++) {
+			// 当前工人能力 <= worker[i]，且离它最近的
+			ans[i] = map.get(map.floorKey(worker[i]));
 		}
 		return ans;
 	}
-
 }
