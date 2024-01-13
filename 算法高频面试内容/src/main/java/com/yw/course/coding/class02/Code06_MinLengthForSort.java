@@ -1,6 +1,9 @@
 package com.yw.course.coding.class02;
 
-// 本题测试链接 : https://leetcode.com/problems/shortest-unsorted-continuous-subarray/
+/**
+ * 测试链接 : https://leetcode.cn/problems/shortest-unsorted-continuous-subarray/
+ * @author yangwei
+ */
 public class Code06_MinLengthForSort {
 
 	public static int findUnsortedSubarray(int[] nums) {

@@ -1,59 +1,56 @@
 package com.yw.course.coding.class02;
 
 import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * @author yangwei
+ */
 public class Code03_ReceiveAndPrintOrderLine {
 
-	public static class Node {
-		public String info;
-		public Node next;
-
-		public Node(String str) {
-			info = str;
-		}
-	}
-
 	public static class MessageBox {
-		private HashMap<Integer, Node> headMap;
-		private HashMap<Integer, Node> tailMap;
+		private static class Node {
+			private String info;
+			private Node next;
+
+			public Node(String info) {
+				this.info = info;
+			}
+		}
+
+		private Map<Integer, Node> headMap;	// 记录所有连续区间的开头<序号, 节点>
+		private Map<Integer, Node> tailMap;	// 记录所有连续区间的结尾<序号, 节点>
 		private int waitPoint;
 
 		public MessageBox() {
-			headMap = new HashMap<Integer, Node>();
-			tailMap = new HashMap<Integer, Node>();
-			waitPoint = 1;
+			headMap = new HashMap<>();
+			tailMap = new HashMap<>();
+			waitPoint = 1;	// 消息一定从1开始
 		}
 
-		// 消息的编号，info消息的内容, 消息一定从1开始
+		// 消息的编号，info消息的内容
 		public void receive(int num, String info) {
-			if (num < 1) {
-				return;
-			}
+			if (num < 1) return;
 			Node cur = new Node(info);
-			// num~num
-			headMap.put(num, cur);
-			tailMap.put(num, cur);
-			// 建立了num~num这个连续区间的头和尾
-			// 查询有没有某个连续区间以num-1结尾
-			if (tailMap.containsKey(num - 1)) {
-				tailMap.get(num - 1).next = cur;
-				tailMap.remove(num - 1);
-				headMap.remove(num);
-			}
-			// 查询有没有某个连续区间以num+1开头的
-			if (headMap.containsKey(num + 1)) {
-				cur.next = headMap.get(num + 1);
-				tailMap.remove(num);
+			Node head = headMap.get(num + 1), tail = tailMap.get(num - 1);
+			// 如果存在 num+1 的头，说明 cur 可成为新头
+			if (head != null) {
+				cur.next = head;
 				headMap.remove(num + 1);
 			}
-			if (num == waitPoint) {
-				print();
+			// 如果存在 num-1 的尾，说明 cur 可成为新尾
+			if (tail != null) {
+				tail.next = cur;
+				tailMap.remove(num - 1);
 			}
+			headMap.put(num, cur);
+			tailMap.put(num, cur);
+
+			if (num == waitPoint) print();
 		}
 
 		private void print() {
-			Node node = headMap.get(waitPoint);
-			headMap.remove(waitPoint);
+			Node node = headMap.remove(waitPoint);
 			while (node != null) {
 				System.out.print(node.info + " ");
 				node = node.next;
@@ -84,6 +81,5 @@ public class Code03_ReceiveAndPrintOrderLine {
 		box.receive(12,"L"); // - 12
 		box.receive(13,"M"); // - 12 13
 		box.receive(11,"K"); // 11 12 13 -> print, trigger is 11
-
 	}
 }

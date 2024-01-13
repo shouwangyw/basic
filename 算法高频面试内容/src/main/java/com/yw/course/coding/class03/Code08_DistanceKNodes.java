@@ -1,86 +1,61 @@
 package com.yw.course.coding.class03;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import com.yw.entity.TreeNode;
 
+import java.util.*;
+
+/**
+ * @author yangwei
+ */
 public class Code08_DistanceKNodes {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
-
-		public Node(int v) {
-			value = v;
-		}
-	}
-
-	public static List<Node> distanceKNodes(Node root, Node target, int K) {
-		HashMap<Node, Node> parents = new HashMap<>();
-		parents.put(root, null);
-		createParentMap(root, parents);
-		Queue<Node> queue = new LinkedList<>();
-		HashSet<Node> visited = new HashSet<>();
+	public static List<TreeNode> distanceKNodes(TreeNode root, TreeNode target, int k) {
+		Map<TreeNode, TreeNode> parentMap = new HashMap<>();
+		// 用一个Map为每个节点维护一个父节点
+		createParentMap(root, parentMap);
+		// 从target节点出发进行宽度优先遍历
+		Queue<TreeNode> queue = new LinkedList<>();
+		Set<TreeNode> visited = new HashSet<>();
 		queue.offer(target);
 		visited.add(target);
-		int curLevel = 0;
-		List<Node> ans = new ArrayList<>();
-		while (!queue.isEmpty()) {
+		while (!queue.isEmpty() && (k-- > 0)) {
 			int size = queue.size();
 			while (size-- > 0) {
-				Node cur = queue.poll();
-				if (curLevel == K) {
-					ans.add(cur);
+				TreeNode curNode = queue.poll();
+				if (curNode == null) continue;
+				TreeNode[] nodes = {curNode.left, curNode.right, parentMap.get(curNode)};
+				for (TreeNode node : nodes) {
+					if (node == null || visited.contains(node)) continue;
+					queue.offer(node);
+					visited.add(node);
 				}
-				if (cur.left != null && !visited.contains(cur.left)) {
-					visited.add(cur.left);
-					queue.offer(cur.left);
-				}
-				if (cur.right != null && !visited.contains(cur.right)) {
-					visited.add(cur.right);
-					queue.offer(cur.right);
-				}
-				if (parents.get(cur) != null && !visited.contains(parents.get(cur))) {
-					visited.add(parents.get(cur));
-					queue.offer(parents.get(cur));
-				}
-			}
-			curLevel++;
-			if (curLevel > K) {
-				break;
 			}
 		}
-		return ans;
+		// 最后剩下来的就是到target距离k的节点
+		return new ArrayList<>(queue);
 	}
-
-	public static void createParentMap(Node cur, HashMap<Node, Node> parents) {
-		if (cur == null) {
-			return;
+	private static void createParentMap(TreeNode node, Map<TreeNode, TreeNode> parentMap) {
+		if (node == null) return;
+		if (node.left != null) {
+			parentMap.put(node.left, node);
+			createParentMap(node.left, parentMap);
 		}
-		if (cur.left != null) {
-			parents.put(cur.left, cur);
-			createParentMap(cur.left, parents);
-		}
-		if (cur.right != null) {
-			parents.put(cur.right, cur);
-			createParentMap(cur.right, parents);
+		if (node.right != null) {
+			parentMap.put(node.right, node);
+			createParentMap(node.right, parentMap);
 		}
 	}
 
 	public static void main(String[] args) {
-		Node n0 = new Node(0);
-		Node n1 = new Node(1);
-		Node n2 = new Node(2);
-		Node n3 = new Node(3);
-		Node n4 = new Node(4);
-		Node n5 = new Node(5);
-		Node n6 = new Node(6);
-		Node n7 = new Node(7);
-		Node n8 = new Node(8);
+		TreeNode n0 = new TreeNode(0);
+		TreeNode n1 = new TreeNode(1);
+		TreeNode n2 = new TreeNode(2);
+		TreeNode n3 = new TreeNode(3);
+		TreeNode n4 = new TreeNode(4);
+		TreeNode n5 = new TreeNode(5);
+		TreeNode n6 = new TreeNode(6);
+		TreeNode n7 = new TreeNode(7);
+		TreeNode n8 = new TreeNode(8);
 
 		n3.left = n5;
 		n3.right = n1;
@@ -91,13 +66,13 @@ public class Code08_DistanceKNodes {
 		n2.left = n7;
 		n2.right = n4;
 
-		Node root = n3;
-		Node target = n5;
+		TreeNode root = n3;
+		TreeNode target = n5;
 		int K = 2;
 
-		List<Node> ans = distanceKNodes(root, target, K);
-		for (Node o1 : ans) {
-			System.out.println(o1.value);
+		List<TreeNode> ans = distanceKNodes(root, target, K);
+		for (TreeNode o1 : ans) {
+			System.out.println(o1.val);
 		}
 
 	}

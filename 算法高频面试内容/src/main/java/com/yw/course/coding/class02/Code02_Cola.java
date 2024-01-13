@@ -1,5 +1,8 @@
 package com.yw.course.coding.class02;
 
+/**
+ * @author yangwei
+ */
 public class Code02_Cola {
 	/*
 	 * 买饮料 时间限制： 3000MS 内存限制： 589824KB 题目描述：
@@ -13,112 +16,92 @@ public class Code02_Cola {
 	 * 所以是总共需要操作8次金额投递操作 样例输入 2 1 4 3 250 样例输出 8
 	 */
 
-	// 暴力尝试，为了验证正式方法而已
-	public static int right(int m, int a, int b, int c, int x) {
-		int[] qian = { 100, 50, 10 };
-		int[] zhang = { c, b, a };
-		int puts = 0;
+	// 方法一：纯暴力尝试，为了验证正式方法而已
+	public static int coinPutTimes0(int m, int a, int b, int c, int x) {
+		// coins: 钱币数组, nums: 钱币张数数组
+		int[] coins = {100, 50, 10}, nums = {c, b, a};
+		int putTimes = 0;
 		while (m != 0) {
-			int cur = buy(qian, zhang, x);
-			if (cur == -1) {
-				return -1;
-			}
-			puts += cur;
+			int cur = buy(coins, nums, x);
+			if (cur == -1) return -1;
+			putTimes += cur;
 			m--;
 		}
-		return puts;
+		return putTimes;
 	}
-
-	public static int buy(int[] qian, int[] zhang, int rest) {
+	private static int buy(int[] coins, int[] nums, int x) {
 		int first = -1;
-		for (int i = 0; i < 3; i++) {
-			if (zhang[i] != 0) {
+		for (int i = 0; i < nums.length; i++) {
+			if (nums[i] != 0) {
 				first = i;
 				break;
 			}
 		}
-		if (first == -1) {
-			return -1;
-		}
-		if (qian[first] >= rest) {
-			zhang[first]--;
-			giveRest(qian, zhang, first + 1, qian[first] - rest, 1);
+		if (first == -1) return -1;
+		if (coins[first] >= x) {
+			nums[first]--;
+			giveRest(coins, nums, first + 1, coins[first] - x, 1);
 			return 1;
-		} else {
-			zhang[first]--;
-			int next = buy(qian, zhang, rest - qian[first]);
-			if (next == -1) {
-				return -1;
-			}
-			return 1 + next;
+		}
+		nums[first]--;
+		int next = buy(coins, nums, x - coins[first]);
+		if (next == -1) return -1;
+		return 1 + next;
+	}
+	private static void giveRest(int[] coins, int[] nums, int i, int oneTimeRest, int times) {
+		for (; i < nums.length; i++) {
+			nums[i] += (oneTimeRest / coins[i]) * times;
+			oneTimeRest %= coins[i];
 		}
 	}
 
-	// 正式的方法
-	// 要买的可乐数量，m
-	// 100元有a张
-	// 50元有b张
-	// 10元有c张
-	// 可乐单价x
-	public static int putTimes(int m, int a, int b, int c, int x) {
-		//              0    1   2
-		int[] qian = { 100, 50, 10 };
-		int[] zhang = { c,  b,  a };
-		// 总共需要多少次投币
-		int puts = 0;
-		// 之前面值的钱还剩下多少总钱数
-		int preQianRest = 0;
-		// 之前面值的钱还剩下多少总张数
-		int preQianZhang = 0;
-		for (int i = 0; i < 3 && m != 0; i++) {
+	// 方法二：正式的方法
+	// 要买的可乐数量m, 100元有a张, 50元有b张, 10元有c张, 可乐单价x元
+	public static int coinPutTimes(int m, int a, int b, int c, int x) {
+		int[] coins = {100, 50, 10}, nums = {c, b, a};
+		// putTimes: 总共需要多少次投币
+		// preCoinSum: 之前面值的钱还剩下多少总钱数, preNumCum: 之前面值的钱还剩下多少总张数
+		int putTimes = 0, preCoinSum = 0, preNumSum = 0;
+		for (int i = 0; i < nums.length && m != 0; i++) {
 			// 要用之前剩下的钱、当前面值的钱，共同买第一瓶可乐
-			// 之前的面值剩下多少钱，是preQianRest
-			// 之前的面值剩下多少张，是preQianZhang
+			// 之前的面值剩下多少钱是 preCoinSum, 之前的面值剩下多少张是 preNumCum
 			// 之所以之前的面值会剩下来，一定是剩下的钱，一直攒不出一瓶可乐的单价
 			// 当前的面值付出一些钱+之前剩下的钱，此时有可能凑出一瓶可乐来
-			// 那么当前面值参与搞定第一瓶可乐，需要掏出多少张呢？就是curQianFirstBuyZhang
-			int curQianFirstBuyZhang = (x - preQianRest + qian[i] - 1) / qian[i];
-			if (zhang[i] >= curQianFirstBuyZhang) { // 如果之前的钱和当前面值的钱，能凑出第一瓶可乐
+			// 那么当前面值参与搞定第一瓶可乐，需要掏出多少张呢？就是 firstCoinNum
+			// 向上取整技巧
+			int firstCoinNum = (x - preCoinSum + coins[i] - 1) / coins[i];
+			// 如果之前的钱和当前面值的钱，能凑出第一瓶可乐
+			if (nums[i] >= firstCoinNum) {
 				// 凑出来了一瓶可乐也可能存在找钱的情况，
-				giveRest(qian, zhang, i + 1, (preQianRest + qian[i] * curQianFirstBuyZhang) - x, 1);
-				puts += curQianFirstBuyZhang + preQianZhang;
-				zhang[i] -= curQianFirstBuyZhang;
+				giveRest(coins, nums, i + 1, (preCoinSum + coins[i] * firstCoinNum) - x, 1);
+				putTimes += firstCoinNum + preNumSum;
+				nums[i] -= firstCoinNum;
 				m--;
 			} else { // 如果之前的钱和当前面值的钱，不能凑出第一瓶可乐
-				preQianRest += qian[i] * zhang[i];
-				preQianZhang += zhang[i];
+				preCoinSum += coins[i] * nums[i];
+				preNumSum += nums[i];
 				continue;
 			}
 			// 凑出第一瓶可乐之后，当前的面值有可能能继续买更多的可乐
-			// 以下过程就是后续的可乐怎么用当前面值的钱来买
-			// 用当前面值的钱，买一瓶可乐需要几张
-			int curQianBuyOneColaZhang = (x + qian[i] - 1) / qian[i];
+			// 以下过程就是后续的可乐怎么用当前面值的钱来买，用当前面值的钱，买一瓶可乐需要几张
+			int needCoinNumBuyOne = (x + coins[i] - 1) / coins[i];
 			// 用当前面值的钱，一共可以搞定几瓶可乐
-			int curQianBuyColas = Math.min(zhang[i] / curQianBuyOneColaZhang, m);
+			int curBuyNums = Math.min(nums[i] / needCoinNumBuyOne, m);
 			// 用当前面值的钱，每搞定一瓶可乐，收货机会吐出多少零钱
-			int oneTimeRest = qian[i] * curQianBuyOneColaZhang - x;
+			int oneTimeRest = coins[i] * needCoinNumBuyOne - x;
 			// 每次买一瓶可乐，吐出的找零总钱数是oneTimeRest
-			// 一共买的可乐数是curQianBuyColas，所以把零钱去提升后面几种面值的硬币数，
-			// 就是giveRest的含义
-			giveRest(qian, zhang, i + 1, oneTimeRest, curQianBuyColas);
+			// 一共买的可乐数是curBuyNums，所以把零钱去提升后面几种面值的硬币数，就是giveRest的含义
+			giveRest(coins, nums, i + 1, oneTimeRest, curBuyNums);
 			// 当前面值去搞定可乐这件事，一共投了几次币
-			puts += curQianBuyOneColaZhang * curQianBuyColas;
+			putTimes += needCoinNumBuyOne * curBuyNums;
 			// 还剩下多少瓶可乐需要去搞定，继续用后面的面值搞定去吧
-			m -= curQianBuyColas;
-			// 当前面值可能剩下若干张，要参与到后续买可乐的过程中去，
-			// 所以要更新preQianRest和preQianZhang
-			zhang[i] -= curQianBuyOneColaZhang * curQianBuyColas;
-			preQianRest = qian[i] * zhang[i];
-			preQianZhang = zhang[i];
+			m -= curBuyNums;
+			// 当前面值可能剩下若干张，要参与到后续买可乐的过程中去，所以要更新 preCoinSum和preNumSum
+			nums[i] -= needCoinNumBuyOne * curBuyNums;
+			preCoinSum = coins[i] * nums[i];
+			preNumSum = nums[i];
 		}
-		return m == 0 ? puts : -1;
-	}
-
-	public static void giveRest(int[] qian, int[] zhang, int i, int oneTimeRest, int times) {
-		for (; i < 3; i++) {
-			zhang[i] += (oneTimeRest / qian[i]) * times;
-			oneTimeRest %= qian[i];
-		}
+		return m == 0 ? putTimes : -1;
 	}
 
 	public static void main(String[] args) {
@@ -134,8 +117,8 @@ public class Code02_Cola {
 			int b = (int) (Math.random() * zhangMax);
 			int c = (int) (Math.random() * zhangMax);
 			int x = ((int) (Math.random() * priceMax) + 1) * 10;
-			int ans1 = putTimes(m, a, b, c, x);
-			int ans2 = right(m, a, b, c, x);
+			int ans1 = coinPutTimes(m, a, b, c, x);
+			int ans2 = coinPutTimes0(m, a, b, c, x);
 			if (ans1 != ans2) {
 				System.out.println("int m = " + m + ";");
 				System.out.println("int a = " + a + ";");
