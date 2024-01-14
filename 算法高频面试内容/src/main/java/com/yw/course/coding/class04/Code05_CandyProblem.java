@@ -1,145 +1,117 @@
 package com.yw.course.coding.class04;
 
-// 测试链接 : https://leetcode.com/problems/candy/
+/**
+ * 测试链接 : https://leetcode.cn/problems/candy/
+ * @author yangwei
+ */
 public class Code05_CandyProblem {
 
-	// 这是原问题的优良解
-	// 时间复杂度O(N)，额外空间复杂度O(N)
-	public static int candy1(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
+	// 方法一：这是原问题的优良解，时间复杂度O(N)，额外空间复杂度O(N)
+	public static int candy1(int[] ratings) {
+		if (ratings == null || ratings.length == 0) return 0;
+		int n = ratings.length;
+		int[] l = new int[n], r = new int[n];
+		// 这里做了一点优化，初始糖果0最后结果统一加n，避免边界判断
+		for (int i = 1; i < n; i++) {
+			if (ratings[i] > ratings[i - 1]) l[i] = l[i - 1] + 1;
 		}
-		int N = arr.length;
-		int[] left = new int[N];
-		for (int i = 1; i < N; i++) {
-			if (arr[i - 1] < arr[i]) {
-				left[i] = left[i - 1] + 1;
-			}
-		}
-		int[] right = new int[N];
-		for (int i = N - 2; i >= 0; i--) {
-			if (arr[i] > arr[i + 1]) {
-				right[i] = right[i + 1] + 1;
-			}
+		for (int i = n - 2; i >= 0; i--) {
+			if (ratings[i] > ratings[i + 1]) r[i] = r[i + 1] + 1;
 		}
 		int ans = 0;
-		for (int i = 0; i < N; i++) {
-			ans += Math.max(left[i], right[i]);
+		for (int i = 0; i < n; i++) {
+			ans += Math.max(l[i], r[i]);
 		}
-		return ans + N;
+		return ans + n;
 	}
 
-	// 这是原问题空间优化后的解
-	// 时间复杂度O(N)，额外空间复杂度O(1)
-	public static int candy2(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		int index = nextMinIndex2(arr, 0);
-		int res = rightCands(arr, 0, index++);
-		int lbase = 1;
-		int next = 0;
-		int rcands = 0;
-		int rbase = 0;
-		while (index != arr.length) {
-			if (arr[index] > arr[index - 1]) {
-				res += ++lbase;
-				index++;
-			} else if (arr[index] < arr[index - 1]) {
-				next = nextMinIndex2(arr, index - 1);
-				rcands = rightCands(arr, index - 1, next++);
-				rbase = next - index + 1;
-				res += rcands + (rbase > lbase ? -lbase : -rbase);
+	// 方法二：这是原问题空间优化后的解，时间复杂度O(N)，额外空间复杂度O(1)
+	public static int candy2(int[] ratings) {
+		if (ratings == null || ratings.length == 0) return 0;
+		int idx = nextMinIndex(ratings, 0), ans = rightCandies(0, idx++);
+		int lbase = 1, next, rcand, rbase;
+		while (idx < ratings.length) {
+			if (ratings[idx] > ratings[idx - 1]) {
+				ans += ++lbase;
+				idx++;
+			} else if (ratings[idx] < ratings[idx - 1]) {
+				next = nextMinIndex(ratings, idx - 1);
+				rcand = rightCandies(idx - 1, next++);
+				rbase = next - idx + 1;
+				ans += rcand + (rbase > lbase ? -lbase : -rbase);
 				lbase = 1;
-				index = next;
+				idx = next;
 			} else {
-				res += 1;
+				ans += 1;
 				lbase = 1;
-				index++;
+				idx++;
 			}
 		}
-		return res;
+		return ans;
 	}
-
-	public static int nextMinIndex2(int[] arr, int start) {
+	private static int nextMinIndex(int[] arr, int start) {
 		for (int i = start; i != arr.length - 1; i++) {
-			if (arr[i] <= arr[i + 1]) {
-				return i;
-			}
+			if (arr[i] <= arr[i + 1]) return i;
 		}
 		return arr.length - 1;
 	}
-
-	public static int rightCands(int[] arr, int left, int right) {
-		int n = right - left + 1;
+	private static int rightCandies(int l, int r) {
+		int n = r - l + 1;
+		// 1+2+...+n 避免计算溢出
 		return n + n * (n - 1) / 2;
 	}
 
-	// 这是进阶问题的最优解，不要提交这个
-	// 时间复杂度O(N), 额外空间复杂度O(1)
-	public static int candy3(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		int index = nextMinIndex3(arr, 0);
-		int[] data = rightCandsAndBase(arr, 0, index++);
-		int res = data[0];
-		int lbase = 1;
-		int same = 1;
-		int next = 0;
-		while (index != arr.length) {
-			if (arr[index] > arr[index - 1]) {
-				res += ++lbase;
+	// 这是进阶问题的最优解，不要提交这个，时间复杂度O(N), 额外空间复杂度O(1)
+	public static int candy3(int[] ratings) {
+		if (ratings == null || ratings.length == 0) return 0;
+		int idx = nextMinIndex3(ratings, 0);
+		int[] data = rightCandiesAndBase(ratings, 0, idx++);
+		int ans = data[0], lbase = 1, same = 1, next;
+		while (idx != ratings.length) {
+			if (ratings[idx] > ratings[idx - 1]) {
+				ans += ++lbase;
 				same = 1;
-				index++;
-			} else if (arr[index] < arr[index - 1]) {
-				next = nextMinIndex3(arr, index - 1);
-				data = rightCandsAndBase(arr, index - 1, next++);
+				idx++;
+			} else if (ratings[idx] < ratings[idx - 1]) {
+				next = nextMinIndex3(ratings, idx - 1);
+				data = rightCandiesAndBase(ratings, idx - 1, next++);
 				if (data[1] <= lbase) {
-					res += data[0] - data[1];
+					ans += data[0] - data[1];
 				} else {
-					res += -lbase * same + data[0] - data[1] + data[1] * same;
+					ans += -lbase * same + data[0] - data[1] + data[1] * same;
 				}
-				index = next;
+				idx = next;
 				lbase = 1;
 				same = 1;
 			} else {
-				res += lbase;
+				ans += lbase;
 				same++;
-				index++;
+				idx++;
 			}
 		}
-		return res;
+		return ans;
 	}
-
-	public static int nextMinIndex3(int[] arr, int start) {
+	private static int nextMinIndex3(int[] arr, int start) {
 		for (int i = start; i != arr.length - 1; i++) {
-			if (arr[i] < arr[i + 1]) {
-				return i;
-			}
+			if (arr[i] < arr[i + 1]) return i;
 		}
 		return arr.length - 1;
 	}
-
-	public static int[] rightCandsAndBase(int[] arr, int left, int right) {
-		int base = 1;
-		int cands = 1;
-		for (int i = right - 1; i >= left; i--) {
-			if (arr[i] == arr[i + 1]) {
-				cands += base;
-			} else {
-				cands += ++base;
-			}
+	private static int[] rightCandiesAndBase(int[] arr, int l, int r) {
+		int base = 1, cand = 1;
+		for (int i = r - 1; i >= l; i--) {
+			if (arr[i] == arr[i + 1]) cand += base;
+			else cand += ++base;
 		}
-		return new int[] { cands, base };
+		return new int[] { cand, base };
 	}
 
 	public static void main(String[] args) {
-		int[] test1 = { 3, 0, 5, 5, 4, 4, 0 };
+//		int[] test1 = { 3, 0, 5, 5, 4, 4, 0 };
+		int[] test1 = { 1, 3, 3, 2, 1, 4, 2, 2, 5, 2, 1 };
 		System.out.println(candy2(test1));
 
 		int[] test2 = { 3, 0, 5, 5, 4, 4, 0 };
 		System.out.println(candy3(test2));
 	}
-
 }

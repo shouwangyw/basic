@@ -1,5 +1,8 @@
 package com.yw.course.coding.class04;
 
+/**
+ * @author yangwei
+ */
 public class Code04_SubArrayMaxSumFollowUp {
 
 	public static int subSqeMaxSumNoNext(int[] arr) {
@@ -35,24 +38,15 @@ public class Code04_SubArrayMaxSumFollowUp {
 	// 比如，arr[0...i] = {3,1,4}，最大累加和是3和4组成的7，因为相邻不能选，所以i-1位置的数要跳过
 	//
 	// 综上所述：dp[i] = Max { dp[i-1], arr[i] , arr[i] + dp[i-2] }
-	public static int maxSum(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		int N = arr.length;
-		if (N == 1) {
-			return arr[0];
-		}
-		if (N == 2) {
-			return Math.max(arr[0], arr[1]);
-		}
-		int[] dp = new int[N];
+	public static int maxSubSeqSumNonAdjacent(int[] arr) {
+		if (arr == null || arr.length == 0) return 0;
+		int n = arr.length;
+		int[] dp = new int[n];
 		dp[0] = arr[0];
 		dp[1] = Math.max(arr[0], arr[1]);
-		for (int i = 2; i < N; i++) {
+		for (int i = 2; i < n; i++) {
 			dp[i] = Math.max(Math.max(dp[i - 1], arr[i]), arr[i] + dp[i - 2]);
 		}
-		return dp[N - 1];
+		return dp[n - 1];
 	}
-
 }
