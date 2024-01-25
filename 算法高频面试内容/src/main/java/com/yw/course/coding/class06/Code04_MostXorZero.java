@@ -2,103 +2,74 @@ package com.yw.course.coding.class06;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static com.yw.util.CommonUtils.printArray;
+
+/**
+ * @author yangwei
+ */
 public class Code04_MostXorZero {
 
-	// 暴力方法
-	public static int comparator(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		int N = arr.length;
-		int[] eor = new int[N];
+	// 方法一：暴力解，时间复杂度 O(2^N)
+	public static int mostXorZero0(int[] arr) {
+		if (arr == null || arr.length == 0) return 0;
+		int n = arr.length;
+		// 预处理一个前缀异或和数组
+		int[] eor = new int[n];
 		eor[0] = arr[0];
-		for (int i = 1; i < N; i++) {
-			eor[i] = eor[i - 1] ^ arr[i];
-		}
+		for (int i = 1; i < n; i++) eor[i] = eor[i - 1] ^ arr[i];
 		return process(eor, 1, new ArrayList<>());
 	}
-
-	// index去决定：前一坨部分，结不结束！
-	// 如果结束！就把index放入到parts里去
-	// 如果不结束，就不放
-	public static int process(int[] eor, int index, ArrayList<Integer> parts) {
+	// 返回能得到最多异或和为0划分情况的最多划分数量
+	// 当前来到idx位置去决定，是否将前面部分放入parts中(即是否在idx位置切分)
+	private static int process(int[] eor, int idx, List<Integer> parts) {
 		int ans = 0;
-		if (index == eor.length) {
+		if (idx == eor.length) {
 			parts.add(eor.length);
 			ans = eorZeroParts(eor, parts);
+			// 深度优先遍历，恢复现场
 			parts.remove(parts.size() - 1);
 		} else {
-			int p1 = process(eor, index + 1, parts);
-			parts.add(index);
-			int p2 = process(eor, index + 1, parts);
+			int p1 = process(eor, idx + 1, parts);
+			parts.add(idx);
+			int p2 = process(eor, idx + 1, parts);
 			parts.remove(parts.size() - 1);
 			ans = Math.max(p1, p2);
 		}
 		return ans;
 	}
-
-	public static int eorZeroParts(int[] eor, ArrayList<Integer> parts) {
-		int L = 0;
-		int ans = 0;
-		for (Integer end : parts) {
-			if ((eor[end - 1] ^ (L == 0 ? 0 : eor[L - 1])) == 0) {
-				ans++;
-			}
-			L = end;
+	private static int eorZeroParts(int[] eor, List<Integer> parts) {
+		int ans = 0, l = 0;
+		for (int r : parts) {
+			if ((eor[r - 1] ^ (l == 0 ? 0 : eor[l - 1])) == 0) ans++;
+			l = r;
 		}
 		return ans;
 	}
 
-	// 时间复杂度O(N)的方法
-	public static int mostXor(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		int N = arr.length;
-		int[] dp = new int[N];
-		
-		// key 某一个前缀异或和
-		// value 这个前缀异或和上次出现的位置(最晚！)
-		HashMap<Integer, Integer> map = new HashMap<>();
+	// 方法二：动态规划，时间复杂度O(N)的方法
+	public static int mostXorZero(int[] arr) {
+		if (arr == null || arr.length == 0) return 0;
+		int n = arr.length;
+		int[] dp = new int[n];
+		// key: 某一个前缀异或和，value: 这个前缀异或和上次出现的最晚位置
+		Map<Integer, Integer> map = new HashMap<>();
 		map.put(0, -1);
-		// 0~i整体的异或和
-		int xor = 0;
-		for (int i = 0; i < N; i++) {
+		int xor = 0; // 记录整体异或和
+		for (int i = 0; i < n; i++) {
 			xor ^= arr[i];
 			if (map.containsKey(xor)) { // 可能性2
 				int pre = map.get(xor);
 				dp[i] = pre == -1 ? 1 : (dp[pre] + 1);
 			}
-			if (i > 0) {
-				dp[i] = Math.max(dp[i - 1], dp[i]);
-			}
+			if (i > 0) dp[i] = Math.max(dp[i - 1], dp[i]);
 			map.put(xor, i);
 		}
-		return dp[N - 1];
+		return dp[n - 1];
 	}
 
-	// for test
-	public static int[] generateRandomArray(int maxSize, int maxValue) {
-		int[] arr = new int[(int) ((maxSize + 1) * Math.random())];
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = (int) ((maxValue + 1) * Math.random());
-		}
-		return arr;
-	}
-
-	// for test
-	public static void printArray(int[] arr) {
-		if (arr == null) {
-			return;
-		}
-		for (int i = 0; i < arr.length; i++) {
-			System.out.print(arr[i] + " ");
-		}
-		System.out.println();
-	}
-
-	// for test
 	public static void main(String[] args) {
 		int testTime = 150000;
 		int maxSize = 12;
@@ -106,8 +77,8 @@ public class Code04_MostXorZero {
 		boolean succeed = true;
 		for (int i = 0; i < testTime; i++) {
 			int[] arr = generateRandomArray(maxSize, maxValue);
-			int res = mostXor(arr);
-			int comp = comparator(arr);
+			int res = mostXorZero(arr);
+			int comp = mostXorZero0(arr);
 			if (res != comp) {
 				succeed = false;
 				printArray(arr);
@@ -117,6 +88,13 @@ public class Code04_MostXorZero {
 			}
 		}
 		System.out.println(succeed ? "Nice!" : "Fucking fucked!");
+	}
+	private static int[] generateRandomArray(int maxSize, int maxValue) {
+		int[] arr = new int[(int) ((maxSize + 1) * Math.random())];
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = (int) ((maxValue + 1) * Math.random());
+		}
+		return arr;
 	}
 
 }

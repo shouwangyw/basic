@@ -1,50 +1,44 @@
 package com.yw.course.coding.class06;
 
-// 本题测试链接 : https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/
+/**
+ * 测试链接 : https://leetcode.cn/problems/maximum-xor-of-two-numbers-in-an-array/
+ * @author yangwei
+ */
 public class Code02_MaximumXorOfTwoNumbersInAnArray {
 
-	public static class Node {
-		public Node[] nexts = new Node[2];
+	public int findMaximumXOR(int[] nums) {
+		int ans = 0;
+		NumTrie trie = new NumTrie();
+		trie.add(nums[0]);
+		for (int i = 1; i < nums.length; i++) {
+			ans = Math.max(ans, trie.maxXor(nums[i]));
+			trie.add(nums[i]);
+		}
+		return ans;
 	}
-
-	public static class NumTrie {
-		public Node head = new Node();
-
-		public void add(int newNum) {
+	private static class Node {
+		private Node[] nexts = new Node[2];
+	}
+	private static class NumTrie {
+		private Node head = new Node();
+		public void add(int num) {
 			Node cur = head;
-			for (int move = 31; move >= 0; move--) {
-				int path = ((newNum >> move) & 1);
-				cur.nexts[path] = cur.nexts[path] == null ? new Node() : cur.nexts[path];
+			for (int i = 31; i >= 0; i--) {
+				int path = (num >> i) & 1;
+				if (cur.nexts[path] == null) cur.nexts[path] = new Node();
 				cur = cur.nexts[path];
 			}
 		}
-
-		public int maxXor(int sum) {
+		public int maxXor(int num) {
 			Node cur = head;
-			int res = 0;
-			for (int move = 31; move >= 0; move--) {
-				int path = (sum >> move) & 1;
-				int best = move == 31 ? path : (path ^ 1);
-				best = cur.nexts[best] != null ? best : (best ^ 1);
-				res |= (path ^ best) << move;
+			int max = 0;
+			for (int i = 31; i >= 0; i--) {
+				int path = (num >> i) & 1, best = i == 31 ? path : (path ^ 1);
+				if (cur.nexts[best] == null) best ^= 1;
+				max |= (path ^ best) << i;
 				cur = cur.nexts[best];
 			}
-			return res;
+			return max;
 		}
 	}
-
-	public static int findMaximumXOR(int[] arr) {
-		if (arr == null || arr.length < 2) {
-			return 0;
-		}
-		int max = Integer.MIN_VALUE;
-		NumTrie numTrie = new NumTrie();
-		numTrie.add(arr[0]);
-		for (int i = 1; i < arr.length; i++) {
-			max = Math.max(max, numTrie.maxXor(arr[i]));
-			numTrie.add(arr[i]);
-		}
-		return max;
-	}
-
 }

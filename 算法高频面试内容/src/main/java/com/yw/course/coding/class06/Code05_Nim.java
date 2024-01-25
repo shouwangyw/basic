@@ -1,5 +1,8 @@
 package com.yw.course.coding.class06;
 
+/**
+ * @author yangwei
+ */
 public class Code05_Nim {
 
 	// 保证arr是正数数组
@@ -8,11 +11,7 @@ public class Code05_Nim {
 		for (int num : arr) {
 			eor ^= num;
 		}
-		if (eor == 0) {
-			System.out.println("后手赢");
-		} else {
-			System.out.println("先手赢");
-		}
+		if (eor == 0) System.out.println("后手赢");
+		else System.out.println("先手赢");
 	}
-
 }
