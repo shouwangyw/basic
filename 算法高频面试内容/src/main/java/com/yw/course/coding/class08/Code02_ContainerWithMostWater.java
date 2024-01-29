@@ -1,6 +1,9 @@
 package com.yw.course.coding.class08;
 
-// 本题测试链接 : https://leetcode.com/problems/container-with-most-water/
+/**
+ * 测试链接 : https://leetcode.cn/problems/container-with-most-water/
+ * @author yangwei
+ */
 public class Code02_ContainerWithMostWater {
 
 	public static int maxArea1(int[] h) {

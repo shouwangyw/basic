@@ -2,6 +2,9 @@ package com.yw.course.coding.class08;
 
 import java.util.Arrays;
 
+/**
+ * @author yangwei
+ */
 public class Code04_SnakeGame {
 
 	public static int walk1(int[][] matrix) {
