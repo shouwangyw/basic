@@ -1,127 +1,109 @@
 package com.yw.course.coding.class07;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * @author yangwei
+ */
 public class Code06_SplitStringMaxValue {
 
-	// 暴力解
-	public static int maxRecord1(String str, int K, String[] parts, int[] record) {
-		if (str == null || str.length() == 0) {
-			return 0;
+	// 方法一：暴力尝试
+	public static int maxScore0(String s, int k, String[] ss, int[] scores) {
+		if (s == null || s.length() == 0) return 0;
+		Map<String, Integer> map = new HashMap<>();
+		for (int i = 0; i < ss.length; i++) map.put(ss[i], scores[i]);
+		return process0(s, 0, k, map);
+	}
+	private static int process0(String s, int i, int k, Map<String, Integer> map) {
+		if (k < 0) return -1;
+		if (i == s.length()) return k == 0 ? 0 : -1;
+		int score = -1;
+		for (int end = i; end < s.length(); end++) {
+			String first = s.substring(i, end + 1);
+			int next = map.containsKey(first) ? process0(s, end + 1, k - 1, map) : -1;
+			if (next != -1) score = Math.max(score, map.get(first) + next);
 		}
-		HashMap<String, Integer> records = new HashMap<>();
-		for (int i = 0; i < parts.length; i++) {
-			records.put(parts[i], record[i]);
-		}
-		return process(str, 0, K, records);
+		return score;
 	}
 
-	public static int process(String str, int index, int rest, HashMap<String, Integer> records) {
-		if (rest < 0) {
-			return -1;
-		}
-		if (index == str.length()) {
-			return rest == 0 ? 0 : -1;
-		}
-		int ans = -1;
-		for (int end = index; end < str.length(); end++) {
-			String first = str.substring(index, end + 1);
-			int next = records.containsKey(first) ? process(str, end + 1, rest - 1, records) : -1;
-			if (next != -1) {
-				ans = Math.max(ans, records.get(first) + next);
-			}
-		}
-		return ans;
-	}
-
-	// 动态规划解
-	public static int maxRecord2(String str, int K, String[] parts, int[] record) {
-		if (str == null || str.length() == 0) {
-			return 0;
-		}
-		HashMap<String, Integer> records = new HashMap<>();
-		for (int i = 0; i < parts.length; i++) {
-			records.put(parts[i], record[i]);
-		}
-		int N = str.length();
-		int[][] dp = new int[N + 1][K + 1];
-		for (int rest = 1; rest <= K; rest++) {
-			dp[N][rest] = -1;
-		}
-		for (int index = N - 1; index >= 0; index--) {
-			for (int rest = 0; rest <= K; rest++) {
-				int ans = -1;
-				for (int end = index; end < N; end++) {
-					String first = str.substring(index, end + 1);
-					int next = rest > 0 && records.containsKey(first) ? dp[end + 1][rest - 1] : -1;
-					if (next != -1) {
-						ans = Math.max(ans, records.get(first) + next);
+	// 方法二：动态规划解
+	public static int maxScoreDp(String s, int k, String[] ss, int[] scores) {
+		if (s == null || s.length() == 0) return 0;
+		Map<String, Integer> map = new HashMap<>();
+		for (int i = 0; i < ss.length; i++) map.put(ss[i], scores[i]);
+		int n = s.length();
+		int[][] dp = new int[n + 1][k + 1];
+		for (int[] x : dp) Arrays.fill(x, -1);
+		dp[n][0] = 0;
+		for (int i = n - 1; i >= 0; i--) {
+			for (int k0 = 0; k0 <= k; k0++) {
+				int score = -1;
+				for (int end = i; end < s.length(); end++) {
+					String first = s.substring(i, end + 1);
+					int next = -1;
+					if (k0 > 0 && map.containsKey(first)) {
+						next = dp[end + 1][k0 - 1];
 					}
+					if (next != -1) score = Math.max(score, map.get(first) + next);
 				}
-				dp[index][rest] = ans;
+				dp[i][k0] = score;
 			}
 		}
-		return dp[0][K];
+		return dp[0][k];
 	}
 
-	// 动态规划解 + 前缀树优化
-	public static int maxRecord3(String s, int K, String[] parts, int[] record) {
-		if (s == null || s.length() == 0) {
-			return 0;
-		}
-		TrieNode root = rootNode(parts, record);
-		char[] str = s.toCharArray();
-		int N = str.length;
-		int[][] dp = new int[N + 1][K + 1];
-		for (int rest = 1; rest <= K; rest++) {
-			dp[N][rest] = -1;
-		}
-		for (int index = N - 1; index >= 0; index--) {
-			for (int rest = 0; rest <= K; rest++) {
-				int ans = -1;
-				TrieNode cur = root;
-				for (int end = index; end < N; end++) {
-					int path = str[end] - 'a';
-					if (cur.nexts[path] == null) {
-						break;
-					}
+	// 方法三：动态规划解 + 前缀树优化
+	public static int maxScore(String s, int k, String[] ss, int[] scores) {
+		CharTrie trie = new CharTrie();
+		for (int i = 0; i < ss.length; i++) trie.add(ss[i], scores[i]);
+		int n = s.length();
+		int[][] dp = new int[n + 1][k + 1];
+		for (int[] x : dp) Arrays.fill(x, -1);
+		dp[n][0] = 0;
+		char[] cs = s.toCharArray();
+		for (int i = n - 1; i >= 0; i--) {
+			for (int k0 = 0; k0 <= k; k0++) {
+				int score = -1;
+				Node cur = trie.root;
+				for (int end = i; end < s.length(); end++) {
+					int path = cs[end] - 'a';
+					if (cur.nexts[path] == null) break;
 					cur = cur.nexts[path];
-					int next = rest > 0 && cur.value != -1 ? dp[end + 1][rest - 1] : -1;
-					if (next != -1) {
-						ans = Math.max(ans, cur.value + next);
+					int next = -1;
+					if (k0 > 0 && cur.score != -1) {
+						next = dp[end + 1][k0 - 1];
 					}
+					if (next != -1) score = Math.max(score, cur.score + next);
 				}
-				dp[index][rest] = ans;
+				dp[i][k0] = score;
 			}
 		}
-		return dp[0][K];
+		return dp[0][k];
 	}
-
-	public static class TrieNode {
-		public TrieNode[] nexts;
-		public int value;
-
-		public TrieNode() {
-			nexts = new TrieNode[26];
-			value = -1;
+	private static class Node {
+		private Node[] nexts;
+		private int score;
+		public Node() {
+			this.nexts = new Node[26];
+			this.score = -1;
 		}
 	}
-
-	public static TrieNode rootNode(String[] parts, int[] record) {
-		TrieNode root = new TrieNode();
-		for (int i = 0; i < parts.length; i++) {
-			char[] str = parts[i].toCharArray();
-			TrieNode cur = root;
-			for (int j = 0; j < str.length; j++) {
-				int path = str[j] - 'a';
-				if (cur.nexts[path] == null) {
-					cur.nexts[path] = new TrieNode();
-				}
+	private static class CharTrie {
+		private Node root;
+		public CharTrie() {
+			this.root = new Node();
+		}
+		public void add(String s, int score) {
+			Node cur = root;
+			for (char c : s.toCharArray()) {
+				int path = c - 'a';
+				if (cur.nexts[path] == null) cur.nexts[path] = new Node();
 				cur = cur.nexts[path];
 			}
-			cur.value = record[i];
+			cur.score = score;
 		}
-		return root;
 	}
 
 	public static void main(String[] args) {
@@ -129,9 +111,8 @@ public class Code06_SplitStringMaxValue {
 		int K = 3;
 		String[] parts = { "abc", "def", "g", "ab", "cd", "efg", "defg" };
 		int[] record = { 1, 1, 1, 3, 3, 3, 2 };
-		System.out.println(maxRecord1(str, K, parts, record));
-		System.out.println(maxRecord2(str, K, parts, record));
-		System.out.println(maxRecord3(str, K, parts, record));
+		System.out.println(maxScore0(str, K, parts, record));
+		System.out.println(maxScoreDp(str, K, parts, record));
+		System.out.println(maxScore(str, K, parts, record));
 	}
-
 }
