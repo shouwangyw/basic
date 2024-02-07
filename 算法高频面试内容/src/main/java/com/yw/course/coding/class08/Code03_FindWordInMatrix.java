@@ -25,7 +25,61 @@ package com.yw.course.coding.class08;
  * */
 public class Code03_FindWordInMatrix {
 
-	// 可以走重复的设定
+	// 设定1: 可以走重复路
+	public static boolean findWordRepeatable(char[][] m, String word) {
+		char[] cs = word.toCharArray();
+		for (int i = 0; i < m.length; i++) {
+			for (int j = 0; j < m[0].length; j++) {
+				if (process1(m, i, j, cs, 0)) return true;
+			}
+		}
+		return false;
+	}
+	private static int[][] dirs = { {0, 1}, {-1, 0}, {0, -1}, {1, 0} };
+	// 可以走重复路: 从m[i][j]字符出发，能否找到cs[k...]这个后缀串
+	private static boolean process1(char[][] m, int i, int j, char[] cs, int k) {
+		// base case
+		if (k == cs.length) return true;
+		// 枚举上下左右四个方向
+		for (int[] dir : dirs) {
+			int x = i + dir[0], y = j + dir[1];
+			// 下一步越界或字符不匹配，则不能往下走
+			if (x < 0 || x >= m.length || y < 0 || y >= m[0].length || m[x][j] != cs[k]) continue;
+			// 否则往下走，一旦找到则返回true结束
+			if (process1(m, x, y, cs, k + 1)) return true;
+		}
+		return false;
+	}
+
+	// 设定2: 不可以走重复路
+	public static boolean findWordNoRepeated(char[][] m, String word) {
+		char[] cs = word.toCharArray();
+		for (int i = 0; i < m.length; i++) {
+			for (int j = 0; j < m[0].length; j++) {
+				if (process2(m, i, j, cs, 0)) return true;
+			}
+		}
+		return false;
+	}
+	// 不可以走重复路: 从m[i][j]字符出发，能否找到cs[k...]这个后缀串
+	private static boolean process2(char[][] m, int i, int j, char[] cs, int k) {
+		// base case
+		if (k == cs.length) return true;
+		// 枚举上下左右四个方向
+		for (int[] dir : dirs) {
+			int x = i + dir[0], y = j + dir[1];
+			// 下一步越界或字符不匹配，则不能往下走
+			if (x < 0 || x >= m.length || y < 0 || y >= m[0].length || m[x][y] != cs[k]) continue;
+			// 否则往下走，一旦找到则返回true结束
+			m[x][y] = 0;
+			if (process2(m, x, y, cs, k + 1)) return true;
+			// dfs 回溯
+			m[x][y] = cs[k];
+		}
+		return false;
+	}
+
+
 	public static boolean findWord1(char[][] m, String word) {
 		if (word == null || word.equals("")) {
 			return true;
@@ -61,24 +115,6 @@ public class Code03_FindWordInMatrix {
 		return false;
 	}
 
-	// 可以走重复路
-	// 从m[i][j]这个字符出发，能不能找到str[k...]这个后缀串
-	public static boolean canLoop(char[][] m, int i, int j, char[] str, int k) {
-		if (k == str.length) {
-			return true;
-		}
-		if (i == -1 || i == m.length || j == -1 || j == m[0].length || m[i][j] != str[k]) {
-			return false;
-		}
-		// 不越界！m[i][j] == str[k] 对的上的！
-		// str[k+1....]
-		boolean ans = false;
-		if (canLoop(m, i + 1, j, str, k + 1) || canLoop(m, i - 1, j, str, k + 1) || canLoop(m, i, j + 1, str, k + 1)
-				|| canLoop(m, i, j - 1, str, k + 1)) {
-			ans = true;
-		}
-		return ans;
-	}
 
 	// 不能走重复路
 	// 从m[i][j]这个字符出发，能不能找到str[k...]这个后缀串
@@ -101,10 +137,10 @@ public class Code03_FindWordInMatrix {
 	}
 
 	public static boolean checkPrevious(boolean[][][] dp, int i, int j, int k) {
-		boolean up = i > 0 ? (dp[i - 1][j][k - 1]) : false;
-		boolean down = i < dp.length - 1 ? (dp[i + 1][j][k - 1]) : false;
-		boolean left = j > 0 ? (dp[i][j - 1][k - 1]) : false;
-		boolean right = j < dp[0].length - 1 ? (dp[i][j + 1][k - 1]) : false;
+		boolean up = i > 0 && (dp[i - 1][j][k - 1]);
+		boolean down = i < dp.length - 1 && (dp[i + 1][j][k - 1]);
+		boolean left = j > 0 && (dp[i][j - 1][k - 1]);
+		boolean right = j < dp[0].length - 1 && (dp[i][j + 1][k - 1]);
 		return up || down || left || right;
 	}
 
@@ -150,12 +186,11 @@ public class Code03_FindWordInMatrix {
 		String word1 = "zoooz";
 		String word2 = "zoo";
 		// 可以走重复路的设定
-		System.out.println(findWord1(m, word1));
-		System.out.println(findWord1(m, word2));
+		System.out.println(findWordRepeatable(m, word1));
+		System.out.println(findWordRepeatable(m, word2));
 		// 不可以走重复路的设定
-		System.out.println(findWord2(m, word1));
-		System.out.println(findWord2(m, word2));
-
+		System.out.println(findWordNoRepeated(m, word1));
+		System.out.println(findWordNoRepeated(m, word2));
 	}
 
 }

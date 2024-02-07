@@ -17,19 +17,14 @@ public class Code02_ContainerWithMostWater {
 		return max;
 	}
 
-	public static int maxArea2(int[] h) {
-		int max = 0;
-		int l = 0;
-		int r = h.length - 1;
+	public int maxArea(int[] height) {
+		int ans = 0, l = 0, r = height.length - 1;
 		while (l < r) {
-			max = Math.max(max, Math.min(h[l], h[r]) * (r - l));
-			if (h[l] > h[r]) {
-				r--;
-			} else {
-				l++;
-			}
+			ans = Math.max(ans, (r - l) * Math.min(height[l], height[r]));
+			if (height[l] <= height[r]) l++;
+			else r--;
 		}
-		return max;
+		return ans;
 	}
 
 }

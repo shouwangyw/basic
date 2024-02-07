@@ -11,64 +11,57 @@ public class Code01_ExpressionCompute {
 	public static int calculate(String str) {
 		return f(str.toCharArray(), 0)[0];
 	}
-
-	// 请从str[i...]往下算，遇到字符串终止位置或者右括号，就停止
-	// 返回两个值，长度为2的数组
-	// 0) 负责的这一段的结果是多少
-	// 1) 负责的这一段计算到了哪个位置
-	public static int[] f(char[] str, int i) {
-		LinkedList<String> que = new LinkedList<String>();
+	// 从cs[i,...]往下计算，遇到右括号或者字符终止位置停止，返回长度为2的数组，[0]表示这一段计算的结果、[1]表示计算到了哪个位置
+	private static int[] f(char[] cs, int i) {
+		LinkedList<String> q = new LinkedList<>();
 		int cur = 0;
-		int[] bra = null;
-		// 从i出发，开始撸串
-		while (i < str.length && str[i] != ')') {
-			if (str[i] >= '0' && str[i] <= '9') {
-				cur = cur * 10 + str[i++] - '0';
-			} else if (str[i] != '(') { // 遇到的是运算符号
-				addNum(que, cur);
-				que.addLast(String.valueOf(str[i++]));
+		while (i < cs.length && cs[i] != ')') {
+			if (cs[i] >= '0' && cs[i] <= '9') cur = cur * 10 + cs[i++] - '0';
+			else if (cs[i] != '(') {
+				// 到这，说明遇到的是运算符
+				addNum(q, cur);
+				q.addLast(String.valueOf(cs[i++]));
 				cur = 0;
-			} else { // 遇到左括号了
-				bra = f(str, i + 1);
-				cur = bra[0];
-				i = bra[1] + 1;
-			}
-		}
-		addNum(que, cur);
-		return new int[] { getNum(que), i };
-	}
-
-	public static void addNum(LinkedList<String> que, int num) {
-		if (!que.isEmpty()) {
-			int cur = 0;
-			String top = que.pollLast();
-			if (top.equals("+") || top.equals("-")) {
-				que.addLast(top);
 			} else {
-				cur = Integer.valueOf(que.pollLast());
-				num = top.equals("*") ? (cur * num) : (cur / num);
+				// 遇到左括号
+				int[] next = f(cs, i + 1);
+				cur = next[0];
+				i = next[1] + 1;
 			}
 		}
-		que.addLast(String.valueOf(num));
+		addNum(q, cur);
+		return new int[] { getNum(q), i };
 	}
-
-	public static int getNum(LinkedList<String> que) {
-		int res = 0;
+	private static void addNum(LinkedList<String> q, int num) {
+		if (!q.isEmpty()) {
+			String top = q.pollLast();
+			if ("+".equals(top) || "-".equals(top)) q.addLast(top);
+			else {
+				int cur = Integer.parseInt(q.pollLast());
+				num = "*".equals(top) ? (cur * num) : (cur / num);
+			}
+		}
+		q.addLast(String.valueOf(num));
+	}
+	private static int getNum(LinkedList<String> stack) {
+		int ans = 0;
 		boolean add = true;
-		String cur = null;
-		int num = 0;
-		while (!que.isEmpty()) {
-			cur = que.pollFirst();
-			if (cur.equals("+")) {
-				add = true;
-			} else if (cur.equals("-")) {
-				add = false;
-			} else {
-				num = Integer.valueOf(cur);
-				res += add ? num : (-num);
+		String cur;
+		while (!stack.isEmpty()) {
+			cur = stack.pollFirst();
+			if ("+".equals(cur)) add = true;
+			else if ("-".equals(cur)) add = false;
+			else {
+				int num = Integer.parseInt(cur);
+				ans += add ? num : (-num);
 			}
 		}
-		return res;
+		return ans;
 	}
 
+	public static void main(String[] args) {
+		System.out.println(calculate("48*((70-65)-43)+8*1"));
+		System.out.println(calculate("3+1*4"));
+		System.out.println(calculate("3+(1*4)"));
+	}
 }
