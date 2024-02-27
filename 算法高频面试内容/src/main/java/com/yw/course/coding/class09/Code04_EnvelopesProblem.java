@@ -1,60 +1,32 @@
 package com.yw.course.coding.class09;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
-// 本题测试链接 : https://leetcode.com/problems/russian-doll-envelopes/
+/**
+ * 测试链接 : https://leetcode.cn/problems/russian-doll-envelopes/
+ * @author yangwei
+ */
 public class Code04_EnvelopesProblem {
 
-	public static int maxEnvelopes(int[][] matrix) {
-		Envelope[] arr = sort(matrix);
-		int[] ends = new int[matrix.length];
-		ends[0] = arr[0].h;
-		int right = 0;
-		int l = 0;
-		int r = 0;
-		int m = 0;
-		for (int i = 1; i < arr.length; i++) {
+	public int maxEnvelopes(int[][] envelopes) {
+		// 先按宽度排序，宽度相等时按高度从大到小排序
+		Arrays.sort(envelopes, (o1, o2) -> o1[0] != o2[0] ? o1[0] - o2[0] : o2[1] - o1[1]);
+		// 对排序后的数组求高度的最长递增子序列，就是最终答案
+		int n = envelopes.length;
+		int[] ends = new int[n];
+		ends[0] = envelopes[0][1];
+		int l, r, mid, right = 0;
+		for (int i = 1; i < n; i++) {
 			l = 0;
 			r = right;
 			while (l <= r) {
-				m = (l + r) / 2;
-				if (arr[i].h > ends[m]) {
-					l = m + 1;
-				} else {
-					r = m - 1;
-				}
+				mid = (l + r) / 2;
+				if (envelopes[i][1] > ends[mid]) l = mid + 1;
+				else r = mid - 1;
 			}
 			right = Math.max(right, l);
-			ends[l] = arr[i].h;
+			ends[l] = envelopes[i][1];
 		}
 		return right + 1;
 	}
-
-	public static class Envelope {
-		public int l;
-		public int h;
-
-		public Envelope(int weight, int hight) {
-			l = weight;
-			h = hight;
-		}
-	}
-
-	public static class EnvelopeComparator implements Comparator<Envelope> {
-		@Override
-		public int compare(Envelope o1, Envelope o2) {
-			return o1.l != o2.l ? o1.l - o2.l : o2.h - o1.h;
-		}
-	}
-
-	public static Envelope[] sort(int[][] matrix) {
-		Envelope[] res = new Envelope[matrix.length];
-		for (int i = 0; i < matrix.length; i++) {
-			res[i] = new Envelope(matrix[i][0], matrix[i][1]);
-		}
-		Arrays.sort(res, new EnvelopeComparator());
-		return res;
-	}
-
 }
