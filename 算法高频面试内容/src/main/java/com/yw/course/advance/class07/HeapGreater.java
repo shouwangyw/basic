@@ -5,8 +5,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-/*
+/**
  * T一定要是非基础类型，有基础类型需求包一层
+ * @author yangwei
  */
 public class HeapGreater<T> {
 

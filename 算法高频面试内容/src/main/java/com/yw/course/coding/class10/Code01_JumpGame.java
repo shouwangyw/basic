@@ -1,21 +1,20 @@
 package com.yw.course.coding.class10;
 
-// 本题测试链接 : https://leetcode.com/problems/jump-game-ii/
+/**
+ * 测试链接 : https://leetcode.cn/problems/jump-game-ii/
+ * @author yangwei
+ */
 public class Code01_JumpGame {
 
-	public static int jump(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		int step = 0;
-		int cur = 0;
-		int next = 0;
-		for (int i = 0; i < arr.length; i++) {
+	public int jump(int[] nums) {
+		// step: 步数, cur: 在step步以内最远能到哪个位置, next: step+1步最远能到哪个位置
+		int step = 0, cur = 0, next = nums[0];
+		for (int i = 1; i < nums.length; i++) {
 			if (cur < i) {
 				step++;
 				cur = next;
 			}
-			next = Math.max(next, i + arr[i]);
+			next = Math.max(next, i + nums[i]);
 		}
 		return step;
 	}

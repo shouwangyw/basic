@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
-// 本题测试链接：https://www.lintcode.com/problem/top-k-frequent-words-ii/
-// 以上的代码不要粘贴, 把以下的代码粘贴进java环境编辑器
-// 把类名和构造方法名改成TopK, 可以直接通过
+/**
+ * 测试链接：https://www.lintcode.cn/problem/top-k-frequent-words-ii/
+ * @author yangwei
+ */
 public class Code02_TopK {
-
 	private Node[] heap;
 	private int heapSize;
 	// 词频表   key  abc   value  (abc,7)
@@ -22,10 +22,10 @@ public class Code02_TopK {
 	public Code02_TopK(int K) {
 		heap = new Node[K];
 		heapSize = 0;
-		strNodeMap = new HashMap<String, Node>();
-		nodeIndexMap = new HashMap<Node, Integer>();
+		strNodeMap = new HashMap<>();
+		nodeIndexMap = new HashMap<>();
 		comp = new NodeHeapComp();
-		treeSet = new TreeSet<>(new NodeTreeSetComp());
+		treeSet = new TreeSet<>((o1, o2) -> o1.times != o2.times ? (o2.times - o1.times) : (o1.str.compareTo(o2.str)));
 	}
 
 	public static class Node {
@@ -43,15 +43,6 @@ public class Code02_TopK {
 		@Override
 		public int compare(Node o1, Node o2) {
 			return o1.times != o2.times ? (o1.times - o2.times) : (o2.str.compareTo(o1.str));
-		}
-
-	}
-
-	public static class NodeTreeSetComp implements Comparator<Node> {
-
-		@Override
-		public int compare(Node o1, Node o2) {
-			return o1.times != o2.times ? (o2.times - o1.times) : (o1.str.compareTo(o2.str));
 		}
 
 	}
@@ -150,5 +141,4 @@ public class Code02_TopK {
 		heap[index1] = heap[index2];
 		heap[index2] = tmp;
 	}
-
 }

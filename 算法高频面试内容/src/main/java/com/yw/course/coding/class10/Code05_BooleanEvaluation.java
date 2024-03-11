@@ -1,135 +1,61 @@
 package com.yw.course.coding.class10;
 
-// 本题测试链接 : https://leetcode-cn.com/problems/boolean-evaluation-lcci/
+/**
+ * 测试链接: https://leetcode.cn/problems/boolean-evaluation-lcci/description/
+ * @author yangwei
+ */
 public class Code05_BooleanEvaluation {
 
-	public static int countEval0(String express, int desired) {
-		if (express == null || express.equals("")) {
-			return 0;
-		}
-		char[] exp = express.toCharArray();
-		int N = exp.length;
-		Info[][] dp = new Info[N][N];
-		Info allInfo = func(exp, 0, exp.length - 1, dp);
-		return desired == 1 ? allInfo.t : allInfo.f;
+	// 方法一：尝试，范围尝试模型
+	// 举个例子，s整体长度10，最后以5位置符号计算整体结果，0-4范围整体结果为1方法数a种、整体结果为0方法数b种，6-9整体结果为1方法数c种、整体结果为0方法数d种
+	// 若5位置符号&，要求result是1，则总方法数 = a * c；若要求result是0，则总方法数 = a * d + b * c + b * d
+	public int countEval(String s, int result) {
+		if (s == null || s.length() == 0) return 0;
+		int n = s.length();
+		Info[][] records = new Info[n][n];
+		Info info = process(s.toCharArray(), 0, n - 1, records);
+		return result == 1 ? info.t : info.f;
 	}
-
-	public static class Info {
-		public int t;
-		public int f;
-
-		public Info(int tr, int fa) {
-			t = tr;
-			f = fa;
-		}
-	}
-
-	// 限制:
-	// L...R上，一定有奇数个字符
-	// L位置的字符和R位置的字符，非0即1，不能是逻辑符号！
-	// 返回str[L...R]这一段，为true的方法数，和false的方法数
-	public static Info func(char[] str, int L, int R, Info[][] dp) {
-		if (dp[L][R] != null) {
-			return dp[L][R];
-		}
-		int t = 0;
-		int f = 0;
-		if (L == R) {
-			t = str[L] == '1' ? 1 : 0;
-			f = str[L] == '0' ? 1 : 0;
-		} else { // L..R >=3
-			// 每一个种逻辑符号，split枚举的东西
-			// 都去试试最后结合
-			for (int split = L + 1; split < R; split += 2) {
-				Info leftInfo = func(str, L, split - 1, dp);
-				Info rightInfo = func(str, split + 1, R, dp);
-				int a = leftInfo.t;
-				int b = leftInfo.f;
-				int c = rightInfo.t;
-				int d = rightInfo.f;
-				switch (str[split]) {
-				case '&':
-					t += a * c;
-					f += b * c + b * d + a * d;
-					break;
-				case '|':
-					t += a * c + a * d + b * c;
-					f += b * d;
-					break;
-				case '^':
-					t += a * d + b * c;
-					f += a * c + b * d;
+	// l..r上一定有奇数个字符，l位置上的字符和r位置的字符，非0即1不能是逻辑符号
+	// 返回cs[l...r]这一段为true的方法数和为false的方法数
+	private static Info process(char[] cs, int l, int r, Info[][] records) {
+		if (records[l][r] != null) return records[l][r];
+		// base case: 只有一个字符
+		if (l == r) return records[l][r] = new Info(cs[l] == '1' ? 1 : 0, cs[l] == '0' ? 1 : 0);
+		// l...r >= 3，枚举每一个逻辑符号位置
+		int t = 0, f = 0;
+		for (int i = l + 1; i < r; i += 2) {
+			Info leftInfo = process(cs, l, i - 1, records), rightInfo = process(cs, i + 1, r, records);
+			int a = leftInfo.t, b = leftInfo.f, c = rightInfo.t, d = rightInfo.f;
+			switch (cs[i]) {
+				case '&': {
+					t += a * c; f += a * d + b * c + b * d;
 					break;
 				}
-			}
-
-		}
-		dp[L][R] = new Info(t, f);
-		return dp[L][R];
-	}
-
-	public static int countEval1(String express, int desired) {
-		if (express == null || express.equals("")) {
-			return 0;
-		}
-		char[] exp = express.toCharArray();
-		return f(exp, desired, 0, exp.length - 1);
-	}
-
-	public static int f(char[] str, int desired, int L, int R) {
-		if (L == R) {
-			if (str[L] == '1') {
-				return desired;
-			} else {
-				return desired ^ 1;
-			}
-		}
-		int res = 0;
-		if (desired == 1) {
-			for (int i = L + 1; i < R; i += 2) {
-				switch (str[i]) {
-				case '&':
-					res += f(str, 1, L, i - 1) * f(str, 1, i + 1, R);
-					break;
-				case '|':
-					res += f(str, 1, L, i - 1) * f(str, 0, i + 1, R);
-					res += f(str, 0, L, i - 1) * f(str, 1, i + 1, R);
-					res += f(str, 1, L, i - 1) * f(str, 1, i + 1, R);
-					break;
-				case '^':
-					res += f(str, 1, L, i - 1) * f(str, 0, i + 1, R);
-					res += f(str, 0, L, i - 1) * f(str, 1, i + 1, R);
+				case '|': {
+					t += a * c + a * d + b * c; f += b * d;
 					break;
 				}
-			}
-		} else {
-			for (int i = L + 1; i < R; i += 2) {
-				switch (str[i]) {
-				case '&':
-					res += f(str, 0, L, i - 1) * f(str, 1, i + 1, R);
-					res += f(str, 1, L, i - 1) * f(str, 0, i + 1, R);
-					res += f(str, 0, L, i - 1) * f(str, 0, i + 1, R);
-					break;
-				case '|':
-					res += f(str, 0, L, i - 1) * f(str, 0, i + 1, R);
-					break;
-				case '^':
-					res += f(str, 1, L, i - 1) * f(str, 1, i + 1, R);
-					res += f(str, 0, L, i - 1) * f(str, 0, i + 1, R);
+				case '^': {
+					t += a * d + b * c; f += a * c + b * d;
 					break;
 				}
 			}
 		}
-		return res;
+		return records[l][r] = new Info(t, f);
+	}
+	private static class Info {
+		private int t; // 为true方法数
+		private int f; // 为false方法数
+		public Info(int t, int f) { this.t = t; this.f = f; }
 	}
 
-	public static int countEval2(String express, int desired) {
-		if (express == null || express.equals("")) {
-			return 0;
-		}
-		char[] exp = express.toCharArray();
-		int N = exp.length;
-		int[][][] dp = new int[2][N][N];
+	// 方法二：改动态规划
+	public static int countEvalDp(String s, int result) {
+		if (s == null || s.length() == 0) return 0;
+		int n = s.length();
+		char[] exp = s.toCharArray();
+		int[][][] dp = new int[2][n][n];
 		dp[0][0][0] = exp[0] == '0' ? 1 : 0;
 		dp[1][0][0] = dp[0][0][0] ^ 1;
 		for (int i = 2; i < exp.length; i += 2) {
@@ -150,7 +76,6 @@ public class Code05_BooleanEvaluation {
 				}
 			}
 		}
-		return dp[desired][0][N - 1];
+		return dp[result][0][n - 1];
 	}
-
 }
