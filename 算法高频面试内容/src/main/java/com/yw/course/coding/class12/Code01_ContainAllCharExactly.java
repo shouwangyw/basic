@@ -2,8 +2,50 @@ package com.yw.course.coding.class12;
 
 import java.util.Arrays;
 
-// 本题测试链接 : https://leetcode.com/problems/permutation-in-string/
+/**
+ * 测试链接 : https://leetcode.cn/problems/permutation-in-string/
+ * @author yangwei
+ */
 public class Code01_ContainAllCharExactly {
+
+	// 方法一：
+	public boolean checkInclusion(String s1, String s2) {
+		int n1 = s1.length(), n2 = s2.length();
+		char[] cs1 = s1.toCharArray(), cs2 = s2.toCharArray();
+		int[] cnt = new int[26];
+		for (char c : cs1) cnt[c - 'a']++;
+		for (int i = 0; i <= n2 - n1; i++) {
+			if (check(cs2, i, n1, Arrays.copyOf(cnt, cnt.length))) return true;
+		}
+		return false;
+	}
+	private boolean check(char[] cs, int idx, int n, int[] cnt) {
+		for (int i = 0; i < n; i++) cnt[cs[i + idx] - 'a']--;
+		for (int x : cnt) if (x > 0) return false;
+		return true;
+	}
+
+	// 方法二：词频统计+滑动窗口
+	public boolean checkInclusion2(String s1, String s2) {
+		if (s1.length() > s2.length()) return false;
+		char[] cs1 = s1.toCharArray(), cs2 = s2.toCharArray();
+		int[] cnt = new int[26];
+		for (char c : cs1) cnt[c - 'a']++;
+		// w: 窗口宽度，r: 窗口右边界位置，n: 总的有效字符
+		int w = s1.length(), r = 0, n = w;
+		for (; r < w; r++) {    // 初始化窗口
+			// 窗口右边进来一个字符，若cnt>0则cnt--、n--；否则cnt--
+			if (cnt[cs2[r] - 'a']-- > 0) n--;
+		}
+		for (; r < cs2.length; r++) {
+			if (n == 0) return r - w >= 0;
+			// 窗口右边进来一个字符，若cnt>0则cnt--、n--；否则cnt--
+			if (cnt[cs2[r] - 'a']-- > 0) n--;
+			// 窗口左边出去一个字符，若cnt>=0则cnt++、n++；否则cnt++
+			if (cnt[cs2[r - w] - 'a']++ >= 0) n++;
+		}
+		return n == 0 && (r - w) >= 0;
+	}
 
 	public static int containExactly1(String s, String a) {
 		if (s == null || a == null || s.length() < a.length()) {
@@ -87,15 +129,6 @@ public class Code01_ContainAllCharExactly {
 		return all == 0 ? R - M : -1;
 	}
 
-	// for test
-	public static String getRandomString(int possibilities, int maxSize) {
-		char[] ans = new char[(int) (Math.random() * maxSize) + 1];
-		for (int i = 0; i < ans.length; i++) {
-			ans[i] = (char) ((int) (Math.random() * possibilities) + 'a');
-		}
-		return String.valueOf(ans);
-	}
-
 	public static void main(String[] args) {
 		int possibilities = 5;
 		int strMaxSize = 20;
@@ -120,6 +153,13 @@ public class Code01_ContainAllCharExactly {
 		}
 		System.out.println("test finish");
 
+	}
+	private static String getRandomString(int possibilities, int maxSize) {
+		char[] ans = new char[(int) (Math.random() * maxSize) + 1];
+		for (int i = 0; i < ans.length; i++) {
+			ans[i] = (char) ((int) (Math.random() * possibilities) + 'a');
+		}
+		return String.valueOf(ans);
 	}
 
 }

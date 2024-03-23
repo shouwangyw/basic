@@ -3,124 +3,104 @@ package com.yw.course.coding.class11;
 import java.util.ArrayList;
 import java.util.List;
 
-// 本题测试链接 : https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome/
+/**
+ * 测试链接 : https://leetcode.cn/problems/minimum-insertion-steps-to-make-a-string-palindrome/
+ * @author yangwei
+ */
 public class Code01_MinimumInsertionStepsToMakeAStringPalindrome {
 
-	// 测试链接只测了本题的第一问，直接提交可以通过
-	public static int minInsertions(String s) {
-		if (s == null || s.length() < 2) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		int N = str.length;
-		int[][] dp = new int[N][N];
-		for (int i = 0; i < N - 1; i++) {
-			dp[i][i + 1] = str[i] == str[i + 1] ? 0 : 1;
-		}
-		for (int i = N - 3; i >= 0; i--) {
-			for (int j = i + 2; j < N; j++) {
+	// 问题一：一个字符串至少需要添加多少个字符能整体变成回文串
+	// 范围尝试模型，尝试函数process(cs, l, r)表示从[l...r]范围最少添加几个字符能构成回文
+	// 改成动态规划，dp[i][j]表示从[i...j]范围能构成回文最少添加的字符个数，i <= j
+	public int minInsertions(String s) {
+		int n = s.length();
+		char[] cs = s.toCharArray();
+		int[][] dp = new int[n][n];
+		// 初始化dp表，首先左下半区域(i>j)无效，对角线(i=j)表示一个字符无需添加dp[i][j] = 0
+		// i=j+1对角线表示两个字符，两个字符相等则无需添加，否则需要添加一个字符
+		for (int i = 0; i < n - 1; i++) dp[i][i + 1] = cs[i] == cs[i + 1] ? 0 : 1;
+		// 分析普遍位置，从下至上、从左到右，左上角的值就是我们要求的答案
+		// 1) 已知[i...j-1]范围的添加数量，j位置进来时，只需要在i位置之前加一个字符即可，即 dp[i][j-1]+1
+		// 2) 已知[i+1...j]范围的添加数量，i位置进来时，只需要在j位置之后加一个字符即可，即 dp[i+1][j]+1
+		// 3) 已知i位置与j位置字符相等，中间需要加几个字符，即 dp[i+1][j-1]
+		for (int i = n - 3; i >= 0; i--) {
+			for (int j = i + 2; j < n; j++) {
 				dp[i][j] = Math.min(dp[i][j - 1], dp[i + 1][j]) + 1;
-				if (str[i] == str[j]) {
-					dp[i][j] = Math.min(dp[i][j], dp[i + 1][j - 1]);
-				}
+				if (cs[i] == cs[j]) dp[i][j] = Math.min(dp[i][j], dp[i + 1][j - 1]);
 			}
 		}
-		return dp[0][N - 1];
+		return dp[0][n - 1];
 	}
 
-	// 本题第二问，返回其中一种结果
+	// 问题二：返回问题一的其中一种添加结果
 	public static String minInsertionsOneWay(String s) {
-		if (s == null || s.length() < 2) {
-			return s;
-		}
-		char[] str = s.toCharArray();
-		int N = str.length;
-		int[][] dp = new int[N][N];
-		for (int i = 0; i < N - 1; i++) {
-			dp[i][i + 1] = str[i] == str[i + 1] ? 0 : 1;
-		}
-		for (int i = N - 3; i >= 0; i--) {
-			for (int j = i + 2; j < N; j++) {
-				dp[i][j] = Math.min(dp[i][j - 1], dp[i + 1][j]) + 1;
-				if (str[i] == str[j]) {
-					dp[i][j] = Math.min(dp[i][j], dp[i + 1][j - 1]);
-				}
+		int n = s.length();
+		char[] cs = s.toCharArray();
+		int[][] dp = new int[n][n];
+		for (int i = 0; i < n - 1; i++) dp[i][i + 1] = cs[i] == cs[i + 1] ? 0 : 1;
+		for (int i = n - 3; i >= 0; i--) {
+			for (int j = i + 2; j < n; j++) {
+				if (cs[i] == cs[j]) dp[i][j] = dp[i + 1][j - 1];
+				else dp[i][j] = Math.min(dp[i][j - 1], dp[i + 1][j]) + 1;
 			}
 		}
-		
-		int L = 0;
-		int R = N - 1;
-		char[] ans = new char[N + dp[L][R]];
-		int ansl = 0;
-		int ansr = ans.length - 1;
-		while (L < R) {
-			if (dp[L][R - 1] == dp[L][R] - 1) {
-				ans[ansl++] = str[R];
-				ans[ansr--] = str[R--];
-			} else if (dp[L + 1][R] == dp[L][R] - 1) {
-				ans[ansl++] = str[L];
-				ans[ansr--] = str[L++];
-			} else {
-				ans[ansl++] = str[L++];
-				ans[ansr--] = str[R--];
+		int l = 0, r = n - 1;
+		char[] ans = new char[n + dp[l][r]];
+		int ansL = 0, ansR = ans.length - 1;
+		while (l < r) {
+			if (dp[l][r - 1] == dp[l][r] - 1) { // 答案来自左边
+				ans[ansL++] = cs[r];
+				ans[ansR--] = cs[r--];
+			} else if (dp[l + 1][r] == dp[l][r] - 1) { // 答案来自下边
+				ans[ansL++] = cs[l];
+				ans[ansR--] = cs[l++];
+			} else { // 答案来自中间
+				ans[ansL++] = cs[l++];
+				ans[ansR--] = cs[r--];
 			}
 		}
-		if (L == R) {
-			ans[ansl] = str[L];
-		}
+		if (l == r) ans[ansL] = cs[l];
 		return String.valueOf(ans);
 	}
 
-	// 本题第三问，返回所有可能的结果
+	// 问题三：返回问题一的所有划分结果
 	public static List<String> minInsertionsAllWays(String s) {
-		List<String> ans = new ArrayList<>();
-		if (s == null || s.length() < 2) {
-			ans.add(s);
-		} else {
-			char[] str = s.toCharArray();
-			int N = str.length;
-			int[][] dp = new int[N][N];
-			for (int i = 0; i < N - 1; i++) {
-				dp[i][i + 1] = str[i] == str[i + 1] ? 0 : 1;
+		int n = s.length();
+		char[] cs = s.toCharArray();
+		int[][] dp = new int[n][n];
+		for (int i = 0; i < n - 1; i++) dp[i][i + 1] = cs[i] == cs[i + 1] ? 0 : 1;
+		for (int i = n - 3; i >= 0; i--) {
+			for (int j = i + 2; j < n; j++) {
+				if (cs[i] == cs[j]) dp[i][j] = dp[i + 1][j - 1];
+				else dp[i][j] = Math.min(dp[i][j - 1], dp[i + 1][j]) + 1;
 			}
-			for (int i = N - 3; i >= 0; i--) {
-				for (int j = i + 2; j < N; j++) {
-					dp[i][j] = Math.min(dp[i][j - 1], dp[i + 1][j]) + 1;
-					if (str[i] == str[j]) {
-						dp[i][j] = Math.min(dp[i][j], dp[i + 1][j - 1]);
-					}
-				}
-			}
-			int M = N + dp[0][N - 1];
-			char[] path = new char[M];
-			process(str, dp, 0, N - 1, path, 0, M - 1, ans);
 		}
+		List<String> ans = new ArrayList<>();
+		int l = 0, r = n - 1;
+		char[] path = new char[n + dp[l][r]];
+		int pl = 0, pr = path.length - 1;
+		process(cs, dp, l, r, path, pl, pr, ans);
 		return ans;
 	}
-
-	// 当前来到的动态规划中的格子，(L,R)
-	// path ....  [pl....pr] ....
-	public static void process(char[] str, int[][] dp, int L, int R, char[] path, int pl, int pr, List<String> ans) {
-		if (L >= R) { // L > R  L==R
-			if (L == R) {
-				path[pl] = str[L];
-			}
+	private static void process(char[] cs, int[][] dp, int l, int r, char[] path, int pl, int pr, List<String> ans) {
+		if (l >= r) {
+			if (l == r) path[pl] = cs[l];
 			ans.add(String.valueOf(path));
 		} else {
-			if (dp[L][R - 1] == dp[L][R] - 1) {
-				path[pl] = str[R];
-				path[pr] = str[R];
-				process(str, dp, L, R - 1, path, pl + 1, pr - 1, ans);
+			if (dp[l][r - 1] == dp[l][r] - 1) {
+				path[pl] = cs[r];
+				path[pr] = cs[r];
+				process(cs, dp, l, r - 1, path, pl + 1, pr - 1, ans);
 			}
-			if (dp[L + 1][R] == dp[L][R] - 1) {
-				path[pl] = str[L];
-				path[pr] = str[L];
-				process(str, dp, L + 1, R, path, pl + 1, pr - 1, ans);
+			if (dp[l + 1][r] == dp[l][r] - 1) {
+				path[pl] = cs[l];
+				path[pr] = cs[l];
+				process(cs, dp, l + 1, r, path, pl + 1, pr - 1, ans);
 			}
-			if (str[L] == str[R] && (L == R - 1 || dp[L + 1][R - 1] == dp[L][R])) {
-				path[pl] = str[L];
-				path[pr] = str[R];
-				process(str, dp, L + 1, R - 1, path, pl + 1, pr - 1, ans);
+			if (cs[l] == cs[r] && (l == r - 1 || dp[l + 1][r - 1] == dp[l][r])){
+				path[pl] = cs[l];
+				path[pr] = cs[r];
+				process(cs, dp, l + 1, r - 1, path, pl + 1, pr - 1, ans);
 			}
 		}
 	}

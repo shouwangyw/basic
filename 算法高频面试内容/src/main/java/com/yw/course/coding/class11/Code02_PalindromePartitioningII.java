@@ -3,126 +3,106 @@ package com.yw.course.coding.class11;
 import java.util.ArrayList;
 import java.util.List;
 
-// 本题测试链接 : https://leetcode.com/problems/palindrome-partitioning-ii/
+/**
+ * 测试链接 : https://leetcode.cn/problems/palindrome-partitioning-ii/
+ * @author yangwei
+ */
 public class Code02_PalindromePartitioningII {
 
-	// 测试链接只测了本题的第一问，直接提交可以通过
-	public static int minCut(String s) {
-		if (s == null || s.length() < 2) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		int N = str.length;
-		boolean[][] checkMap = createCheckMap(str, N);
-		int[] dp = new int[N + 1];
-		dp[N] = 0;
-		for (int i = N - 1; i >= 0; i--) {
-			if (checkMap[i][N - 1]) {
-				dp[i] = 1;
-			} else {
+	// 问题一：一个字符串至少要切几刀能让切出来的子串都是回文串
+	// 从左往右的尝试模型，尝试函数process(cs, idx)表示从cs从[idx...]至少分割几次能构成回文
+	// 改成动态规划，dp[i]表示从[i...]至少分割几次能构成回文，dp[0]就是最终答案
+	public int minCut(String s) {
+		int n = s.length();
+		char[] cs = s.toCharArray();
+		// 预处理生成一张表，返回l...r范围是否构成回文
+		boolean[][] checkMap = genCheckMap(cs, n);
+		int[] dp = new int[n + 1];
+		for (int i = n - 1; i >= 0; i--) {
+			if (checkMap[i][n - 1]) dp[i] = 1;
+			else {
 				int next = Integer.MAX_VALUE;
-				for (int j = i; j < N; j++) {
-					if (checkMap[i][j]) {
-						next = Math.min(next, dp[j + 1]);
-					}
+				for (int j = i; j < n; j++) {
+					// 如果[i...j]这一段是回文，那么后面的字符串最少分割几次？
+					if (checkMap[i][j]) next = Math.min(next, dp[j + 1]);
 				}
-				dp[i] = 1 + next;
+				dp[i] = next + 1;
 			}
 		}
 		return dp[0] - 1;
 	}
-
-	public static boolean[][] createCheckMap(char[] str, int N) {
-		boolean[][] ans = new boolean[N][N];
-		for (int i = 0; i < N - 1; i++) {
+	private static boolean[][] genCheckMap(char[] cs, int n) {
+		boolean[][] ans = new boolean[n][n];
+		// 初始化对角线
+		for (int i = 0; i < n - 1; i++) {
 			ans[i][i] = true;
-			ans[i][i + 1] = str[i] == str[i + 1];
+			ans[i][i + 1] = cs[i] == cs[i + 1];
 		}
-		ans[N - 1][N - 1] = true;
-		for (int i = N - 3; i >= 0; i--) {
-			for (int j = i + 2; j < N; j++) {
-				ans[i][j] = str[i] == str[j] && ans[i + 1][j - 1];
+		ans[n - 1][n - 1] = true;
+		// 普遍位置
+		for (int i = n - 3; i >= 0; i--) {
+			for (int j = i + 2; j < n; j++) {
+				ans[i][j] = cs[i] == cs[j] && ans[i + 1][j - 1];
 			}
 		}
 		return ans;
 	}
 
-	// 本题第二问，返回其中一种结果
+	// 问题二：返回问题一的其中一种划分结果
 	public static List<String> minCutOneWay(String s) {
-		List<String> ans = new ArrayList<>();
-		if (s == null || s.length() < 2) {
-			ans.add(s);
-		} else {
-			char[] str = s.toCharArray();
-			int N = str.length;
-			boolean[][] checkMap = createCheckMap(str, N);
-			int[] dp = new int[N + 1];
-			dp[N] = 0;
-			for (int i = N - 1; i >= 0; i--) {
-				if (checkMap[i][N - 1]) {
-					dp[i] = 1;
-				} else {
-					int next = Integer.MAX_VALUE;
-					for (int j = i; j < N; j++) {
-						if (checkMap[i][j]) {
-							next = Math.min(next, dp[j + 1]);
-						}
-					}
-					dp[i] = 1 + next;
+		int n = s.length();
+		char[] cs = s.toCharArray();
+		boolean[][] checkMap = genCheckMap(cs, n);
+		int[] dp = new int[n + 1];
+		for (int i = n - 1; i >= 0; i--) {
+			if (checkMap[i][n - 1]) dp[i] = 1;
+			else {
+				int next = Integer.MAX_VALUE;
+				for (int j = i; j < n; j++) {
+					if (checkMap[i][j]) next = Math.min(next, dp[j + 1]);
 				}
+				dp[i] = next + 1;
 			}
-			// dp[i]  (0....5) 回文！  dp[0] == dp[6] + 1
-			//  (0....5)   6
-			for (int i = 0, j = 1; j <= N; j++) {
-				if (checkMap[i][j - 1] && dp[i] == dp[j] + 1) {
-					ans.add(s.substring(i, j));
-					i = j;
-				}
+		}
+		// 解释 dp[i]: 若(0...5)是回文，则dp[0] = dp[6] + 1
+		List<String> ans = new ArrayList<>();
+		// 依次检查每一个前缀[i...j-1]是否构成回文
+		for (int i = 0, j = 1; j <= n; j++) {
+			// 若[i...j-1]构成回文，且dp[i]与dp[j]正好是+1的关系，则是一种切分方式
+			if (checkMap[i][j - 1] && dp[i] == dp[j] + 1) {
+				ans.add(s.substring(i, j));
+				i = j;
 			}
 		}
 		return ans;
 	}
 
-	// 本题第三问，返回所有结果
+	// 问题三：返回问题一的所有划分结果
 	public static List<List<String>> minCutAllWays(String s) {
 		List<List<String>> ans = new ArrayList<>();
-		if (s == null || s.length() < 2) {
-			List<String> cur = new ArrayList<>();
-			cur.add(s);
-			ans.add(cur);
-		} else {
-			char[] str = s.toCharArray();
-			int N = str.length;
-			boolean[][] checkMap = createCheckMap(str, N);
-			int[] dp = new int[N + 1];
-			dp[N] = 0;
-			for (int i = N - 1; i >= 0; i--) {
-				if (checkMap[i][N - 1]) {
-					dp[i] = 1;
-				} else {
-					int next = Integer.MAX_VALUE;
-					for (int j = i; j < N; j++) {
-						if (checkMap[i][j]) {
-							next = Math.min(next, dp[j + 1]);
-						}
-					}
-					dp[i] = 1 + next;
+		int n = s.length();
+		char[] cs = s.toCharArray();
+		boolean[][] checkMap = genCheckMap(cs, n);
+		int[] dp = new int[n + 1];
+		for (int i = n - 1; i >= 0; i--) {
+			if (checkMap[i][n - 1]) dp[i] = 1;
+			else {
+				int next = Integer.MAX_VALUE;
+				for (int j = i; j < n; j++) {
+					if (checkMap[i][j]) next = Math.min(next, dp[j + 1]);
 				}
+				dp[i] = next + 1;
 			}
-			process(s, 0, 1, checkMap, dp, new ArrayList<>(), ans);
 		}
+		process(s, 0, 1, checkMap, dp, new ArrayList<>(), ans);
 		return ans;
 	}
-
-	// s[0....i-1]  存到path里去了
-	// s[i..j-1]考察的分出来的第一份
-	public static void process(String s, int i, int j, boolean[][] checkMap, int[] dp, 
-			List<String> path,
-			List<List<String>> ans) {
-		if (j == s.length()) { // s[i...N-1]
+	// 之前s[0....i-1]存到path里去了，考察s[i..j-1]分出来的第一份
+	private static void process(String s, int i, int j, boolean[][] checkMap, int[] dp, List<String> path, List<List<String>> ans) {
+		if (j == s.length()) { // s[i...n-1]
 			if (checkMap[i][j - 1] && dp[i] == dp[j] + 1) {
 				path.add(s.substring(i, j));
-				ans.add(copyStringList(path));
+				ans.add(new ArrayList<>(path));
 				path.remove(path.size() - 1);
 			}
 		} else {// s[i...j-1]
@@ -133,14 +113,6 @@ public class Code02_PalindromePartitioningII {
 			}
 			process(s, i, j + 1, checkMap, dp, path, ans);
 		}
-	}
-
-	public static List<String> copyStringList(List<String> list) {
-		List<String> ans = new ArrayList<>();
-		for (String str : list) {
-			ans.add(str);
-		}
-		return ans;
 	}
 
 	public static void main(String[] args) {
