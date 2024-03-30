@@ -1,42 +1,26 @@
 package com.yw.course.coding.class14;
 
+import com.yw.entity.TreeNode;
+
+/**
+ * @author yangwei
+ */
 public class Code04_CompleteTreeNodeNumber {
 
-	public static class Node {
-		public int value;
-		public Node left;
-		public Node right;
-
-		public Node(int data) {
-			this.value = data;
-		}
+	// 时间复杂度 O((logN)^2)
+	public static int getNodeNum(TreeNode root) {
+		return root == null ? 0 : getNodeNum(root, 1, mostLeftLevel(root, 1));
 	}
-
-	// 请保证head为头的树，是完全二叉树
-	public static int nodeNum(Node head) {
-		if (head == null) {
-			return 0;
-		}
-		return bs(head, 1, mostLeftLevel(head, 1));
+	// 当前来到node节点，node节点在第level层，总层数是h
+	// 返回以node为头节点的子树(必是完全二叉树)有多少节点
+	private static int getNodeNum(TreeNode node, int level, int h) {
+		if (level == h) return 1;
+		return (mostLeftLevel(node.right, level + 1) == h)
+				? (1 << (h - level)) + getNodeNum(node.right, level + 1, h)
+				: (1 << (h - level - 1)) + getNodeNum(node.left, level + 1, h);
 	}
-
-	// 当前来到node节点，node节点在level层，总层数是h
-	// 返回node为头的子树(必是完全二叉树)，有多少个节点
-	public static int bs(Node node, int Level, int h) {
-		if (Level == h) {
-			return 1;
-		}
-		if (mostLeftLevel(node.right, Level + 1) == h) {
-			return (1 << (h - Level)) + bs(node.right, Level + 1, h);
-		} else {
-			return (1 << (h - Level - 1)) + bs(node.left, Level + 1, h);
-		}
-	}
-
-	// 如果node在第level层，
-	// 求以node为头的子树，最大深度是多少
-	// node为头的子树，一定是完全二叉树
-	public static int mostLeftLevel(Node node, int level) {
+	// node在第level层，求以node为头的子树(必是完全二叉树)，最大深度是多少
+	private static int mostLeftLevel(TreeNode node, int level) {
 		while (node != null) {
 			level++;
 			node = node.left;
@@ -45,13 +29,13 @@ public class Code04_CompleteTreeNodeNumber {
 	}
 
 	public static void main(String[] args) {
-		Node head = new Node(1);
-		head.left = new Node(2);
-		head.right = new Node(3);
-		head.left.left = new Node(4);
-		head.left.right = new Node(5);
-		head.right.left = new Node(6);
-		System.out.println(nodeNum(head));
+		TreeNode root = new TreeNode(1);
+		root.left = new TreeNode(2);
+		root.right = new TreeNode(3);
+		root.left.left = new TreeNode(4);
+		root.left.right = new TreeNode(5);
+		root.right.left = new TreeNode(6);
+		System.out.println(getNodeNum(root));
 
 	}
 

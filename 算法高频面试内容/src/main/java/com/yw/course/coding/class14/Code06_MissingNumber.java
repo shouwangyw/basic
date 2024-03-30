@@ -1,26 +1,22 @@
 package com.yw.course.coding.class14;
 
-// 测试链接：https://leetcode.com/problems/first-missing-positive/
+/**
+ * 测试链接：https://leetcode.cn/problems/first-missing-positive/
+ * @author yangwei
+ */
 public class Code06_MissingNumber {
 
-	public static int firstMissingPositive(int[] arr) {
-		// l是盯着的位置
-		// 0 ~ L-1有效区
-		int L = 0;
-		int R = arr.length;
-		while (L != R) {
-			if (arr[L] == L + 1) {
-				L++;
-			} else if (arr[L] <= L || arr[L] > R || arr[arr[L] - 1] == arr[L]) { // 垃圾的情况
-				swap(arr, L, --R);
-			} else {
-				swap(arr, L, arr[L] - 1);
-			}
+	public int firstMissingPositive(int[] nums) {
+		int l = 0, r = nums.length;
+		while (l != r) {
+			if (nums[l] == l + 1) l++;
+			else if (nums[l] <= l || nums[l] > r || nums[nums[l] - 1] == nums[l]) swap(nums, l, --r);
+			else swap(nums, l, nums[l] - 1);
 		}
-		return L + 1;
+		return l + 1;
 	}
-
-	public static void swap(int[] arr, int i, int j) {
+	private static void swap(int[] arr, int i, int j) {
+		if (i == j) return;
 		int tmp = arr[i];
 		arr[i] = arr[j];
 		arr[j] = tmp;

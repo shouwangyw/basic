@@ -1,5 +1,13 @@
 package com.yw.course.coding.class14;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
+/**
+ * 测试链接 : https://leetcode.cn/problems/longest-valid-parentheses/
+ *
+ * @author yangwei
+ */
 public class Code01_Parentheses {
 
 	public static boolean valid(String s) {
@@ -68,28 +76,37 @@ public class Code01_Parentheses {
 		return max;
 	}
 
-	// s只由(和)组成
-	// 求最长有效括号子串长度
-	// 本题测试链接 : https://leetcode.com/problems/longest-valid-parentheses/
-    public static int longestValidParentheses(String s) {
-		if (s == null || s.length() < 2) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		// dp[i] : 子串必须以i位置结尾的情况下，往左最远能扩出多长的有效区域
-		int[] dp = new int[str.length];
-		// dp[0] = 0; （  ）
-		int pre = 0;
-		int ans = 0;
-		for (int i = 1; i < str.length; i++) {
-			if (str[i] == ')') {
-				// 当前谁和i位置的)，去配！
-				pre = i - dp[i - 1] - 1; // 与str[i]配对的左括号的位置 pre
-				if (pre >= 0 && str[pre] == '(') {
+	// 方法一：动态规划
+	public int longestValidParentheses(String s) {
+		char[] cs = s.toCharArray();
+		int n = cs.length, ans = 0, pre = 0;
+		// dp[i]: 以i位置结尾的最长有效子串长度
+		int[] dp = new int[n];
+		for (int i = 1; i < n; i++) {
+			if (cs[i] == ')') {
+				// 当前谁和i位置的右括号匹配
+				pre = i - dp[i - 1] - 1;
+				if (pre >= 0 && cs[pre] == '(')
 					dp[i] = dp[i - 1] + 2 + (pre > 0 ? dp[pre - 1] : 0);
-				}
 			}
 			ans = Math.max(ans, dp[i]);
+		}
+		return ans;
+	}
+
+	// 方法二：
+	public int longestValidParentheses0(String s) {
+		Deque<Integer> stack = new LinkedList<>();
+		stack.offerLast(-1);
+		char[] cs = s.toCharArray();
+		int ans = 0;
+		for (int i = 0; i < cs.length; i++) {
+			if (cs[i] == '(') stack.offerLast(i);
+			else {
+				stack.pollLast();
+				if (stack.isEmpty()) stack.offerLast(i);
+				else ans = Math.max(ans, i - stack.peekLast());
+			}
 		}
 		return ans;
 	}

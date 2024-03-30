@@ -1,66 +1,73 @@
 package com.yw.course.coding.class14;
 
+import com.yw.entity.TreeNode;
+
 import java.util.Stack;
 
-// 本题测试链接 : https://leetcode.com/problems/recover-binary-search-tree/
+/**
+ * 测试链接 : https://leetcode.cn/problems/recover-binary-search-tree/
+ * @author yangwei
+ */
 public class Code05_RecoverBinarySearchTree {
-
-	// 不要提交这个类
-	public static class TreeNode {
-		public int val;
-		public TreeNode left;
-		public TreeNode right;
-
-		public TreeNode(int v) {
-			val = v;
-		}
-	}
 
 	// 如果能过leetcode，只需要提交这个方法即可
 	// 但其实recoverTree2才是正路，只不过leetcode没有那么考
-	public static void recoverTree(TreeNode root) {
-		TreeNode[] errors = twoErrors(root);
-		if (errors[0] != null && errors[1] != null) {
-			int tmp = errors[0].val;
-			errors[0].val = errors[1].val;
-			errors[1].val = tmp;
+	// 方法一：
+	public void recoverTree(TreeNode root) {
+		TreeNode[] errorNodes = findTwoErrorNodes(root);
+		if (errorNodes[0] != null && errorNodes[1] != null) { // 交换值
+			int tmp = errorNodes[0].val;
+			errorNodes[0].val = errorNodes[1].val;
+			errorNodes[1].val = tmp;
 		}
 	}
-
-	public static TreeNode[] twoErrors(TreeNode head) {
-		TreeNode[] ans = new TreeNode[2];
-		if (head == null) {
-			return ans;
-		}
-		TreeNode cur = head;
-		TreeNode mostRight = null;
-		TreeNode pre = null;
-		TreeNode e1 = null;
-		TreeNode e2 = null;
+	private static TreeNode[] findTwoErrorNodes(TreeNode root) {
+		TreeNode[] errorNodes = new TreeNode[2];
+		// morris 遍历实现中序
+		TreeNode cur = root, mostRight, pre = null;
 		while (cur != null) {
 			mostRight = cur.left;
 			if (mostRight != null) {
-				while (mostRight.right != null && mostRight.right != cur) {
-					mostRight = mostRight.right;
-				}
+				while (mostRight.right != null && mostRight.right != cur) mostRight = mostRight.right;
 				if (mostRight.right == null) {
 					mostRight.right = cur;
 					cur = cur.left;
 					continue;
-				} else {
-					mostRight.right = null;
-				}
+				} else mostRight.right = null;
 			}
-			if (pre != null && pre.val >= cur.val) {
-				e1 = e1 == null ? pre : e1;
-				e2 = cur;
+			// 中序: 第二次访问到当前节点时
+			if (pre != null && pre.val >= cur.val) { // 发生逆序
+				// 第一个错误节点，取第一个逆序的第一个节点，第二个逆序不改变
+				errorNodes[0] = errorNodes[0] == null ? pre : errorNodes[0];
+				// 第二个错误节点，最终取得第二个逆序的第二个节点
+				errorNodes[1] = cur;
 			}
 			pre = cur;
 			cur = cur.right;
 		}
-		ans[0] = e1;
-		ans[1] = e2;
-		return ans;
+		return errorNodes;
+	}
+	// 方法二：
+	private TreeNode e1;    // 第一个错误节点
+	private TreeNode e2;    // 第二个错误节点
+	private TreeNode pre;   // 前一个节点
+	public void recoverTree0(TreeNode root) {
+		e1 = e2 = pre = null;
+		inOrder(root);
+		int tmp = e1.val;
+		e1.val = e2.val;
+		e2.val = tmp;
+	}
+	private void inOrder(TreeNode root) {
+		if (root == null) return;
+		inOrder(root.left);
+		// 中序处理
+		if (pre != null && pre.val > root.val) {
+			if (e1 == null) e1 = pre;
+			e2 = root;
+		}
+		pre = root;
+		inOrder(root.right);
 	}
 
 	// 以下的方法，提交leetcode是通过不了的，但那是因为leetcode的验证方式有问题
@@ -230,59 +237,6 @@ public class Code05_RecoverBinarySearchTree {
 			}
 		}
 		return parents;
-	}
-
-	// for test -- print tree
-	public static void printTree(TreeNode head) {
-		System.out.println("Binary Tree:");
-		printInOrder(head, 0, "H", 17);
-		System.out.println();
-	}
-
-	public static void printInOrder(TreeNode head, int height, String to, int len) {
-		if (head == null) {
-			return;
-		}
-		printInOrder(head.right, height + 1, "v", len);
-		String val = to + head.val + to;
-		int lenM = val.length();
-		int lenL = (len - lenM) / 2;
-		int lenR = len - lenM - lenL;
-		val = getSpace(lenL) + val + getSpace(lenR);
-		System.out.println(getSpace(height * len) + val);
-		printInOrder(head.left, height + 1, "^", len);
-	}
-
-	public static String getSpace(int num) {
-		String space = " ";
-		StringBuffer buf = new StringBuffer("");
-		for (int i = 0; i < num; i++) {
-			buf.append(space);
-		}
-		return buf.toString();
-	}
-
-	// 为了测试
-	public static boolean isBST(TreeNode head) {
-		if (head == null) {
-			return false;
-		}
-		Stack<TreeNode> stack = new Stack<TreeNode>();
-		TreeNode pre = null;
-		while (!stack.isEmpty() || head != null) {
-			if (head != null) {
-				stack.push(head);
-				head = head.left;
-			} else {
-				head = stack.pop();
-				if (pre != null && pre.val > head.val) {
-					return false;
-				}
-				pre = head;
-				head = head.right;
-			}
-		}
-		return true;
 	}
 
 	public static void main(String[] args) {
@@ -507,5 +461,51 @@ public class Code05_RecoverBinarySearchTree {
 		printTree(res14);
 		System.out.println(isBST(res14));
 	}
-
+	private static void printTree(TreeNode head) {
+		System.out.println("Binary Tree:");
+		printInOrder(head, 0, "H", 17);
+		System.out.println();
+	}
+	private static void printInOrder(TreeNode head, int height, String to, int len) {
+		if (head == null) {
+			return;
+		}
+		printInOrder(head.right, height + 1, "v", len);
+		String val = to + head.val + to;
+		int lenM = val.length();
+		int lenL = (len - lenM) / 2;
+		int lenR = len - lenM - lenL;
+		val = getSpace(lenL) + val + getSpace(lenR);
+		System.out.println(getSpace(height * len) + val);
+		printInOrder(head.left, height + 1, "^", len);
+	}
+	private static String getSpace(int num) {
+		String space = " ";
+		StringBuffer buf = new StringBuffer("");
+		for (int i = 0; i < num; i++) {
+			buf.append(space);
+		}
+		return buf.toString();
+	}
+	private static boolean isBST(TreeNode head) {
+		if (head == null) {
+			return false;
+		}
+		Stack<TreeNode> stack = new Stack<TreeNode>();
+		TreeNode pre = null;
+		while (!stack.isEmpty() || head != null) {
+			if (head != null) {
+				stack.push(head);
+				head = head.left;
+			} else {
+				head = stack.pop();
+				if (pre != null && pre.val > head.val) {
+					return false;
+				}
+				pre = head;
+				head = head.right;
+			}
+		}
+		return true;
+	}
 }

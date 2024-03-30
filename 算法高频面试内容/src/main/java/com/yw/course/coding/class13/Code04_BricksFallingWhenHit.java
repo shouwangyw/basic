@@ -1,149 +1,115 @@
 package com.yw.course.coding.class13;
 
-// 本题测试链接 : https://leetcode.com/problems/bricks-falling-when-hit/
+/**
+ * 测试链接 : https://leetcode.cn/problems/bricks-falling-when-hit/
+ * @author yangwei
+ */
 public class Code04_BricksFallingWhenHit {
 
-	public static int[] hitBricks(int[][] grid, int[][] hits) {
-		for (int i = 0; i < hits.length; i++) {
-			if (grid[hits[i][0]][hits[i][1]] == 1) {
-				grid[hits[i][0]][hits[i][1]] = 2;
-			}
+	private static final int[][] dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+	public int[] hitBricks(int[][] grid, int[][] hits) {
+		// 将炮弹击中的位置标记成2
+		for (int[] x : hits) {
+			if (grid[x[0]][x[1]] == 1) grid[x[0]][x[1]] = 2;
 		}
-		UnionFind unionFind = new UnionFind(grid);
+		// 建立并查集
+		UnionFind uf = new UnionFind(grid);
 		int[] ans = new int[hits.length];
-		for (int i = hits.length - 1; i >= 0; i--) {
-			if (grid[hits[i][0]][hits[i][1]] == 2) {
-				ans[i] = unionFind.finger(hits[i][0], hits[i][1]);
+		for (int i = hits.length - 1; i >= 0; i--) { // 倒序恢复+整理答案
+			int[] hit = hits[i];
+			if (grid[hit[0]][hit[1]] == 2) {
+				ans[i] = uf.finger(hit[0], hit[1]);
 			}
 		}
 		return ans;
 	}
-
-	// 并查集
-	public static class UnionFind {
-		private int N;
-		private int M;
-		// 有多少块砖，连到了天花板上
-		private int cellingAll;
-		// 原始矩阵，因为炮弹的影响，1 -> 2
-		private int[][] grid;
-		// cellingSet[i] = true; i 是头节点，所在的集合是天花板集合
-		private boolean[] cellingSet;
-		private int[] fatherMap;
-		private int[] sizeMap;
-		private int[] stack;
-
-		public UnionFind(int[][] matrix) {
-			initSpace(matrix);
+	private static class UnionFind {
+		private int m;
+		private int n;
+		private int[][] grid; // 原始矩阵，1->2表示被炮弹击中
+		private int[] fa;
+		private int[] size; // 记录每个集合的数量
+		private boolean[] celling; // i位置是不是天花板
+		private int cellingNum; // 连到天花板砖块的数量
+		public UnionFind(int[][] grid) {
+			initSpace(grid);
 			initConnect();
 		}
-
-		private void initSpace(int[][] matrix) {
-			grid = matrix;
-			N = grid.length;
-			M = grid[0].length;
-			int all = N * M;
-			cellingAll = 0;
-			cellingSet = new boolean[all];
-			fatherMap = new int[all];
-			sizeMap = new int[all];
-			stack = new int[all];
-			for (int row = 0; row < N; row++) {
-				for (int col = 0; col < M; col++) {
-					if (grid[row][col] == 1) {
-						int index = row * M + col;
-						fatherMap[index] = index;
-						sizeMap[index] = 1;
-						if (row == 0) {
-							cellingSet[index] = true;
-							cellingAll++;
-						}
+		private void initSpace(int[][] grid) {
+			this.m = grid.length;
+			this.n = grid[0].length;
+			this.grid = grid;
+			this.fa = new int[m * n];
+			this.size = new int[fa.length];
+			this.celling = new boolean[fa.length];
+			this.cellingNum = 0;
+			for (int r = 0; r < m; r++) {
+				for (int c = 0; c < n; c++) {
+					if (grid[r][c] != 1) continue;
+					int i = idx(r, c);  // 二维位置转成一维位置
+					fa[i] = i;
+					size[i] = 1;
+					if (r == 0) {
+						celling[i] = true;
+						cellingNum++;
 					}
 				}
 			}
 		}
-
 		private void initConnect() {
-			for (int row = 0; row < N; row++) {
-				for (int col = 0; col < M; col++) {
-					union(row, col, row - 1, col);
-					union(row, col, row + 1, col);
-					union(row, col, row, col - 1);
-					union(row, col, row, col + 1);
-				}
-			}
-		}
-
-		private int find(int row, int col) {
-			int stackSize = 0;
-			int index = row * M + col;
-			while (index != fatherMap[index]) {
-				stack[stackSize++] = index;
-				index = fatherMap[index];
-			}
-			while (stackSize != 0) {
-				fatherMap[stack[--stackSize]] = index;
-			}
-			return index;
-		}
-
-		private void union(int r1, int c1, int r2, int c2) {
-			if (valid(r1, c1) && valid(r2, c2)) {
-				int father1 = find(r1, c1);
-				int father2 = find(r2, c2);
-				if (father1 != father2) {
-					int size1 = sizeMap[father1];
-					int size2 = sizeMap[father2];
-					boolean status1 = cellingSet[father1];
-					boolean status2 = cellingSet[father2];
-					if (size1 <= size2) {
-						fatherMap[father1] = father2;
-						sizeMap[father2] = size1 + size2;
-						if (status1 ^ status2) {
-							cellingSet[father2] = true;
-							cellingAll += status1 ? size2 : size1;
-						}
-					} else {
-						fatherMap[father2] = father1;
-						sizeMap[father1] = size1 + size2;
-						if (status1 ^ status2) {
-							cellingSet[father1] = true;
-							cellingAll += status1 ? size2 : size1;
-						}
+			for (int r = 0; r < m; r++) {
+				for (int c = 0; c < n; c++) {
+					for (int[] dir : dirs) {
+						union(r, c, r + dir[0], c + dir[1]);
 					}
 				}
 			}
 		}
-
-		private boolean valid(int row, int col) {
-			return row >= 0 && row < N && col >= 0 && col < M && grid[row][col] == 1;
-		}
-
-		public int cellingNum() {
-			return cellingAll;
-		}
-
-		public int finger(int row, int col) {
-			grid[row][col] = 1;
-			int cur = row * M + col;
-			if (row == 0) {
-				cellingSet[cur] = true;
-				cellingAll++;
-			}
-			fatherMap[cur] = cur;
-			sizeMap[cur] = 1;
-			int pre = cellingAll;
-			union(row, col, row - 1, col);
-			union(row, col, row + 1, col);
-			union(row, col, row, col - 1);
-			union(row, col, row, col + 1);
-			int now = cellingAll;
-			if (row == 0) {
-				return now - pre;
+		public void union(int r1, int c1, int r2, int c2) {
+			if (!valid(r1, c1) || !valid(r2, c2)) return;
+			int fa1 = find(idx(r1, c1)), fa2 = find(idx(r2, c2));
+			if (fa1 == fa2) return;
+			int size1 = size[fa1], size2 = size[fa2];
+			boolean state1 = celling[fa1], state2 = celling[fa2];
+			if (size[fa1] < size[fa2]) {
+				fa[fa1] = fa2;
+				size[fa2] = size1 + size2;
+				if (state1 ^ state2) {
+					celling[fa2] = true;
+					cellingNum += state1 ? size2 : size1;
+				}
 			} else {
-				return now == pre ? 0 : now - pre - 1;
+				fa[fa2] = fa1;
+				size[fa1] = size1 + size2;
+				if (state1 ^ state2) {
+					celling[fa1] = true;
+					cellingNum += state1 ? size2 : size1;
+				}
 			}
+		}
+		public int find(int x) {
+			if (fa[x] == x) return x;
+			return find(fa[x]);
+		}
+		public int finger(int r, int c) {
+			grid[r][c] = 1;
+			int cur = idx(r, c);
+			if (r == 0) {
+				celling[cur] = true;
+				cellingNum++;
+			}
+			fa[cur] = cur;
+			size[cur] = 1;
+			int pre = cellingNum;
+			for (int[] dir : dirs) union(r, c, r + dir[0], c + dir[1]);
+			int now = cellingNum;
+			return r == 0 ? now - pre : (now == pre ? 0 : now - pre - 1);
+		}
+		private int idx(int r, int c) {
+			return r * n + c;
+		}
+		private boolean valid(int r, int c) {
+			return r >= 0 && r < m && c >= 0 && c < n && grid[r][c] == 1;
 		}
 	}
-
 }

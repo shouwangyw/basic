@@ -2,27 +2,28 @@ package com.yw.course.coding.class14;
 
 import java.util.TreeSet;
 
+/**
+ * 在数组 arr 中求子数组的累加和，是小于等于 K 的并且是最大的，返回这个最大的累加和。
+ *
+ * @author yangwei
+ */
 public class Code02_MaxSubArraySumLessOrEqualK {
 
-	// 请返回arr中，求个子数组的累加和，是<=K的，并且是最大的。
-	// 返回这个最大的累加和
-	public static int getMaxLessOrEqualK(int[] arr, int K) {
-		// 记录i之前的，前缀和，按照有序表组织
-		TreeSet<Integer> set = new TreeSet<Integer>();
-		// 一个数也没有的时候，就已经有一个前缀和是0了
+	public static int getMaxSubArraySumLessOrEqualK(int[] arr, int k) {
+		// 记录i之前的前缀和，按有序表组织
+		TreeSet<Integer> set = new TreeSet<>();
+		// 一个数没有时，就已经有一个前缀和是0
 		set.add(0);
-		int max = Integer.MIN_VALUE;
-		int sum = 0;
-		// 每一步的i，都求子数组必须以i结尾的情况下，求个子数组的累加和，是<=K的，并且是最大的
+		int max = Integer.MAX_VALUE, sum = 0;
 		for (int i = 0; i < arr.length; i++) {
-			sum += arr[i]; // sum -> arr[0..i];
-			if (set.ceiling(sum - K) != null) {
-				max = Math.max(max, sum - set.ceiling(sum - K));
+			// sum 记录 arr[0...i]累加和
+			sum += arr[i];
+			Integer target = set.ceiling(sum - k);
+			if (target != null) {
+				max = Math.max(max, sum - target);
 			}
-			set.add(sum); // 当前的前缀和加入到set中去
+			set.add(sum);
 		}
 		return max;
-
 	}
-
 }
