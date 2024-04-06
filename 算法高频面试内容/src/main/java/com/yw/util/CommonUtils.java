@@ -77,6 +77,14 @@ public class CommonUtils {
 //        arr[i] = arr[i] ^ arr[j];
     }
 
+    public static int[] generateArray(int len, int maxValue) {
+        int[] res = new int[len];
+        for (int i = 0; i != res.length; i++) {
+            res[i] = (int) (Math.random() * maxValue) + 1;
+        }
+        return res;
+    }
+
     public static int[] generateRandomArray(int maxSize, int maxValue) {
         // Math.random() -> [0,1) 所有的小数，等概率返回一个
         // Math.random() * N -> [0,N) 所有的小数，等概率返回一个

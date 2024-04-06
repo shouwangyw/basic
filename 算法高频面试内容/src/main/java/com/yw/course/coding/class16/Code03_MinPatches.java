@@ -1,31 +1,25 @@
 package com.yw.course.coding.class16;
 
-import java.util.Arrays;
-
+/**
+ * @author yangwei
+ */
 public class Code03_MinPatches {
 
-	// arr请保证有序，且正数  1~aim
-	public static int minPatches(int[] arr, int aim) {
-		int patches = 0; // 缺多少个数字
-		long range = 0; // 已经完成了1 ~ range的目标
-		Arrays.sort(arr);
-		for (int i = 0; i != arr.length; i++) {
-			// arr[i]
-			// 要求：1 ~ arr[i]-1 范围被搞定！
-			while (arr[i] - 1 > range) { // arr[i] 1 ~ arr[i]-1
-				range += range + 1; // range + 1 是缺的数字
+	public static int minPatches(int[] nums, int n) {
+		long range = 0;     // 已补齐1...range范围
+		int patches = 0;    // 缺少patches个数
+		for (int x : nums) {
+			// 要求 1...x范围补齐
+			while (x - 1 > range) {
+				// range + 1是缺的数字
+				range += range + 1; // 扩大range
 				patches++;
-				if (range >= aim) {
-					return patches;
-				}
+				if (range >= n) return patches; // 只要range变大，看一下目标
 			}
-			// 要求被满足了！
-			range += arr[i];
-			if (range >= aim) {
-				return patches;
-			}
+			range += x;
+			if (range >= n) return patches; // 只要range变大，看一下目标
 		}
-		while (aim >= range + 1) {
+		while (range < n) { // 还没到目标，就继续补数，扩大range
 			range += range + 1;
 			patches++;
 		}
@@ -76,7 +70,6 @@ public class Code03_MinPatches {
 		int[] test = { 1, 2, 31, 33 };
 		int n = 2147483647;
 		System.out.println(minPatches(test, n));
-
 	}
 
 }

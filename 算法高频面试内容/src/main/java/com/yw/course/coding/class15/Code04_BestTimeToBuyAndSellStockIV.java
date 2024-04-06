@@ -1,9 +1,12 @@
 package com.yw.course.coding.class15;
 
-//leetcode 188
+/**
+ * leetcode 188
+ * @author yangwei
+ */
 public class Code04_BestTimeToBuyAndSellStockIV {
 
-	public static int maxProfit(int K, int[] prices) {
+	public static int maxProfit0(int K, int[] prices) {
 		if (prices == null || prices.length == 0) {
 			return 0;
 		}
@@ -28,38 +31,39 @@ public class Code04_BestTimeToBuyAndSellStockIV {
 
 	public static int allTrans(int[] prices) {
 		int ans = 0;
-		for (int i = 1; i < prices.length; i++) {
-			ans += Math.max(prices[i] - prices[i - 1], 0);
-		}
+		for (int i = 1; i < prices.length; i++) ans += Math.max(prices[i] - prices[i - 1], 0);
 		return ans;
 	}
 
-	// 课上写的版本，对了
-	public static int maxProfit2(int K, int[] arr) {
-		if (arr == null || arr.length == 0 || K < 1) {
-			return 0;
-		}
-		int N = arr.length;
-		if (K >= N / 2) {
-			return allTrans(arr);
-		}
-		int[][] dp = new int[N][K + 1];
-		// dp[...][0] = 0
-		// dp[0][...] = arr[0.0] 0
-		for (int j = 1; j <= K; j++) {
-			// dp[1][j]
-			int p1 = dp[0][j];
-			int best = Math.max(dp[1][j - 1] - arr[1], dp[0][j - 1] - arr[0]);
-			dp[1][j] = Math.max(p1, best + arr[1]);
-			// dp[1][j] 准备好一些枚举，接下来准备好的枚举
-			for (int i = 2; i < N; i++) {
-				p1 = dp[i - 1][j];
-				int newP = dp[i][j - 1] - arr[i];
-				best = Math.max(newP, best);
-				dp[i][j] = Math.max(p1, best + arr[i]);
+	public int maxProfit(int k, int[] prices) {
+		if (prices == null || prices.length <= 1 || k < 1) return 0;
+		int n = prices.length;
+		if (k >= n / 2) return maxProfit(prices);
+		// dp[i][j]: 表示0...i范围，最多完成j次交易，所能获得的最大收益
+		int[][] dp = new int[n][k + 1];
+		// 初始化dp
+		// dp[...][0] = 0: 0次交易，收益都是0
+		// dp[0][...] = 0: 0...0范围进行k次交易，收益也都是0
+		// 普遍位置 填表: 从左往右(列是交易次数)、从上往下(行是时间范围)
+		for (int j = 1; j <= k; j++) {
+			// 先计算dp[1][j]，然后一次推导出 dp[2][j]、dp[3][j]、...
+			// int p2 = dp[1][j - 1] + prices[1] - prices[1], p3 = dp[0][j - 1] + prices[1] - prices[0];
+			// Math.max(p2, p3) = prices[1] + Math.max(dp[1][j - 1] - prices[1], dp[0][j - 1] - prices[0])
+			int best = Math.max(dp[1][j - 1] - prices[1], dp[0][j - 1] - prices[0]);
+			dp[1][j] = Math.max(dp[0][j], best + prices[1]);
+			for (int i = 2; i < n; i++) {
+				best = Math.max(dp[i][j - 1] - prices[i], best);
+				dp[i][j] = Math.max(dp[i - 1][j], best + prices[i]);
 			}
 		}
-		return dp[N - 1][K];
+		// 最后，右下角的值就是最终答案
+		return dp[n - 1][k];
+	}
+	// 不限交易次数时，获得的最大收益问题
+	private int maxProfit(int[] prices) {
+		int ans = 0;
+		for (int i = 1; i < prices.length; i++) ans += Math.max(0, prices[i] - prices[i - 1]);
+		return ans;
 	}
 
 }

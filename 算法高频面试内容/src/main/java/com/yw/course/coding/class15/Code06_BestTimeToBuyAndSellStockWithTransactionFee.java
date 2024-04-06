@@ -1,27 +1,24 @@
 package com.yw.course.coding.class15;
 
-//leetcode 714
+/**
+ * leetcode 714
+ * @author yangwei
+ */
 public class Code06_BestTimeToBuyAndSellStockWithTransactionFee {
 
-	public static int maxProfit(int[] arr, int fee) {
-		if (arr == null || arr.length < 2) {
-			return 0;
+	public int maxProfit(int[] prices, int fee) {
+		if (prices == null || prices.length <= 1) return 0;
+		int n = prices.length;
+		int bestBuy = -prices[0] - fee, bestSell = 0;
+		for (int i = 1; i < n; i++) {
+			// 来到i位置，若必须买入，收入 - 批发价 - fee
+			int curBuy = bestSell - prices[i] - fee;
+			// 来到i位置，若必须卖出，整体最优(收入 - 良好批发价 - fee)
+			int curSell = bestBuy + prices[i];
+			bestBuy = Math.max(bestBuy, curBuy);
+			bestSell = Math.max(bestSell, curSell);
 		}
-		int N = arr.length;
-		// 0..0   0 -[0] - fee
-		int bestbuy = -arr[0] - fee;
-		// 0..0  卖  0
-		int bestsell = 0;
-		for (int i = 1; i < N; i++) {
-			// 来到i位置了！
-			// 如果在i必须买  收入 - 批发价 - fee
-			int curbuy = bestsell - arr[i] - fee;
-			// 如果在i必须卖  整体最优（收入 - 良好批发价 - fee）
-			int cursell = bestbuy + arr[i];
-			bestbuy = Math.max(bestbuy, curbuy);
-			bestsell = Math.max(bestsell, cursell);
-		}
-		return bestsell;
+		return bestSell;
 	}
 
 }

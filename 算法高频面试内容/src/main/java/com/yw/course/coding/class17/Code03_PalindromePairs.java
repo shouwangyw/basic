@@ -1,104 +1,79 @@
 package com.yw.course.coding.class17;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-// 测试链接 : https://leetcode.com/problems/palindrome-pairs/
+/**
+ * 测试链接 : https://leetcode.cn/problems/palindrome-pairs/
+ * @author yangwei
+ */
 public class Code03_PalindromePairs {
 
-	public static List<List<Integer>> palindromePairs(String[] words) {
-		HashMap<String, Integer> wordset = new HashMap<>();
-		for (int i = 0; i < words.length; i++) {
-			wordset.put(words[i], i);
-		}
-		List<List<Integer>> res = new ArrayList<>();
-		//{ [6,23] 、 [7,13] }
-		for (int i = 0; i < words.length; i++) {
-			// i words[i]
-			// findAll(字符串，在i位置，wordset) 返回所有生成的结果返回
-			res.addAll(findAll(words[i], i, wordset));
-		}
-		return res;
-	}
-
-	public static List<List<Integer>> findAll(String word, int index, HashMap<String, Integer> words) {
-		List<List<Integer>> res = new ArrayList<>();
-		String reverse = reverse(word);
-		Integer rest = words.get("");
-		if (rest != null && rest != index && word.equals(reverse)) {
-			addRecord(res, rest, index);
-			addRecord(res, index, rest);
-		}
-		int[] rs = manacherss(word);
-		int mid = rs.length >> 1;
-		for (int i = 1; i < mid; i++) {
-			if (i - rs[i] == -1) {
-				rest = words.get(reverse.substring(0, mid - i));
-				if (rest != null && rest != index) {
-					addRecord(res, rest, index);
-				}
-			}
-		}
-		for (int i = mid + 1; i < rs.length; i++) {
-			if (i + rs[i] == rs.length) {
-				rest = words.get(reverse.substring((mid << 1) - i));
-				if (rest != null && rest != index) {
-					addRecord(res, index, rest);
-				}
-			}
-		}
-		return res;
-	}
-
-	public static void addRecord(List<List<Integer>> res, int left, int right) {
-		List<Integer> newr = new ArrayList<>();
-		newr.add(left);
-		newr.add(right);
-		res.add(newr);
-	}
-
-	public static int[] manacherss(String word) {
-		char[] mchs = manachercs(word);
-		int[] rs = new int[mchs.length];
-		int center = -1;
-		int pr = -1;
-		for (int i = 0; i != mchs.length; i++) {
-			rs[i] = pr > i ? Math.min(rs[(center << 1) - i], pr - i) : 1;
-			while (i + rs[i] < mchs.length && i - rs[i] > -1) {
-				if (mchs[i + rs[i]] != mchs[i - rs[i]]) {
-					break;
-				}
-				rs[i]++;
-			}
-			if (i + rs[i] > pr) {
-				pr = i + rs[i];
-				center = i;
-			}
-		}
-		return rs;
-	}
-
-	public static char[] manachercs(String word) {
-		char[] chs = word.toCharArray();
-		char[] mchs = new char[chs.length * 2 + 1];
-		int index = 0;
-		for (int i = 0; i != mchs.length; i++) {
-			mchs[i] = (i & 1) == 0 ? '#' : chs[index++];
-		}
-		return mchs;
-	}
-
-	public static String reverse(String str) {
-		char[] chs = str.toCharArray();
-		int l = 0;
-		int r = chs.length - 1;
-		while (l < r) {
-			char tmp = chs[l];
-			chs[l++] = chs[r];
-			chs[r--] = tmp;
-		}
-		return String.valueOf(chs);
-	}
-
+    public List<List<Integer>> palindromePairs(String[] words) {
+        // 创建字符串索引表
+        Map<String, Integer> wordMap = new HashMap<>();
+        for (int i = 0; i < words.length; i++) wordMap.put(words[i], i);
+        // 遍历字符串数组，并收集答案
+        List<List<Integer>> ans = new ArrayList<>();
+        for (int i = 0; i < words.length; i++) ans.addAll(findPalindromePairs(words[i], i, wordMap));
+        return ans;
+    }
+    // word: 当前字符串，idx: 当前字符串所在位置
+    private List<List<Integer>> findPalindromePairs(String word, int idx, Map<String, Integer> wordMap) {
+        List<List<Integer>> ans = new ArrayList<>();
+        String reverseWord = reverseString(word.toCharArray());
+        Integer rest = wordMap.get("");
+        // 如果有空串，且不是当前字符串，并且当前字符串是回文
+        if (rest != null && rest != idx && word.equals(reverseWord)) {
+            addAns(ans, rest, idx);
+            addAns(ans, idx, rest);
+        }
+        // 以下通过Manacher算法判断回文
+        // 得到当前字符串的回文半径数组
+        int[] rs = manacher(word);
+        int mid = rs.length >> 1;
+        for (int i = 1; i < mid; i++) {
+            if (i - rs[i] != -1) continue;
+            rest = wordMap.get(reverseWord.substring(0, mid - i));
+            if (rest != null && rest != idx) addAns(ans, rest, idx);
+        }
+        for (int i = mid + 1; i < rs.length; i++) {
+            if (i + rs[i] != rs.length) continue;
+            rest = wordMap.get(reverseWord.substring((mid << 1) - i));
+            if (rest != null && rest != idx) addAns(ans, idx, rest);
+        }
+        return ans;
+    }
+    // 翻转字符串
+    private String reverseString(char[] cs) {
+        char[] res = new char[cs.length];
+        for (int i = 0; i < cs.length; i++) res[i] = cs[cs.length - 1 - i];
+        return new String(res);
+    }
+    private void addAns(List<List<Integer>> ans, int l, int r) {
+        ans.addAll(Collections.singleton(Arrays.asList(l, r)));
+    }
+    private int[] manacher(String word) {
+        // 得到Manacher串
+        char[] ms = manacherString(word.toCharArray());
+        int[] rs = new int[ms.length];  // 回文半径数组
+        int c = -1, r = -1, n = rs.length;             // c: 中心点位置，r: 中心点c所能扩成功的最右边界+1，初始化都设置为-1
+        for (int i = 0; i < n; i++) {
+            rs[i] = r > i ? Math.min(rs[2 * c - i], r - i) : 1;
+            while (i + rs[i] < n && i - rs[i] > -1) {
+                if (ms[i + rs[i]] == ms[i - rs[i]]) rs[i]++;
+                else break;
+            }
+            // 若i位置能将r推的更右，则更新r、c
+            if (i + rs[i] > r) {
+                r = i + rs[i];
+                c = i;
+            }
+        }
+        return rs;
+    }
+    private char[] manacherString(char[] cs) {
+        char[] res = new char[cs.length * 2 + 1];
+        for (int i = 0, j = 0; i < res.length; i++) res[i] = (i & 1) == 0 ? '#' : cs[j++];
+        return res;
+    }
 }

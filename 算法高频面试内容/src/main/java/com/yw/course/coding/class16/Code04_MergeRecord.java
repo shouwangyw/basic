@@ -1,5 +1,12 @@
 package com.yw.course.coding.class16;
 
+import java.util.Arrays;
+
+import static com.yw.util.CommonUtils.*;
+
+/**
+ * @author yangwei
+ */
 public class Code04_MergeRecord {
 	
 	/*
@@ -73,6 +80,8 @@ public class Code04_MergeRecord {
 		int[] recordUp = new int[power + 1];
 		process(originArr, 0, originArr.length - 1, power, recordDown);
 		process(reverse, 0, reverse.length - 1, power, recordUp);
+//		System.out.println("recordDown: " + Arrays.toString(recordDown));
+//		System.out.println("recordUp: " + Arrays.toString(recordUp));
 		int[] ans = new int[reverseArr.length];
 		for (int i = 0; i < reverseArr.length; i++) {
 			int curPower = reverseArr[i];
@@ -85,6 +94,13 @@ public class Code04_MergeRecord {
 				ans[i] += recordDown[p];
 			}
 		}
+		return ans;
+	}
+
+	public static long[] reversePair(int[] originArr, int[] reverseArr, int power) {
+		long[] ans = new long[reverseArr.length];
+
+		reversePair(originArr, reverseArr, ans, power);
 		return ans;
 	}
 
@@ -124,62 +140,44 @@ public class Code04_MergeRecord {
 		return ans;
 	}
 
-	// for test
-	public static int[] generateRandomOriginArray(int power, int value) {
-		int[] ans = new int[1 << power];
+	// oriArr: 原始数组，revArr: 翻转数组，ans: 答案数组
+	private static void reversePair(int[] oriArr, int[] revArr, long[] ans, int pow) {
+		int n = oriArr.length;
+		// reverseArr: 从原始数组拷贝的一份翻转的数组，用于求原始数组的正序信息(翻转数组的逆序信息就是原始数组的正序信息)
+		// downs: 记录逆序信息，ups: 记录正序信息
+		int[] reverseArr = new int[n];
+		long[] downs = new long[pow + 1], ups = new long[pow + 1];
+		for (int i = 0; i < n; i++) reverseArr[i] = oriArr[n - i - 1];
+		mergeSort(oriArr, 0, n - 1, pow, downs);
+		mergeSort(reverseArr, 0, n - 1, pow, ups);
+		// 根据downs和ups信息，整理答案
 		for (int i = 0; i < ans.length; i++) {
-			ans[i] = (int) (Math.random() * value);
-		}
-		return ans;
-	}
-
-	// for test
-	public static int[] generateRandomReverseArray(int len, int power) {
-		int[] ans = new int[len];
-		for (int i = 0; i < ans.length; i++) {
-			ans[i] = (int) (Math.random() * (power + 1));
-		}
-		return ans;
-	}
-
-	// for test
-	public static void printArray(int[] arr) {
-		System.out.println("arr size : " + arr.length);
-		for (int i = 0; i < arr.length; i++) {
-			System.out.print(arr[i] + " ");
-		}
-		System.out.println();
-	}
-
-	// for test
-	public static int[] copyArray(int[] arr) {
-		if (arr == null) {
-			return null;
-		}
-		int[] res = new int[arr.length];
-		for (int i = 0; i < arr.length; i++) {
-			res[i] = arr[i];
-		}
-		return res;
-	}
-
-	// for test
-	public static boolean isEqual(int[] arr1, int[] arr2) {
-		if ((arr1 == null && arr2 != null) || (arr1 != null && arr2 == null)) {
-			return false;
-		}
-		if (arr1 == null && arr2 == null) {
-			return true;
-		}
-		if (arr1.length != arr2.length) {
-			return false;
-		}
-		for (int i = 0; i < arr1.length; i++) {
-			if (arr1[i] != arr2[i]) {
-				return false;
+			// 小于等于 power 一组的正逆序信息交换
+			for (int p = 1; p <= revArr[i]; p++) {
+				long t = downs[p];
+				downs[p] = ups[p];
+				ups[p] = t;
 			}
+			for (int p = 1; p <= pow; p++) ans[i] += downs[p];
 		}
-		return true;
+	}
+	private static void mergeSort(int[] arr, int l, int r, int pow, long[] record) {
+		if (l == r) return;
+		int mid = l + ((r - l) >> 1);
+		// 分: 二分
+		mergeSort(arr, l, mid, pow - 1, record);
+		mergeSort(arr, mid + 1, r, pow - 1, record);
+		// 治: merge
+		int[] tmp = new int[r - l + 1];
+		int i = l, j = mid + 1, k = 0;
+		while (i <= mid && j <= r) {
+			// 这个产生逆序处理
+			record[pow] += arr[i] > arr[j] ? (mid - i + 1) : 0;
+			tmp[k++] = arr[i] <= arr[j] ? arr[i++] : arr[j++];
+		}
+		while (i <= mid) tmp[k++] = arr[i++];
+		while (j <= r) tmp[k++] = arr[j++];
+		for (k = 0; k < tmp.length; k++) arr[l + k] = tmp[k];
 	}
 
 	public static void main(String[] args) {
@@ -194,13 +192,20 @@ public class Code04_MergeRecord {
 			int[] originArr = generateRandomOriginArray(power, value);
 			int[] originArr1 = copyArray(originArr);
 			int[] originArr2 = copyArray(originArr);
+			int[] originArr3 = copyArray(originArr);
 			int[] reverseArr = generateRandomReverseArray(msize, power);
 			int[] reverseArr1 = copyArray(reverseArr);
 			int[] reverseArr2 = copyArray(reverseArr);
+			int[] reverseArr3 = copyArray(reverseArr);
 			int[] ans1 = reversePair1(originArr1, reverseArr1, power);
 			int[] ans2 = reversePair2(originArr2, reverseArr2, power);
+			long[] ans3 = reversePair(originArr3, reverseArr3, power);
 			if (!isEqual(ans1, ans2)) {
+				System.out.println(Arrays.toString(ans1));
+				System.out.println(Arrays.toString(ans2));
+				System.out.println(Arrays.toString(ans3));
 				System.out.println("Oops!");
+				break;
 			}
 		}
 		System.out.println("test finish!");
@@ -216,5 +221,18 @@ public class Code04_MergeRecord {
 		long end = System.currentTimeMillis();
 		System.out.println("run time : " + (end - start) + " ms");
 	}
-
+	private static int[] generateRandomOriginArray(int power, int value) {
+		int[] ans = new int[1 << power];
+		for (int i = 0; i < ans.length; i++) {
+			ans[i] = (int) (Math.random() * value);
+		}
+		return ans;
+	}
+	private static int[] generateRandomReverseArray(int len, int power) {
+		int[] ans = new int[len];
+		for (int i = 0; i < ans.length; i++) {
+			ans[i] = (int) (Math.random() * (power + 1));
+		}
+		return ans;
+	}
 }

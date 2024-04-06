@@ -1,18 +1,16 @@
 package com.yw.course.coding.class17;
 
+/**
+ * @author yangwei
+ */
 public class Code01_FindNumInSortedMatrix {
 
-	public static boolean isContains(int[][] matrix, int K) {
-		int row = 0;
-		int col = matrix[0].length - 1;
-		while (row < matrix.length && col > -1) {
-			if (matrix[row][col] == K) {
-				return true;
-			} else if (matrix[row][col] > K) {
-				col--;
-			} else {
-				row++;
-			}
+	public static boolean searchMatrix(int[][] matrix, int target) {
+		int row = 0, col = matrix[0].length - 1;
+		while (row < matrix.length && col >= 0) {
+			if (matrix[row][col] == target) return true;
+			else if (matrix[row][col] > target) col--;
+			else row++;
 		}
 		return false;
 	}
@@ -28,7 +26,7 @@ public class Code01_FindNumInSortedMatrix {
 				{ 233, 243, 321, 341, 356, 370, 380 } // 7
 		};
 		int K = 233;
-		System.out.println(isContains(matrix, K));
+		System.out.println(searchMatrix(matrix, K));
 	}
 
 }
