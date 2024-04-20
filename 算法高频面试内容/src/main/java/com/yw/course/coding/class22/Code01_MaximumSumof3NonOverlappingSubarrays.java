@@ -1,6 +1,10 @@
 package com.yw.course.coding.class22;
 
-// 本题测试链接 : https://leetcode.com/problems/maximum-sum-of-3-non-overlapping-subarrays/
+/**
+ * 测试链接: https://leetcode.cn/problems/maximum-sum-of-3-non-overlapping-subarrays/
+ *
+ * @author yangwei
+ */
 public class Code01_MaximumSumof3NonOverlappingSubarrays {
 
 //	public static int[] maxSumArray1(int[] arr) {
@@ -46,57 +50,52 @@ public class Code01_MaximumSumof3NonOverlappingSubarrays {
 //
 //	}
 
-	public static int[] maxSumOfThreeSubarrays(int[] nums, int k) {
-		int N = nums.length;
-		int[] range = new int[N];
-		int[] left = new int[N];
-		int sum = 0;
-		for (int i = 0; i < k; i++) {
-			sum += nums[i];
-		}
-		range[0] = sum;
-		left[k - 1] = 0;
-		int max = sum;
-		for (int i = k; i < N; i++) {
-			sum = sum - nums[i - k] + nums[i];
-			range[i - k + 1] = sum;
-			left[i] = left[i - 1];
-			if (sum > max) {
-				max = sum;
-				left[i] = i - k + 1;
-			}
-		}
-		sum = 0;
-		for (int i = N - 1; i >= N - k; i--) {
-			sum += nums[i];
-		}
-		max = sum;
-		int[] right = new int[N];
-		right[N - k] = N - k;
-		for (int i = N - k - 1; i >= 0; i--) {
-			sum = sum - nums[i + k] + nums[i];
-			right[i] = right[i + 1];
-			if (sum >= max) {
-				max = sum;
-				right[i] = i;
-			}
-		}
-		int a = 0;
-		int b = 0;
-		int c = 0;
-		max = 0;
-		for (int i = k; i < N - 2 * k + 1; i++) { // 中间一块的起始点 (0...k-1)选不了 i == N-1
-			int part1 = range[left[i - 1]];
-			int part2 = range[i];
-			int part3 = range[right[i + k]];
-			if (part1 + part2 + part3 > max) {
-				max = part1 + part2 + part3;
-				a = left[i - 1];
-				b = i;
-				c = right[i + k];
-			}
-		}
-		return new int[] { a, b, c };
-	}
+    public int[] maxSumOfThreeSubarrays(int[] nums, int k) {
+        int n = nums.length;
+        // left[i]表示0到i范围，取得长度为k的子数组最大累加和时，子数组的起始位置
+        // right[i]表示i到n-1范围，取得长度为k的子数组最大累加和时，子数组的起始位置
+        // range[i]表示起始位置是i，长度为k的子数组的累加和
+        int[] left = new int[n], right = new int[n], range = new int[n];
+        for (int i = 0, sum = 0, max = 0; i < n; i++) {
+            if (i < k) {
+                sum += nums[i];
+                max = sum;
+                range[0] = sum;
+                continue;
+            }
+            sum = sum - nums[i - k] + nums[i];
+            range[i - k + 1] = sum;
+            left[i] = left[i - 1];
+            if (sum > max) {
+                max = sum;
+                left[i] = i - k + 1;
+            }
+        }
+        right[n - k] = n - k;
+        for (int i = n - 1, sum = 0, max = 0; i >= 0; i--) {
+            if (i > n - k - 1) {
+                sum += nums[i];
+                max = sum;
+                continue;
+            }
+            sum = sum - nums[i + k] + nums[i];
+            right[i] = right[i + 1];
+            if (sum >= max) {
+                max = sum;
+                right[i] = i;
+            }
+        }
+        int[] ans = new int[3];
+        for (int i = k, max = 0; i < n - 2 * k + 1; i++) {
+            int l = range[left[i - 1]], mid = range[i], r = range[right[i + k]];
+            if (l + mid + r > max) {
+                max = l + mid + r;
+                ans[0] = left[i - 1];
+                ans[1] = i;
+                ans[2] = right[i + k];
+            }
+        }
+        return ans;
+    }
 
 }

@@ -80,13 +80,13 @@ public class Code01_SegmentTree {
 		/**
 		 * 当前来到rt位置(该位置代表的范围是[l,r])时，求[L,R]范围上所有数的累加和
 		 */
-		public long query(int L, int R, int l, int r, int rt) {
+		public int query(int L, int R, int l, int r, int rt) {
 			// 任务全包
 			if (L <= l && r <= R) return sum[rt];
 			// 任务没全包
 			int mid = (l + r) >> 1;
 			pushDown(rt, mid - l + 1, r - mid);						// 先往下发一层
-			long ans = 0;
+			int ans = 0;
 			if (L <= mid) ans += query(L, R, l, mid, rt << 1);			// 任务下发给左边
 			if (R > mid) ans += query(L, R, mid + 1, r, rt << 1 | 1);	// 任务下发给右边
 			return ans;
