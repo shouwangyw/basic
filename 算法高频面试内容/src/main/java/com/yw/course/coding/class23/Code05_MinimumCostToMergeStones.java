@@ -1,6 +1,10 @@
 package com.yw.course.coding.class23;
 
-// 本题测试链接 : https://leetcode.com/problems/minimum-cost-to-merge-stones/
+/**
+ * 测试链接: https://leetcode.cn/problems/minimum-cost-to-merge-stones/
+ *
+ * @author yangwei
+ */
 public class Code05_MinimumCostToMergeStones {
 
 //	// arr[L...R]一定要整出P份，合并的最小代价，返回！
@@ -30,130 +34,85 @@ public class Code05_MinimumCostToMergeStones {
 //		return ans;
 //	}
 
-	public static int mergeStones1(int[] stones, int K) {
-		int n = stones.length;
-		if ((n - 1) % (K - 1) > 0) {
-			return -1;
-		}
-		int[] presum = new int[n + 1];
-		for (int i = 0; i < n; i++) {
-			presum[i + 1] = presum[i] + stones[i];
-		}
-		return process1(0, n - 1, 1, stones, K, presum);
-	}
+    // 方法一：尝试
+    public static int mergeStones0(int[] stones, int k) {
+        int n = stones.length;
+        // n个数到底能不能k个相邻数合并，最终合成1个数
+        if ((n - 1) % (k - 1) > 0) return -1;
+        int[] prefixSum = new int[n + 1];
+        for (int i = 0; i < n; i++) prefixSum[i + 1] = prefixSum[i] + stones[i];
+        return process(stones, k, prefixSum, 0, n - 1, 1);
+    }
+    // 数组arr在l...r范围一定要弄出p份(p>=1)，返回最低代价
+    private static int process(int[] arr, int k, int[] prefixSum, int l, int r, int p) {
+        // base case: l...r只有1个数，若弄1份代价0，否则合成不了返回-1
+        if (l == r) return p == 1 ? 0 : -1;
+        // l...r不止一个数
+        if (p == 1) {
+            int next = process(arr, k, prefixSum, l, r, k);
+            return next == -1 ? -1 : (next + prefixSum[r + 1] - prefixSum[l]);
+        }
+        int res = Integer.MAX_VALUE;
+        // l...mid是第1份，剩下的是p-1份
+        for (int mid = l; mid < r; mid += k - 1) {
+            int next1 = process(arr, k, prefixSum, l, mid, 1);
+            int next2 = process(arr, k, prefixSum, mid + 1, r, p - 1);
+            if (next1 != -1 && next2 != -1) res = Math.min(res, next1 + next2);
+        }
+        return res;
+    }
 
-	// part >= 1
-	// arr[L..R] 一定要弄出part份，返回最低代价
-	// arr、K、presum（前缀累加和数组，求i..j的累加和，就是O(1)了）
-	public static int process1(int L, int R, int P, int[] arr, int K, int[] presum) {
-		if (L == R) { // arr[L..R]
-			return P == 1 ? 0 : -1;
-		}
-		// L ... R 不只一个数
-		if (P == 1) {
-			int next = process1(L, R, K, arr, K, presum);
-			if (next == -1) {
-				return -1;
-			} else {
-				return next + presum[R + 1] - presum[L];
-			}
-		} else { // P > 1
-			int ans = Integer.MAX_VALUE;
-			// L...mid是第1块，剩下的是part-1块
-			for (int mid = L; mid < R; mid += K - 1) {
-				// L..mid(一份) mid+1...R(part - 1)
-				int next1 = process1(L, mid, 1, arr, K, presum);
-				int next2 = process1(mid + 1, R, P - 1, arr, K, presum);
-				if (next1 != -1 && next2 != -1) {
-					ans = Math.min(ans, next1 + next2);
-				}
-			}
-			return ans;
-		}
-	}
+    // 方法二：尝试+傻缓存
+    public static int mergeStones(int[] stones, int k) {
+        int n = stones.length;
+        // n个数到底能不能k个相邻数合并，最终合成1个数
+        if ((n - 1) % (k - 1) > 0) return -1;
+        int[] prefixSum = new int[n + 1];
+        for (int i = 0; i < n; i++) prefixSum[i + 1] = prefixSum[i] + stones[i];
+        int[][][] cache = new int[n][n][k + 1];
+        return process(stones, k, prefixSum, 0, n - 1, 1, cache);
+    }
+    // 数组arr在l...r范围一定要弄出p份(p>=1)，返回最低代价
+    private static int process(int[] arr, int k, int[] prefixSum, int l, int r, int p, int[][][] cache) {
+        if (cache[l][r][p] != 0) return cache[l][r][p];
+        // base case: l...r只有1个数，若弄1份代价0，否则合成不了返回-1
+        if (l == r) return cache[l][r][p] = (p == 1 ? 0 : -1);
+        // l...r不止一个数
+        if (p == 1) {
+            int next = process(arr, k, prefixSum, l, r, k, cache);
+            return cache[l][r][p] = (next == -1 ? -1 : (next + prefixSum[r + 1] - prefixSum[l]));
+        }
+        int res = Integer.MAX_VALUE;
+        // l...mid是第1份，剩下的是p-1份
+        for (int mid = l; mid < r; mid += k - 1) {
+            int next1 = process(arr, k, prefixSum, l, mid, 1, cache);
+            int next2 = process(arr, k, prefixSum, mid + 1, r, p - 1, cache);
+            if (next1 != -1 && next2 != -1) res = Math.min(res, next1 + next2);
+        }
+        return cache[l][r][p] = res;
+    }
 
-	public static int mergeStones2(int[] stones, int K) {
-		int n = stones.length;
-		if ((n - 1) % (K - 1) > 0) { // n个数，到底能不能K个相邻的数合并，最终变成1个数！
-			return -1;
-		}
-		int[] presum = new int[n + 1];
-		for (int i = 0; i < n; i++) {
-			presum[i + 1] = presum[i] + stones[i];
-		}
-		int[][][] dp = new int[n][n][K + 1];
-		return process2(0, n - 1, 1, stones, K, presum, dp);
-	}
+    public static void main(String[] args) {
+        int maxSize = 12;
+        int maxValue = 100;
+        System.out.println("Test begin");
+        for (int testTime = 0; testTime < 100000; testTime++) {
+            int[] arr = generateRandomArray(maxSize, maxValue);
+            int K = (int) (Math.random() * 7) + 2;
+            int ans1 = mergeStones0(arr, K);
+            int ans2 = mergeStones(arr, K);
+            if (ans1 != ans2) {
+                System.out.println(ans1);
+                System.out.println(ans2);
+            }
+        }
+    }
 
-	public static int process2(int L, int R, int P, int[] arr, int K, int[] presum, int[][][] dp) {
-		if (dp[L][R][P] != 0) {
-			return dp[L][R][P];
-		}
-		if (L == R) {
-			return P == 1 ? 0 : -1;
-		}
-		if (P == 1) {
-			int next = process2(L, R, K, arr, K, presum, dp);
-			if (next == -1) {
-				dp[L][R][P] = -1;
-				return -1;
-			} else {
-				dp[L][R][P] = next + presum[R + 1] - presum[L];
-				return next + presum[R + 1] - presum[L];
-			}
-		} else {
-			int ans = Integer.MAX_VALUE;
-			// i...mid是第1块，剩下的是part-1块
-			for (int mid = L; mid < R; mid += K - 1) {
-				int next1 = process2(L, mid, 1, arr, K, presum, dp);
-				int next2 = process2(mid + 1, R, P - 1, arr, K, presum, dp);
-				if (next1 == -1 || next2 == -1) {
-					dp[L][R][P] = -1;
-					return -1;
-				} else {
-					ans = Math.min(ans, next1 + next2);
-				}
-			}
-			dp[L][R][P] = ans;
-			return ans;
-		}
-	}
-
-	// for test
-	public static int[] generateRandomArray(int maxSize, int maxValue) {
-		int[] arr = new int[(int) (maxSize * Math.random()) + 1];
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = (int) ((maxValue + 1) * Math.random());
-		}
-		return arr;
-	}
-
-	// for test
-	public static void printArray(int[] arr) {
-		if (arr == null) {
-			return;
-		}
-		for (int i = 0; i < arr.length; i++) {
-			System.out.print(arr[i] + " ");
-		}
-		System.out.println();
-	}
-
-	public static void main(String[] args) {
-		int maxSize = 12;
-		int maxValue = 100;
-		System.out.println("Test begin");
-		for (int testTime = 0; testTime < 100000; testTime++) {
-			int[] arr = generateRandomArray(maxSize, maxValue);
-			int K = (int) (Math.random() * 7) + 2;
-			int ans1 = mergeStones1(arr, K);
-			int ans2 = mergeStones2(arr, K);
-			if (ans1 != ans2) {
-				System.out.println(ans1);
-				System.out.println(ans2);
-			}
-		}
-
-	}
-
+    private static int[] generateRandomArray(int maxSize, int maxValue) {
+        int[] arr = new int[(int) (maxSize * Math.random()) + 1];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = (int) ((maxValue + 1) * Math.random());
+        }
+        return arr;
+    }
 }

@@ -2,6 +2,9 @@ package com.yw.course.coding.class27;
 
 import java.util.HashMap;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0001_TwoSum {
 
 	public static int[] twoSum(int[] nums, int target) {

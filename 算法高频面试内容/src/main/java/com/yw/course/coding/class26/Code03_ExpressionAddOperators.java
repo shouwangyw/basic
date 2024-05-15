@@ -3,62 +3,46 @@ package com.yw.course.coding.class26;
 import java.util.LinkedList;
 import java.util.List;
 
-// 本题测试链接 : https://leetcode.com/problems/expression-add-operators/
+/**
+ * 测试链接: https://leetcode.cn/problems/expression-add-operators/
+ * @author yangwei
+ */
 public class Code03_ExpressionAddOperators {
 
-	public static List<String> addOperators(String num, int target) {
-		List<String> ret = new LinkedList<>();
-		if (num.length() == 0) {
-			return ret;
-		}
-		// 沿途的数字拷贝和+ - * 的决定，放在path里
-		char[] path = new char[num.length() * 2 - 1];
-		// num -> char[]
-		char[] digits = num.toCharArray();
+	public List<String> addOperators(String num, int target) {
+		char[] nums = num.toCharArray();
+		List<String> ans = new LinkedList<>();
+		// 记录沿途的数字、+、-、*的决定
+		char[] path = new char[nums.length * 2 - 1];
 		long n = 0;
-		for (int i = 0; i < digits.length; i++) { // 尝试0~i前缀作为第一部分
-			n = n * 10 + digits[i] - '0';
-			path[i] = digits[i];
-			dfs(ret, path, i + 1, 0, n, digits, i + 1, target); // 后续过程
-			if (n == 0) {
-				break;
-			}
+		for (int i = 0; i < nums.length; i++) {
+			n = n * 10 + nums[i] - '0';
+			path[i] = nums[i];
+			dfs(ans, path, i + 1, 0, n, nums, i + 1, target);
+			if (n == 0) break;
 		}
-		return ret;
+		return ans;
 	}
-
-	// char[] digits 固定参数，字符类型数组，等同于num
-	// int target 目标
-	// char[] path 之前做的决定，已经从左往右依次填写的字符在其中，可能含有'0'~'9' 与 * - +
-	// int len path[0..len-1]已经填写好，len是终止
-	// int pos 字符类型数组num, 使用到了哪
-	// left -> 前面固定的部分 cur -> 前一块
-	// 默认 left + cur ...
-	public static void dfs(List<String> res, char[] path, int len, 
-			long left, long cur, 
-			char[] num, int index, int aim) {
-		if (index == num.length) {
-			if (left + cur == aim) {
-				res.add(new String(path, 0, len));
-			}
+	// 固定参数：nums、target
+	// ans: 收集答案，path: 之前做的决定（0...len-1），已经从左往右依次填写的字符在其中，可能含有'0'~'9' 与 * - +
+	// left: 前面固定的部分，cur: 前面去掉固定的部分（例如: 当前来到 1*2-3，left=1*2=2、cur=-3）
+	private static void dfs(List<String> ans, char[] path, int len, long left, long cur, char[] nums, int idx, int target) {
+		if (idx == nums.length) {
+			if (left + cur == target) ans.add(new String(path, 0, len));
 			return;
 		}
 		long n = 0;
-		int j = len + 1;
-		for (int i = index; i < num.length; i++) { // pos ~ i
-			// 试每一个可能的前缀，作为第一个数字！
-			// num[index...i] 作为第一个数字！
-			n = n * 10 + num[i] - '0';
-			path[j++] = num[i];
+		for (int i = idx, j = len + 1; i < nums.length; i++) {
+			// 尝试每一个可能的前缀(nums[idx...i])，作为第一个数字
+			n = n * 10 + nums[i] - '0';
+			path[j++] = nums[i];
 			path[len] = '+';
-			dfs(res, path, j, left + cur, n, num, i + 1, aim);
+			dfs(ans, path, j, left + cur, n, nums, i + 1, target);
 			path[len] = '-';
-			dfs(res, path, j, left + cur, -n, num, i + 1, aim);
+			dfs(ans, path, j, left + cur, -n, nums, i + 1, target);
 			path[len] = '*';
-			dfs(res, path, j, left, cur * n, num, i + 1, aim);
-			if (num[index] == '0') {
-				break;
-			}
+			dfs(ans, path, j, left, cur * n, nums, i + 1, target);
+			if (nums[idx] == '0') break;
 		}
 	}
 

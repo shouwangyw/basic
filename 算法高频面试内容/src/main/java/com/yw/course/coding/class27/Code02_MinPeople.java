@@ -2,6 +2,9 @@ package com.yw.course.coding.class27;
 
 import java.util.Arrays;
 
+/**
+ * @author yangwei
+ */
 public class Code02_MinPeople {
 
 //  三道题如下：
@@ -38,21 +41,15 @@ public class Code02_MinPeople {
 	// 题目一，股票系列专题，大厂刷题班15节
 	// 题目三，最长递增子序列专题，大厂刷题班第9节
 	// 我们来讲一下题目二
-	public static int numRabbits(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		Arrays.sort(arr);
-		int x = arr[0];
-		int c = 1;
-		int ans = 0;
-		for (int i = 1; i < arr.length; i++) {
-			if (x != arr[i]) {
+	public int numRabbits(int[] answers) {
+		Arrays.sort(answers);
+		int x = answers[0], c = 1, ans = 0;
+		for (int i = 1; i < answers.length; i++) {
+			if (x == answers[i]) c++;
+			else {
 				ans += ((c + x) / (x + 1)) * (x + 1);
-				x = arr[i];
+				x = answers[i];
 				c = 1;
-			} else {
-				c++;
 			}
 		}
 		return ans + ((c + x) / (x + 1)) * (x + 1);

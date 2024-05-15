@@ -2,37 +2,32 @@ package com.yw.course.coding.class23;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
+/**
+ * @author yangwei
+ */
 public class Code03_LongestIntegratedLength {
 
 	public static int maxLen(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return 0;
-		}
-		int N = arr.length;
-		HashSet<Integer> set = new HashSet<>();
+		if (arr == null || arr.length == 0) return 0;
+		int n = arr.length;
+		Set<Integer> set = new HashSet<>();
 		int ans = 1;
-		for (int L = 0; L < N; L++) {
+		for (int l = 0; l < n; l++) {
 			set.clear();
-			int min = arr[L];
-			int max = arr[L];
-			set.add(arr[L]);
-			// L..R
-			for (int R = L + 1; R < N; R++) {
-				// L....R
-				if(set.contains(arr[R])) {
-					break;
-				}
-				set.add(arr[R]);
-				min = Math.min(min, arr[R]);
-				max = Math.max(max, arr[R]);
-				if(max - min == R - L) {
-					ans = Math.max(ans, R - L + 1);
-				}
+			int min = arr[l], max = arr[l];
+			set.add(arr[l]);
+			// 找l...r范围的可整合子数组：1. 无重复值、2. 最大值-最小值=个数-1
+			for (int r = l + 1; r < n; r++) {
+				if (set.contains(arr[r])) break;
+				min = Math.min(min, arr[r]);
+				max = Math.max(max, arr[r]);
+				set.add(arr[r]);
+				if (max - min == r - l) ans = Math.max(ans, r - l + 1);
 			}
 		}
 		return ans;
-
 	}
 
 	public static int getLIL1(int[] arr) {
@@ -98,6 +93,7 @@ public class Code03_LongestIntegratedLength {
 
 	public static void main(String[] args) {
 		int[] arr = { 5, 5, 3, 2, 6, 4, 3 };
+		System.out.println(maxLen(arr));
 		System.out.println(getLIL1(arr));
 		System.out.println(getLIL2(arr));
 

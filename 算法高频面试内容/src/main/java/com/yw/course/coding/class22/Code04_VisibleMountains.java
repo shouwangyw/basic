@@ -3,8 +3,7 @@ package com.yw.course.coding.class22;
 import java.util.HashSet;
 import java.util.Stack;
 
-import static com.yw.course.coding.class24.Code02_KthMinPair.getRandomArray;
-import static com.yw.util.CommonUtils.printArray;
+import static com.yw.util.CommonUtils.*;
 
 /**
  * @author yangwei
@@ -75,7 +74,7 @@ public class Code04_VisibleMountains {
         int testTimes = 3000000;
         System.out.println("test begin!");
         for (int i = 0; i < testTimes; i++) {
-            int[] arr = getRandomArray(size, max);
+            int[] arr = generateRandomArray(size, max);
             int ans1 = rightWay(arr);
             int ans2 = getVisibleCount(arr);
             if (ans1 != ans2) {

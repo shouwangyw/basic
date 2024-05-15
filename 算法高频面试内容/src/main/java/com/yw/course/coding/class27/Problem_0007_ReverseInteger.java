@@ -1,5 +1,8 @@
 package com.yw.course.coding.class27;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0007_ReverseInteger {
 
 	public static int reverse(int x) {

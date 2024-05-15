@@ -1,113 +1,84 @@
 package com.yw.course.coding.class23;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
+/**
+ * @author yangwei
+ */
 public class Code04_FindKMajority {
 
 	public static void printHalfMajor(int[] arr) {
-		int cand = 0;
-		int HP = 0;
-		for (int i = 0; i < arr.length; i++) {
-			if (HP == 0) {
-				cand = arr[i];
-				HP = 1;
-			} else if (arr[i] == cand) {
-				HP++;
-			} else {
-				HP--;
-			}
+		int ans = 0, hp = 0, n = arr.length;
+		for (int i = 0; i < n; i++) {
+			if (hp == 0) {
+				ans = arr[i];
+				hp = 1;
+			} else if (arr[i] == ans) hp++;
+			else hp--;
 		}
-		if(HP == 0) {
+		if (hp == 0) {
 			System.out.println("no such number.");
 			return;
 		}
-		HP = 0;
-		for (int i = 0; i < arr.length; i++) {
-			if (arr[i] == cand) {
-				HP++;
-			}
-		}
-		if (HP > arr.length / 2) {
-			System.out.println(cand);
-		} else {
-			System.out.println("no such number.");
-		}
+		hp = 0;
+		for (int x : arr) if (x == ans) hp++;
+		System.out.println(hp > n / 2 ? ans : "no such number.");
 	}
 
-	public static void printKMajor(int[] arr, int K) {
-		if (K < 2) {
+	// 给定一个正数K，返回所有出现次数>N/K的数，K=2就是水王问题
+	public static void printKfMajor(int[] arr, int k) {
+		if (k < 2) {
 			System.out.println("the value of K is invalid.");
 			return;
 		}
-		// 攒候选，cands，候选表，最多K-1条记录！ > N / K次的数字，最多有K-1个
-		HashMap<Integer, Integer> cands = new HashMap<Integer, Integer>();
-		for (int i = 0; i != arr.length; i++) {
-			if (cands.containsKey(arr[i])) {
-				cands.put(arr[i], cands.get(arr[i]) + 1);
-			} else { // arr[i] 不是候选
-				if (cands.size() == K - 1) { // 当前数肯定不要！，每一个候选付出1点血量，血量变成0的候选，要删掉！
-					allCandsMinusOne(cands);
-				} else {
-					cands.put(arr[i], 1);
-				}
+		// 攒候选，cands候选表，最多k-1条记录，因为大于 n/k 次的数字，最多有k-1个
+		Map<Integer, Integer> cands = new HashMap<>();
+		for (int x : arr) {
+			Integer hp = cands.get(x);
+			if (hp != null) cands.put(x, hp + 1);
+			else {
+				// 当前数肯定不要！，每一个候选付出1点血量，血量变成0的候选，要删掉！
+				if (cands.size() == k - 1) minusCandHp(cands);
+				else cands.put(x, 1);
 			}
 		}
 		// 所有可能的候选，都在cands表中！遍历一遍arr，每个候选收集真实次数
-		
-		
-		
-		
-		HashMap<Integer, Integer> reals = getReals(arr, cands);
+		Map<Integer, Integer> candCnt = getCandHp(arr, cands.keySet());
 		boolean hasPrint = false;
-		for (Entry<Integer, Integer> set : cands.entrySet()) {
-			Integer key = set.getKey();
-			if (reals.get(key) > arr.length / K) {
+		for (Integer key : cands.keySet()) {
+			if (candCnt.get(key) > arr.length / k) {
 				hasPrint = true;
 				System.out.print(key + " ");
 			}
 		}
 		System.out.println(hasPrint ? "" : "no such number.");
 	}
-
-	public static void allCandsMinusOne(HashMap<Integer, Integer> map) {
-		List<Integer> removeList = new LinkedList<Integer>();
-		for (Entry<Integer, Integer> set : map.entrySet()) {
-			Integer key = set.getKey();
-			Integer value = set.getValue();
+	private static void minusCandHp(Map<Integer, Integer> map) {
+		List<Integer> removeList = new LinkedList<>();
+		for (Entry<Integer, Integer> entry : map.entrySet()) {
+			Integer key = entry.getKey(), value = entry.getValue();
 			if (value == 1) {
 				removeList.add(key);
 			}
 			map.put(key, value - 1);
 		}
-		for (Integer removeKey : removeList) {
-			map.remove(removeKey);
-		}
+		for (Integer removeKey : removeList) map.remove(removeKey);
 	}
-
-	public static HashMap<Integer, Integer> getReals(int[] arr,
-			HashMap<Integer, Integer> cands) {
-		HashMap<Integer, Integer> reals = new HashMap<Integer, Integer>();
+	private static Map<Integer, Integer> getCandHp(int[] arr, Set<Integer> candSet) {
+		Map<Integer, Integer> candCnt = new HashMap<>();
 		for (int i = 0; i != arr.length; i++) {
-			int curNum = arr[i];
-			if (cands.containsKey(curNum)) {
-				if (reals.containsKey(curNum)) {
-					reals.put(curNum, reals.get(curNum) + 1);
-				} else {
-					reals.put(curNum, 1);
-				}
-			}
+			if (!candSet.contains(arr[i])) continue;
+			candCnt.compute(arr[i], (k, v) -> v == null ? 1 : v + 1);
 		}
-		return reals;
+		return candCnt;
 	}
 
 	public static void main(String[] args) {
 		int[] arr = { 1, 2, 3, 1, 1, 2, 1 };
 		printHalfMajor(arr);
 		int K = 4;
-		printKMajor(arr, K);
+		printKfMajor(arr, K);
 	}
 
 }
