@@ -1,8 +1,11 @@
 package com.yw.course.coding.class29;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0066_PlusOne {
 
-	public static int[] plusOne(int[] digits) {
+	public int[] plusOne(int[] digits) {
 		int n = digits.length;
 		for (int i = n - 1; i >= 0; i--) {
 			if (digits[i] < 9) {
@@ -11,9 +14,9 @@ public class Problem_0066_PlusOne {
 			}
 			digits[i] = 0;
 		}
-		int[] ans = new int[n + 1];
-		ans[0] = 1;
-		return ans;
+		digits = new int[n + 1];
+		digits[0] = 1;
+		return digits;
 	}
 
 }

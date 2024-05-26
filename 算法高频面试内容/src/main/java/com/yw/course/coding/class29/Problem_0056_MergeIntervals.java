@@ -1,30 +1,21 @@
 package com.yw.course.coding.class29;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0056_MergeIntervals {
 
-	public static int[][] merge(int[][] intervals) {
-		if (intervals.length == 0) {
-			return new int[0][0];
+	public int[][] merge(int[][] intervals) {
+		Arrays.sort(intervals, Comparator.comparingInt(o -> o[0]));
+		int idx = -1;
+		for (int[] x : intervals) {
+			if (idx == -1 || intervals[idx][1] < x[0]) intervals[++idx] = x;
+			else intervals[idx][1] = Math.max(intervals[idx][1], x[1]);
 		}
-		Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
-		int s = intervals[0][0];
-		int e = intervals[0][1];
-		int size = 0;
-		for (int i = 1; i < intervals.length; i++) {
-			if (intervals[i][0] > e) {
-				intervals[size][0] = s;
-				intervals[size++][1] = e;
-				s = intervals[i][0];
-				e = intervals[i][1];
-			} else {
-				e = Math.max(e, intervals[i][1]);
-			}
-		}
-		intervals[size][0] = s;
-		intervals[size++][1] = e;
-		return Arrays.copyOf(intervals, size);
+		return Arrays.copyOf(intervals, idx + 1);
 	}
 
 }

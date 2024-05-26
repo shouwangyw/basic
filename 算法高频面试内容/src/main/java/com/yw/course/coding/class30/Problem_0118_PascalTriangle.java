@@ -3,6 +3,9 @@ package com.yw.course.coding.class30;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0118_PascalTriangle {
 
 	public static List<List<Integer>> generate(int numRows) {

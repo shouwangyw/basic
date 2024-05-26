@@ -1,45 +1,29 @@
 package com.yw.course.coding.class28;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author yangwei
+ */
 public class Problem_0013_RomanToInteger {
 
-	public static int romanToInt(String s) {
-		// C     M     X   C     I   X
-		// 100  1000  10   100   1   10
-		int nums[] = new int[s.length()];
+	public int romanToInt(String s) {
+		Map<Character, Integer> map = new HashMap(){{
+			put('I', 1);
+			put('V', 5);
+			put('X', 10);
+			put('L', 50);
+			put('C', 100);
+			put('D', 500);
+			put('M', 1000);
+		}};
+		int ans = 0;
 		for (int i = 0; i < s.length(); i++) {
-			switch (s.charAt(i)) {
-			case 'M':
-				nums[i] = 1000;
-				break;
-			case 'D':
-				nums[i] = 500;
-				break;
-			case 'C':
-				nums[i] = 100;
-				break;
-			case 'L':
-				nums[i] = 50;
-				break;
-			case 'X':
-				nums[i] = 10;
-				break;
-			case 'V':
-				nums[i] = 5;
-				break;
-			case 'I':
-				nums[i] = 1;
-				break;
-			}
+			int x = map.get(s.charAt(i)), y = i == s.length() - 1 ? 0 : map.get(s.charAt(i + 1));
+			ans += x < y ? -x : x;
 		}
-		int sum = 0;
-		for (int i = 0; i < nums.length - 1; i++) {
-			if (nums[i] < nums[i + 1]) {
-				sum -= nums[i];
-			} else {
-				sum += nums[i];
-			}
-		}
-		return sum + nums[nums.length - 1];
+		return ans;
 	}
 
 }

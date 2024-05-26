@@ -1,5 +1,8 @@
 package com.yw.course.coding.class30;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0116_PopulatingNextRightPointersInEachNode {
 
 	// 不要提交这个类

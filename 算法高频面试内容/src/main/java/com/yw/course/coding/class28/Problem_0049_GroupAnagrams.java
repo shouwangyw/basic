@@ -1,52 +1,28 @@
 package com.yw.course.coding.class28;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0049_GroupAnagrams {
 
-	public static List<List<String>> groupAnagrams1(String[] strs) {
-		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
-		for (String str : strs) {
-			int[] record = new int[26];
-			for (char cha : str.toCharArray()) {
-				record[cha - 'a']++;
-			}
-			StringBuilder builder = new StringBuilder();
-			for (int value : record) {
-				builder.append(String.valueOf(value)).append("_");
-			}
-			String key = builder.toString();
-			if (!map.containsKey(key)) {
-				map.put(key, new ArrayList<String>());
-			}
-			map.get(key).add(str);
+	public List<List<String>> groupAnagrams(String[] strs) {
+		Map<String, List<String>> map = new HashMap<>();
+		for (String s : strs) {
+			// 遍历每一个字符串，将当前字符串按字母排序，放到map里
+			map.compute(covert(s), (k, v) -> {
+				if (v == null) v = new ArrayList<>();
+				v.add(s);
+				return v;
+			});
 		}
-		List<List<String>> res = new ArrayList<List<String>>();
-		for (List<String> list : map.values()) {
-			res.add(list);
-		}
-		return res;
+		return new ArrayList<>(map.values());
 	}
-
-	public static List<List<String>> groupAnagrams2(String[] strs) {
-		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
-		for (String str : strs) {
-			char[] chs = str.toCharArray();
-			Arrays.sort(chs);
-			String key = String.valueOf(chs);
-			if (!map.containsKey(key)) {
-				map.put(key, new ArrayList<String>());
-			}
-			map.get(key).add(str);
-		}
-		List<List<String>> res = new ArrayList<List<String>>();
-		for (List<String> list : map.values()) {
-			res.add(list);
-		}
-		return res;
+	private String covert(String s) {
+		char[] cs = s.toCharArray();
+		Arrays.sort(cs);
+		return new String(cs);
 	}
 
 }

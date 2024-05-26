@@ -1,8 +1,30 @@
 package com.yw.course.coding.class28;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0008_StringToInteger {
 
 	public static int myAtoi(String s) {
+		s = s.trim();
+		if (s.length() == 0) return 0;
+		int flag = 1, i = 0, ans = 0, max = Integer.MAX_VALUE, min = Integer.MIN_VALUE;
+		char c0 = s.charAt(0);
+		if (c0 == '-') flag = -1;
+		if (c0 == '+' || c0 == '-') i++;
+		while (i < s.length() && Character.isDigit(s.charAt(i))) {
+			int si = s.charAt(i) - '0';
+			// 判断 ans*10+si 后是否会溢出
+			if (ans > max / 10 || ans == max / 10 && si > 7) {
+				return flag > 0 ? max : min;
+			}
+			ans = ans * 10 + si;
+			i++;
+		}
+		return flag * ans;
+	}
+
+	public static int myAtoi0(String s) {
 		if (s == null || s.equals("")) {
 			return 0;
 		}
@@ -15,7 +37,7 @@ public class Problem_0008_StringToInteger {
 			return 0;
 		}
 		// str 是符合日常书写的，正经整数形式
-		boolean posi = str[0] == '-' ? false : true;
+		boolean posi = str[0] != '-';
 		int minq = Integer.MIN_VALUE / 10;
 		int minr = Integer.MIN_VALUE % 10;
 		int res = 0;
@@ -72,7 +94,9 @@ public class Problem_0008_StringToInteger {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(Integer.MAX_VALUE);
+		System.out.println(myAtoi("__021"));
+		System.out.println(myAtoi0("__021"));
+//		System.out.println(Integer.MAX_VALUE);
 	}
 	
 	

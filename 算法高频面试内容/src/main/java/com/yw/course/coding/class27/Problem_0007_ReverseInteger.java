@@ -5,7 +5,7 @@ package com.yw.course.coding.class27;
  */
 public class Problem_0007_ReverseInteger {
 
-	public static int reverse(int x) {
+	public static int reverse0(int x) {
 		boolean neg = ((x >>> 31) & 1) == 1;
 		x = neg ? x : -x;
 		int m = Integer.MIN_VALUE / 10;
@@ -19,6 +19,19 @@ public class Problem_0007_ReverseInteger {
 			x /= 10;
 		}
 		return neg ? res : Math.abs(res);
+	}
+
+	public int reverse(int x) {
+		int resX = 0;
+		while (x != 0) {
+			int tail = x % 10;
+			int temp = resX * 10 + tail;
+			// 如果溢出
+			if ((temp - tail) / 10 != resX) return 0;
+			resX = temp;
+			x /= 10;
+		}
+		return resX;
 	}
 
 }

@@ -1,5 +1,8 @@
 package com.yw.course.coding.class30;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0091_DecodeWays {
 
 	public static int numDecodings1(String s) {

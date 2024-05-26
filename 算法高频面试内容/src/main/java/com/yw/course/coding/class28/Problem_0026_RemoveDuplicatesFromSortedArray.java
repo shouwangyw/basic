@@ -1,21 +1,15 @@
 package com.yw.course.coding.class28;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0026_RemoveDuplicatesFromSortedArray {
 
-	public static int removeDuplicates(int[] nums) {
-		if (nums == null) {
-			return 0;
-		}
-		if (nums.length < 2) {
-			return nums.length;
-		}
-		int done = 0;
+	public int removeDuplicates(int[] nums) {
+		int p = 0;
 		for (int i = 1; i < nums.length; i++) {
-			if (nums[i] != nums[done]) {
-				nums[++done] = nums[i];
-			}
+			if (nums[p] != nums[i]) nums[++p] = nums[i];
 		}
-		return done + 1;
+		return p + 1;
 	}
-
 }

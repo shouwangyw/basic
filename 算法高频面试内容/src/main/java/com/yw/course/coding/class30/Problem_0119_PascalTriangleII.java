@@ -3,6 +3,9 @@ package com.yw.course.coding.class30;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0119_PascalTriangleII {
 
 	public List<Integer> getRow(int rowIndex) {
