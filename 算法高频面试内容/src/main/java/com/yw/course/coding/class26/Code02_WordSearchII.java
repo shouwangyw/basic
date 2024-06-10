@@ -58,7 +58,7 @@ public class Code02_WordSearchII {
     }
     private static String genPath(List<Character> path) {
         StringBuilder sb = new StringBuilder();
-        path.forEach(c -> sb.append(c));
+        path.forEach(sb::append);
         return sb.toString();
     }
     // 定义前缀树节点

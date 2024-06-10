@@ -3,94 +3,61 @@ package com.yw.course.coding.class31;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0140_WordBreakII {
 
-	public static class Node {
-		public String path;
-		public boolean end;
-		public Node[] nexts;
-
-		public Node() {
-			path = null;
-			end = false;
-			nexts = new Node[26];
-		}
-	}
-
-	public static List<String> wordBreak(String s, List<String> wordDict) {
-		char[] str = s.toCharArray();
-		Node root = gettrie(wordDict);
-		boolean[] dp = getdp(s, root);
-		ArrayList<String> path = new ArrayList<>();
+	public List<String> wordBreak(String s, List<String> wordDict) {
+		// 将单词字典转为前缀树
+		Trie trie = new Trie();
+		for (String word : wordDict) trie.insert(word);
+		// 生成dp表：记录字符串s的每个位置及其往后的子串，是否能被单词表拼接而成
+		char[] cs = s.toCharArray();
+		boolean[] dp = getDp(cs, trie.root);
 		List<String> ans = new ArrayList<>();
-		process(str, 0, root, dp, path, ans);
+		process(cs, 0, trie.root, dp, new ArrayList<>(), ans);
 		return ans;
 	}
-
-	// str[index.....] 是要搞定的字符串
-	// dp[0...N-1] 0... 1.... 2... N-1... 在dp里
-	// root 单词表所有单词生成的前缀树头节点
-	// path str[0..index-1]做过决定了，做的决定放在path里
-	public static void process(char[] str, int index, Node root, boolean[] dp, ArrayList<String> path,
-			List<String> ans) {
-		if (index == str.length) {
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < path.size() - 1; i++) {
-				builder.append(path.get(i) + " ");
-			}
-			builder.append(path.get(path.size() - 1));
-			ans.add(builder.toString());
-		} else {
-			Node cur = root;
-			for (int end = index; end < str.length; end++) {
-				// str[i..end] （能不能拆出来）
-				int road = str[end] - 'a';
-				if (cur.nexts[road] == null) {
-					break;
-				}
-				cur = cur.nexts[road];
-				if (cur.end && dp[end + 1]) {
-					// [i...end] 前缀串
-					// str.subString(i,end+1)  [i..end]
-					path.add(cur.path);
-					process(str, end + 1, root, dp, path, ans);
-					path.remove(path.size() - 1);
-				}
-			}
+	// 定义前缀树节点
+	private static class Node {
+		private Node[] nexts;
+		private boolean end;
+		private String word;
+		public Node() {
+			this.nexts = new Node[26];
+			this.end = false;
+			this.word = null;
 		}
 	}
-
-	public static Node gettrie(List<String> wordDict) {
-		Node root = new Node();
-		for (String str : wordDict) {
-			char[] chs = str.toCharArray();
+	// 定义前缀树
+	private static class Trie {
+		private Node root;
+		public Trie() {
+			this.root = new Node();
+		}
+		// 添加单词
+		public void insert(String word) {
+			if (word == null || word.length() == 0) return;
 			Node node = root;
-			int index = 0;
-			for (int i = 0; i < chs.length; i++) {
-				index = chs[i] - 'a';
-				if (node.nexts[index] == null) {
-					node.nexts[index] = new Node();
-				}
-				node = node.nexts[index];
+			for (char c : word.toCharArray()) {
+				int path = c - 'a';
+				if (node.nexts[path] == null) node.nexts[path] = new Node();
+				node = node.nexts[path];
 			}
-			node.path = str;
 			node.end = true;
+			node.word = word;
 		}
-		return root;
 	}
-
-	public static boolean[] getdp(String s, Node root) {
-		char[] str = s.toCharArray();
-		int N = str.length;
-		boolean[] dp = new boolean[N + 1];
-		dp[N] = true;
-		for (int i = N - 1; i >= 0; i--) {
+	private static boolean[] getDp(char[] cs, Node root) {
+		int n = cs.length;
+		boolean[] dp = new boolean[n + 1];
+		dp[n] = true;
+		for (int i = n - 1; i >= 0; i--) {
 			Node cur = root;
-			for (int end = i; end < N; end++) {
-				int path = str[end] - 'a';
-				if (cur.nexts[path] == null) {
-					break;
-				}
+			for (int end = i; end < n; end++) {
+				int path = cs[end] - 'a';
+				if (cur.nexts[path] == null) break;
 				cur = cur.nexts[path];
 				if (cur.end && dp[end + 1]) {
 					dp[i] = true;
@@ -99,6 +66,22 @@ public class Problem_0140_WordBreakII {
 			}
 		}
 		return dp;
+	}
+	private static void process(char[] cs, int idx, Node root, boolean[] dp, List<String> words, List<String> ans) {
+		if (idx == cs.length) ans.add(String.join(" ", words));
+		else {
+			Node cur = root;
+			for (int end = idx; end < cs.length; end++) {
+				int path = cs[end] - 'a';
+				if (cur.nexts[path] == null) break;
+				cur = cur.nexts[path];
+				if (cur.end && dp[end + 1]) {
+					words.add(cur.word);
+					process(cs, end + 1, root, dp, words, ans);
+					words.remove(words.size() - 1);
+				}
+			}
+		}
 	}
 
 }

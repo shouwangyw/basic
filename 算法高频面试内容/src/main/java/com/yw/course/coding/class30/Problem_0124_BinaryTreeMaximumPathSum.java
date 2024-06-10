@@ -1,5 +1,7 @@
 package com.yw.course.coding.class30;
 
+import com.yw.entity.TreeNode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,65 +12,29 @@ import java.util.List;
  */ // follow up : 如果要求返回整个路径怎么做？
 public class Problem_0124_BinaryTreeMaximumPathSum {
 
-	public static class TreeNode {
-		int val;
-		TreeNode left;
-		TreeNode right;
-
-		public TreeNode(int v) {
-			val = v;
-		}
-
+	public int maxPathSum(TreeNode root) {
+		return process(root).maxSum;
 	}
+	private Info process(TreeNode root) {
+		if (root == null) return new Info(0, Integer.MIN_VALUE);
 
-	public static int maxPathSum(TreeNode root) {
-		if (root == null) {
-			return 0;
-		}
-		return process(root).maxPathSum;
+		Info leftInfo = process(root.left);
+		Info rightInfo = process(root.right);
+
+		int leftMax = Math.max(leftInfo.max, 0);
+		int rightMax = Math.max(rightInfo.max, 0);
+
+		int maxSum = Math.max(leftInfo.maxSum, rightInfo.maxSum);
+		maxSum = Math.max(maxSum, root.val + leftMax + rightMax);
+		return new Info(root.val + Math.max(leftMax, rightMax), maxSum);
 	}
-
-	// 任何一棵树，必须汇报上来的信息
-	public static class Info {
-		public int maxPathSum;
-		public int maxPathSumFromHead;
-
-		public Info(int path, int head) {
-			maxPathSum = path;
-			maxPathSumFromHead = head;
+	private static class Info {
+		int max;
+		int maxSum;
+		public Info(int max, int maxSum) {
+			this.max = max;
+			this.maxSum = maxSum;
 		}
-	}
-
-	public static Info process(TreeNode x) {
-		if (x == null) {
-			return null;
-		}
-		Info leftInfo = process(x.left);
-		Info rightInfo = process(x.right);
-		// x 1)只有x 2）x往左扎 3）x往右扎
-		int maxPathSumFromHead = x.val;
-		if (leftInfo != null) {
-			maxPathSumFromHead = Math.max(maxPathSumFromHead, x.val + leftInfo.maxPathSumFromHead);
-		}
-		if (rightInfo != null) {
-			maxPathSumFromHead = Math.max(maxPathSumFromHead, x.val + rightInfo.maxPathSumFromHead);
-		}
-		// x整棵树最大路径和 1) 只有x 2)左树整体的最大路径和 3) 右树整体的最大路径和
-		int maxPathSum = x.val;
-		if (leftInfo != null) {
-			maxPathSum = Math.max(maxPathSum, leftInfo.maxPathSum);
-		}
-		if (rightInfo != null) {
-			maxPathSum = Math.max(maxPathSum, rightInfo.maxPathSum);
-		}
-		// 4) x只往左扎 5）x只往右扎
-		maxPathSum = Math.max(maxPathSumFromHead, maxPathSum);
-		// 6）一起扎
-		if (leftInfo != null && rightInfo != null && leftInfo.maxPathSumFromHead > 0
-				&& rightInfo.maxPathSumFromHead > 0) {
-			maxPathSum = Math.max(maxPathSum, leftInfo.maxPathSumFromHead + rightInfo.maxPathSumFromHead + x.val);
-		}
-		return new Info(maxPathSum, maxPathSumFromHead);
 	}
 
 	// 如果要返回路径的做法

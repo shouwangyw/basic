@@ -1,5 +1,8 @@
 package com.yw.course.coding.class31;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0130_SurroundedRegions {
 
 //	// m -> 二维数组， 不是0就是1
@@ -67,49 +70,31 @@ public class Problem_0130_SurroundedRegions {
 	}
 
 	// 从边界开始感染的方法，比第一种方法更好
-	public static void solve2(char[][] board) {
-		if (board == null || board.length == 0 || board[0] == null || board[0].length == 0) {
-			return;
-		}
-		int N = board.length;
-		int M = board[0].length;
-		for (int j = 0; j < M; j++) {
-			if (board[0][j] == 'O') {
-				free(board, 0, j);
-			}
-			if (board[N - 1][j] == 'O') {
-				free(board, N - 1, j);
-			}
-		}
-		for (int i = 1; i < N - 1; i++) {
-			if (board[i][0] == 'O') {
-				free(board, i, 0);
-			}
-			if (board[i][M - 1] == 'O') {
-				free(board, i, M - 1);
+	private int m;
+	private int n;
+	private int[][] dirs = { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
+	public void solve(char[][] board) {
+		m = board.length;
+		n = board[0].length;
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				// 从边界开始感染
+				if ((i == 0 || i == m - 1 || j == 0 || j == n - 1) && board[i][j] == 'O')
+					infect(board, i, j);
 			}
 		}
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				if (board[i][j] == 'O') {
-					board[i][j] = 'X';
-				}
-				if (board[i][j] == 'F') {
-					board[i][j] = 'O';
-				}
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				if (board[i][j] == 'O') board[i][j] = 'X';
+				else if (board[i][j] == '#') board[i][j] = 'O';
 			}
 		}
 	}
-
-	public static void free(char[][] board, int i, int j) {
-		if (i < 0 || i == board.length || j < 0 || j == board[0].length || board[i][j] != 'O') {
-			return;
-		}
-		board[i][j] = 'F';
-		free(board, i + 1, j);
-		free(board, i - 1, j);
-		free(board, i, j + 1);
-		free(board, i, j - 1);
+	private void infect(char[][] board, int x, int y) {
+		if (x < 0 || x >= m || y < 0 || y >= n || board[x][y] != 'O') return;
+		board[x][y] = '#';
+		for (int[] dir : dirs)
+			infect(board, x + dir[0], y + dir[1]);
 	}
 
 }

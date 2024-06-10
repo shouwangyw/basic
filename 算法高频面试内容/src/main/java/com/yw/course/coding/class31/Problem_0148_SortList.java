@@ -1,123 +1,88 @@
 package com.yw.course.coding.class31;
 
+import com.yw.entity.ListNode;
+
+/**
+ * @author yangwei
+ */
 public class Problem_0148_SortList {
 
-	public static class ListNode {
-		int val;
-		ListNode next;
-
-		public ListNode(int v) {
-			val = v;
+	// 方法一：归并排序-递归版本
+	public ListNode sortList(ListNode head) {
+		ListNode p = head;
+		int n = 0;
+		while (p != null) {
+			n++;
+			p = p.next;
 		}
+		return mergeList(head, n);
+	}
+	private ListNode mergeList(ListNode head, int n) {
+		if (head == null || head.next == null) return head;
+		int l = n / 2, r = n - l;
+		ListNode left = head, right = head, p = right;
+		for (int i = 0; i < l; i++, right = right.next) p = right;
+		p.next = null;
+		left = mergeList(left, l);
+		right = mergeList(right, r);
+		ListNode hair = new ListNode();
+		p = hair;
+		while (left != null || right != null) {
+			if (right == null || (left != null && left.val <= right.val)) {
+				p.next = left;
+				left = left.next;
+			} else {
+				p.next = right;
+				right = right.next;
+			}
+			p = p.next;
+		}
+		return hair.next;
 	}
 
-	// 链表的归并排序
-	// 时间复杂度O(N*logN), 因为是链表所以空间复杂度O(1)
-	public static ListNode sortList1(ListNode head) {
-		int N = 0;
-		ListNode cur = head;
-		while (cur != null) {
-			N++;
-			cur = cur.next;
+	// 方法二：归并排序-迭代版本
+	public ListNode sortList1(ListNode head) {
+		ListNode p = head;
+		int n = 0;
+		while (p != null) {
+			n++;
+			p = p.next;
 		}
-		ListNode h = head;
-		ListNode teamFirst = head;
-		ListNode pre = null;
-		for (int len = 1; len < N; len <<= 1) {
-			while (teamFirst != null) {
-				// 左组从哪到哪 ls le
-				// 右组从哪到哪 rs re
-				// 左 右 next
-				ListNode[] hthtn = hthtn(teamFirst, len);
-				// ls...le rs...re -> merge去
-				// 整体的头、整体的尾
-				ListNode[] mhmt = merge(hthtn[0], hthtn[1], hthtn[2], hthtn[3]);
-				if (h == teamFirst) {
-					h = mhmt[0];
-					pre = mhmt[1];
-				} else {
-					pre.next = mhmt[0];
-					pre = mhmt[1];
+		ListNode hair = new ListNode(0, head);
+		for (int step = 1; step < n; step <<= 1) {
+			ListNode pre = hair, cur = hair.next;
+			while (cur != null) {
+				ListNode left = cur;
+				for (int i = 1; i < step && cur.next != null; i++) cur = cur.next;
+				ListNode right = cur.next;
+				cur.next = null;
+				cur = right;
+				for (int i = 1; i < step && cur != null && cur.next != null; i++) cur = cur.next;
+				ListNode next = null;
+				if (cur != null) {
+					next = cur.next;
+					cur.next = null;
 				}
-				teamFirst = hthtn[4];
+				pre.next = mergeList(left, right);
+				while (pre.next != null) pre = pre.next;
+				cur = next;
 			}
-			teamFirst = h;
-			pre = null;
 		}
-		return h;
+		return hair.next;
 	}
-
-	public static ListNode[] hthtn(ListNode teamFirst, int len) {
-		ListNode ls = teamFirst;
-		ListNode le = teamFirst;
-		ListNode rs = null;
-		ListNode re = null;
-		ListNode next = null;
-		int pass = 0;
-		while (teamFirst != null) {
-			pass++;
-			if (pass <= len) {
-				le = teamFirst;
-			}
-			if (pass == len + 1) {
-				rs = teamFirst;
-			}
-			if (pass > len) {
-				re = teamFirst;
-			}
-			if (pass == (len << 1)) {
-				break;
-			}
-			teamFirst = teamFirst.next;
-		}
-		le.next = null;
-		if (re != null) {
-			next = re.next;
-			re.next = null;
-		}
-		return new ListNode[] { ls, le, rs, re, next };
-	}
-
-	public static ListNode[] merge(ListNode ls, ListNode le, ListNode rs, ListNode re) {
-		if (rs == null) {
-			return new ListNode[] { ls, le };
-		}
-		ListNode head = null;
-		ListNode pre = null;
-		ListNode cur = null;
-		ListNode tail = null;
-		while (ls != le.next && rs != re.next) {
-			if (ls.val <= rs.val) {
-				cur = ls;
-				ls = ls.next;
+	private ListNode mergeList(ListNode left, ListNode right) {
+		ListNode hair = new ListNode(), p = hair;
+		while (left != null || right != null) {
+			if (right == null || (left != null && left.val <= right.val)) {
+				p.next = left;
+				left = left.next;
 			} else {
-				cur = rs;
-				rs = rs.next;
+				p.next = right;
+				right = right.next;
 			}
-			if (pre == null) {
-				head = cur;
-				pre = cur;
-			} else {
-				pre.next = cur;
-				pre = cur;
-			}
+			p = p.next;
 		}
-		if (ls != le.next) {
-			while (ls != le.next) {
-				pre.next = ls;
-				pre = ls;
-				tail = ls;
-				ls = ls.next;
-			}
-		} else {
-			while (rs != re.next) {
-				pre.next = rs;
-				pre = rs;
-				tail = rs;
-				rs = rs.next;
-			}
-		}
-		return new ListNode[] { head, tail };
+		return hair.next;
 	}
 
 	// 链表的快速排序

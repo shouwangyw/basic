@@ -1,33 +1,20 @@
 package com.yw.course.coding.class30;
 
+import com.yw.entity.TreeNode;
+
 /**
  * @author yangwei
  */
 public class Problem_0101_SymmetricTree {
 
-	public static class TreeNode {
-		int val;
-		TreeNode left;
-		TreeNode right;
-	}
-
 	public boolean isSymmetric(TreeNode root) {
-		return isMirror(root, root);
+		return root == null || isSymmetric(root.left, root.right);
 	}
-
-	// 一棵树是原始树  head1
-	// 另一棵是翻面树  head2
-	public static boolean isMirror(TreeNode head1, TreeNode head2) {
-		if (head1 == null && head2 == null) {
-			return true;
-		}
-		if (head1 != null && head2 != null) {
-			return head1.val == head2.val 
-					&& isMirror(head1.left, head2.right) 
-					&& isMirror(head1.right, head2.left);
-		}
-		// 一个为空，一个不为空  false
-		return false;
+	private boolean isSymmetric(TreeNode node1, TreeNode node2) {
+		if (node1 == null && node2 == null) return true;
+		if (node1 == null || node2 == null) return false;
+		return node1.val == node2.val && isSymmetric(node1.left, node2.right)
+				&& isSymmetric(node1.right, node2.left);
 	}
 
 }

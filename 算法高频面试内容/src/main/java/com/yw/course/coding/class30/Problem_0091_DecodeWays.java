@@ -1,60 +1,64 @@
 package com.yw.course.coding.class30;
 
+import java.util.Arrays;
+
 /**
  * @author yangwei
  */
 public class Problem_0091_DecodeWays {
 
-	public static int numDecodings1(String s) {
-		if (s == null || s.length() == 0) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		return process(str, 0);
+	// 方法一：从左到右的尝试模型
+	public int numDecodings0(String s) {
+		if (s == null || s.length() == 0) return 0;
+		return process(s.toCharArray(), 0);
 	}
-
-	// 潜台词：str[0...index-1]已经转化完了，不用操心了
-	// str[index....] 能转出多少有效的，返回方法数
-	public static int process(char[] str, int index) {
-		if (index == str.length) {
-			return 1;
-		}
-		if (str[index] == '0') {
-			return 0;
-		}
-		int ways = process(str, index + 1);
-		if (index + 1 == str.length) {
-			return ways;
-		}
-		int num = (str[index] - '0') * 10 + str[index + 1] - '0';
-		if (num < 27) {
-			ways += process(str, index + 2);
-		}
+	// cs[0...idx]已经转化完了，返回cs[idx...]有多少有效的方法数
+	private static int process(char[] cs, int idx) {
+		if (idx == cs.length) return 1;
+		if (cs[idx] == '0') return 0;
+		// [idx]位置单独转
+		int ways = process(cs, idx + 1);
+		// 如果已经没有下一个字符了
+		if (idx + 1 == cs.length) return ways;
+		if((cs[idx] - '0') * 10 + (cs[idx + 1] - '0') < 27)
+			ways += process(cs, idx + 2);
 		return ways;
 	}
 
-	public static int numDecodings2(String s) {
-		if (s == null || s.length() == 0) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		int N = str.length;
-		// dp[i] -> process(str, index)返回值 index 0 ~ N
-		int[] dp = new int[N + 1];
-		dp[N] = 1;
+	// 方法二：傻缓存
+	public int numDecodings1(String s) {
+		if (s == null || s.length() == 0) return 0;
+		int[] cache = new int[s.length() + 1];
+		Arrays.fill(cache, -1);
+		return process(s.toCharArray(), 0, cache);
+	}
+	// cs[0...idx]已经转化完了，返回cs[idx...]有多少有效的方法数
+	private static int process(char[] cs, int idx, int[] cache) {
+		if (cache[idx] != -1) return cache[idx];
+		if (idx == cs.length) return cache[idx] = 1;
+		if (cs[idx] == '0') return cache[idx] = 0;
+		// [idx]位置单独转
+		int ways = process(cs, idx + 1, cache);
+		// 如果已经没有下一个字符了
+		if (idx + 1 == cs.length) return cache[idx] = ways;
+		if((cs[idx] - '0') * 10 + (cs[idx + 1] - '0') < 27)
+			ways += process(cs, idx + 2, cache);
+		return cache[idx] = ways;
+	}
 
-		// dp依次填好 dp[i] dp[i+1] dp[i+2]
-		for (int i = N - 1; i >= 0; i--) {
-			if (str[i] != '0') {
-				dp[i] = dp[i + 1];
-				if (i + 1 == str.length) {
-					continue;
-				}
-				int num = (str[i] - '0') * 10 + str[i + 1] - '0';
-				if (num <= 26) {
-					dp[i] += dp[i + 2];
-				}
-			}
+	// 方法三：动态规划
+	public int numDecodingsByDp(String s) {
+		if (s == null || s.length() == 0) return 0;
+		char[] cs = s.toCharArray();
+		int n = cs.length;
+		int[] dp = new int[n + 1];
+		dp[n] = 1;
+		for (int i = n - 1; i >= 0; i--) {
+			if (cs[i] == '0') continue;
+			dp[i] = dp[i + 1];
+			if (i + 1 == n) continue;
+			if((cs[i] - '0') * 10 + (cs[i + 1] - '0') < 27)
+				dp[i] += dp[i + 2];
 		}
 		return dp[0];
 	}

@@ -1,5 +1,7 @@
 package com.yw.course.coding.class30;
 
+import com.yw.entity.TreeNode;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,13 +11,23 @@ import java.util.List;
  */
 public class Problem_0103_BinaryTreeZigzagLevelOrderTraversal {
 
-	public static class TreeNode {
-		int val;
-		TreeNode left;
-		TreeNode right;
+	// 方法一：层序遍历
+	public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+		List<List<Integer>> ans = new LinkedList<>();
+		levelOrder(root, 0, ans);
+		return ans;
+	}
+	private void levelOrder(TreeNode root, int level, List<List<Integer>> ans) {
+		if (root == null) return;
+		if (level == ans.size()) ans.add(new LinkedList<>());
+		if ((level & 1) == 1) ans.get(level).add(0, root.val);
+		else ans.get(level).add(root.val);
+		levelOrder(root.left, level + 1, ans);
+		levelOrder(root.right, level + 1, ans);
 	}
 
-	public static List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+	// 方法二：宽度优先遍历
+	public static List<List<Integer>> zigzagLevelOrder0(TreeNode root) {
 		List<List<Integer>> ans = new ArrayList<>();
 		if (root == null) {
 			return ans;
