@@ -1,5 +1,8 @@
 package com.yw.course.coding.class32;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0190_ReverseBits {
 
 	// 代码看着很魔幻吧？

@@ -1,43 +1,34 @@
 package com.yw.course.coding.class32;
 
 import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0166_FractionToRecurringDecimal {
 
 	public static String fractionToDecimal(int numerator, int denominator) {
-		if (numerator == 0) {
-			return "0";
-		}
-		StringBuilder res = new StringBuilder();
-		// "+" or "-"
-		res.append(((numerator > 0) ^ (denominator > 0)) ? "-" : "");
-		long num = Math.abs((long) numerator);
-		long den = Math.abs((long) denominator);
-		// integral part
-		res.append(num / den);
+		if (numerator == 0) return "0";
+		StringBuilder ans = new StringBuilder();
+		ans.append(((numerator > 0) ^ (denominator > 0)) ? "-" : "");
+		long num = Math.abs((long) numerator), den = Math.abs((long) denominator);
+		ans.append(num / den);
 		num %= den;
-		if (num == 0) {
-			return res.toString();
-		}
-		// fractional part
-		res.append(".");
-		HashMap<Long, Integer> map = new HashMap<Long, Integer>();
-		map.put(num, res.length());
+		if (num == 0) return ans.toString();
+		ans.append(".");
+		Map<Long, Integer> map = new HashMap<>();
+		map.put(num, ans.length());
 		while (num != 0) {
 			num *= 10;
-			res.append(num / den);
+			ans.append(num / den);
 			num %= den;
-			if (map.containsKey(num)) {
-				int index = map.get(num);
-				res.insert(index, "(");
-				res.append(")");
-				break;
-			} else {
-				map.put(num, res.length());
-			}
+			Integer idx = map.get(num);
+			if (idx == null) map.put(num, ans.length());
+			else { ans.insert(idx, "(").append(")"); break; }
 		}
-		return res.toString();
-	}
+		return ans.toString();
+}
 
 	public static void main(String[] args) {
 		System.out.println(fractionToDecimal(127, 999));

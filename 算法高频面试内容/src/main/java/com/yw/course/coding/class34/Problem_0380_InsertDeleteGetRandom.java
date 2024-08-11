@@ -2,6 +2,9 @@ package com.yw.course.coding.class34;
 
 import java.util.HashMap;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0380_InsertDeleteGetRandom {
 
 	public class RandomizedSet {

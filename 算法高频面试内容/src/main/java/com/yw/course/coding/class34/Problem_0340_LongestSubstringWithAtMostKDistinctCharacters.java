@@ -1,5 +1,8 @@
 package com.yw.course.coding.class34;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0340_LongestSubstringWithAtMostKDistinctCharacters {
 
 	public static int lengthOfLongestSubstringKDistinct(String s, int k) {

@@ -1,20 +1,37 @@
 package com.yw.course.coding.class32;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0189_RotateArray {
 
-	public void rotate1(int[] nums, int k) {
-		int N = nums.length;
-		k = k % N;
-		reverse(nums, 0, N - k - 1);
-		reverse(nums, N - k, N - 1);
-		reverse(nums, 0, N - 1);
+	// 方法一：利用辅助数组
+	public void rotate0(int[] nums, int k) {
+		int n = nums.length, m = n - (k % n), i = 0, j = m;
+		int[] tmp = new int[n];
+		while (j < n) tmp[i++] = nums[j++];
+		j = 0;
+		while (j < m) tmp[i++] = nums[j++];
+		i = 0;
+		while (i < n) {
+			nums[i] = tmp[i];
+			i++;
+		}
 	}
 
-	public static void reverse(int[] nums, int L, int R) {
-		while (L < R) {
-			int tmp = nums[L];
-			nums[L++] = nums[R];
-			nums[R--] = tmp;
+	// 方法二：双指针反转数组
+	public void rotate(int[] nums, int k) {
+		int n = nums.length;
+		k %= n;
+		reverse(nums, 0, n - k - 1);
+		reverse(nums, n - k, n - 1);
+		reverse(nums, 0, n - 1);
+	}
+	private static void reverse(int[] nums, int l, int r) {
+		while (l < r) {
+			int tmp = nums[l];
+			nums[l++] = nums[r];
+			nums[r--] = tmp;
 		}
 	}
 

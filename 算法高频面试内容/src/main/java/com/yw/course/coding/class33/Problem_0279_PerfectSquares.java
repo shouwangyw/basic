@@ -1,5 +1,8 @@
 package com.yw.course.coding.class33;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0279_PerfectSquares {
 
 	// 暴力解

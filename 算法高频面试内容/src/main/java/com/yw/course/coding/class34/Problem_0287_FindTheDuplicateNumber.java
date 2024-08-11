@@ -1,5 +1,8 @@
 package com.yw.course.coding.class34;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0287_FindTheDuplicateNumber {
 
 	public static int findDuplicate(int[] nums) {

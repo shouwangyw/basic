@@ -1,5 +1,8 @@
 package com.yw.course.coding.class33;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0283_MoveZeroes {
 
 	public static void moveZeroes(int[] nums) {

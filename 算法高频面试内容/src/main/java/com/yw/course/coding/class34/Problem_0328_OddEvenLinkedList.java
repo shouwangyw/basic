@@ -1,5 +1,8 @@
 package com.yw.course.coding.class34;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0328_OddEvenLinkedList {
 
 	// 提交时不要提交这个类

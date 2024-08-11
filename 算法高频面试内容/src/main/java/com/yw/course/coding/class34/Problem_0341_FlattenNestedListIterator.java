@@ -4,6 +4,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0341_FlattenNestedListIterator {
 
 	// 不要提交这个接口类

@@ -1,5 +1,8 @@
 package com.yw.course.coding.class33;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0251_Flatten2DVector {
 
 	public static class Vector2D {

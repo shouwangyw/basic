@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0269_AlienDictionary {
 
 	public static String alienOrder(String[] words) {

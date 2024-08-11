@@ -1,5 +1,8 @@
 package com.yw.course.coding.class34;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0384_ShuffleAnArray {
 
 	class Solution {

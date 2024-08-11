@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0210_CourseScheduleII {
 
 	public static class Node {

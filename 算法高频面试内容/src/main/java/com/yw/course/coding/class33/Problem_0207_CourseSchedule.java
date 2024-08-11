@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0207_CourseSchedule {
 
 	// 一个node，就是一个课程

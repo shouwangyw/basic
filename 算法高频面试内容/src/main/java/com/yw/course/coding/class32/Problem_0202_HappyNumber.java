@@ -1,12 +1,16 @@
 package com.yw.course.coding.class32;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0202_HappyNumber {
 
-	public static boolean isHappy1(int n) {
-		HashSet<Integer> set = new HashSet<>();
+	public boolean isHappy(int n) {
+		Set<Integer> set = new HashSet<>();
 		while (n != 1) {
 			int sum = 0;
 			while (n != 0) {
@@ -15,9 +19,7 @@ public class Problem_0202_HappyNumber {
 				n /= 10;
 			}
 			n = sum;
-			if (set.contains(n)) {
-				break;
-			}
+			if (set.contains(n)) break;
 			set.add(n);
 		}
 		return n == 1;
@@ -38,7 +40,7 @@ public class Problem_0202_HappyNumber {
 		return set;
 	}
 
-	public static boolean isHappy2(int n) {
+	public boolean isHappy2(int n) {
 		while (n != 1 && n != 4) {
 			int sum = 0;
 			while (n != 0) {

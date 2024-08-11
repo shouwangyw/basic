@@ -1,5 +1,8 @@
 package com.yw.course.coding.class32;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0191_NumberOf1Bits {
     
 	// n的二进制形式，有几个1？

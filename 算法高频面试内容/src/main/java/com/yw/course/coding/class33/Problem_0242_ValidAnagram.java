@@ -1,5 +1,8 @@
 package com.yw.course.coding.class33;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0242_ValidAnagram {
 
 	public static boolean isAnagram(String s, String t) {
