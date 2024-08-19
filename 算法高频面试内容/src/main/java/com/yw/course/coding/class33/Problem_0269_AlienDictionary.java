@@ -1,9 +1,6 @@
 package com.yw.course.coding.class33;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @author yangwei
@@ -11,58 +8,54 @@ import java.util.Queue;
 public class Problem_0269_AlienDictionary {
 
 	public static String alienOrder(String[] words) {
-		if (words == null || words.length == 0) {
-			return "";
+		if (words == null || words.length == 0) return "";
+		int n = words.length;
+		// 记录每种字符入度
+		Map<Character, Integer> inDegMap = new HashMap<>();
+		for (int i = 0; i < n; i++) {
+			for (char c : words[i].toCharArray()) inDegMap.put(c, 0);
 		}
-		int N = words.length;
-		HashMap<Character, Integer> indegree = new HashMap<>();
-		for (int i = 0; i < N; i++) {
-			for (char c : words[i].toCharArray()) {
-				indegree.put(c, 0);
-			}
-		}
-		HashMap<Character, HashSet<Character>> graph = new HashMap<>();
-		for (int i = 0; i < N - 1; i++) {
+		Map<Character, Set<Character>> graph = new HashMap<>();
+		for (int i = 0; i < n - 1; i++) {
 			char[] cur = words[i].toCharArray();
-			char[] nex = words[i + 1].toCharArray();
-			int len = Math.min(cur.length, nex.length);
+			char[] next = words[i + 1].toCharArray();
+			int len = Math.min(cur.length, next.length);
 			int j = 0;
 			for (; j < len; j++) {
-				if (cur[j] != nex[j]) {
-					if (!graph.containsKey(cur[j])) {
-						graph.put(cur[j], new HashSet<>());
-					}
-					if (!graph.get(cur[j]).contains(nex[j])) {
-						graph.get(cur[j]).add(nex[j]);
-						indegree.put(nex[j], indegree.get(nex[j]) + 1);
-					}
-					break;
+				if (cur[j] == next[j]) continue;
+				Set<Character> set = graph.compute(cur[j], (k, v) -> v == null ? new HashSet<>() : v);
+				if (!set.contains(next[j])) {
+					set.add(next[j]);
+					inDegMap.compute(next[j], (k, v) -> v == null ? v : v + 1);
 				}
+				break;
 			}
-			if (j < cur.length && j == nex.length) {
-				return "";
-			}
+			if (j < cur.length && j == next.length) return "";
 		}
 		StringBuilder ans = new StringBuilder();
-		Queue<Character> q = new LinkedList<>();
-		for (Character key : indegree.keySet()) {
-			if (indegree.get(key) == 0) {
-				q.offer(key);
-			}
-		}
-		while (!q.isEmpty()) {
-			char cur = q.poll();
+		Queue<Character> queue = new LinkedList<>();
+		inDegMap.forEach((k, v) -> {
+			if (v == 0) queue.offer(k);
+		});
+		while (!queue.isEmpty()) {
+			Character cur = queue.poll();
 			ans.append(cur);
-			if (graph.containsKey(cur)) {
-				for (char next : graph.get(cur)) {
-					indegree.put(next, indegree.get(next) - 1);
-					if (indegree.get(next) == 0) {
-						q.offer(next);
-					}
-				}
+			Set<Character> set = graph.get(cur);
+			if (set == null) continue;
+			for (Character next : set) {
+				inDegMap.compute(next, (k, v) -> {
+					v -= 1;
+					if (v == 0) queue.offer(k);
+					return v;
+				});
 			}
 		}
-		return ans.length() == indegree.size() ? ans.toString() : "";
+		return ans.length() == inDegMap.size() ? ans.toString() : "";
 	}
 
+	public static void main(String[] args) {
+		String[] words = {"abc", "bcd", "cd", "da", "dd"};
+
+		System.out.println(alienOrder(words));
+	}
 }

@@ -10,33 +10,19 @@ public class Problem_0251_Flatten2DVector {
 		private int row;
 		private int col;
 		private boolean curUse;
-
-		public Vector2D(int[][] v) {
-			matrix = v;
-			row = 0;
-			col = -1;
-			curUse = true;
+		public Vector2D(int[][] matrix) {
+			this.matrix = matrix;
+			this.row = 0;
+			this.col = -1;
+			this.curUse = true;
 			hasNext();
 		}
-
-		public int next() {
-			int ans = matrix[row][col];
-			curUse = true;
-			hasNext();
-			return ans;
-		}
-
 		public boolean hasNext() {
-			if (row == matrix.length) {
-				return false;
-			}
-			if (!curUse) {
-				return true;
-			}
+			if (row == matrix.length) return false;
+			if (!curUse) return true;
 			// (row，col)用过了
-			if (col < matrix[row].length - 1) {
-				col++;
-			} else {
+			if (col < matrix[row].length - 1) col++;
+			else {
 				col = 0;
 				do {
 					row++;
@@ -46,11 +32,14 @@ public class Problem_0251_Flatten2DVector {
 			if (row != matrix.length) {
 				curUse = false;
 				return true;
-			} else {
-				return false;
 			}
+			return false;
 		}
-
+		public int next() {
+			int ans = matrix[row][col];
+			curUse = true;
+			hasNext();
+			return ans;
+		}
 	}
-
 }

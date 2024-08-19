@@ -1,74 +1,51 @@
 package com.yw.course.coding.class33;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @author yangwei
  */
 public class Problem_0210_CourseScheduleII {
 
-	public static class Node {
-		public int name;
-		public int in;
-		public ArrayList<Node> nexts;
-
-		public Node(int n) {
-			name = n;
-			in = 0;
-			nexts = new ArrayList<>();
-		}
-	}
-
 	public int[] findOrder(int numCourses, int[][] prerequisites) {
 		int[] ans = new int[numCourses];
-		for (int i = 0; i < numCourses; i++) {
-			ans[i] = i;
-		}
-		if (prerequisites == null || prerequisites.length == 0) {
-			return ans;
-		}
-		HashMap<Integer, Node> nodes = new HashMap<>();
-		for (int[] arr : prerequisites) {
-			int to = arr[0];
-			int from = arr[1];
-			if (!nodes.containsKey(to)) {
-				nodes.put(to, new Node(to));
-			}
-			if (!nodes.containsKey(from)) {
-				nodes.put(from, new Node(from));
-			}
-			Node t = nodes.get(to);
-			Node f = nodes.get(from);
+		for (int i = 0; i < numCourses; i++) ans[i] = i;
+		if (prerequisites == null || prerequisites.length == 0) return ans;
+		Map<Integer, Course> nodes = new HashMap<>();
+		for (int[] x : prerequisites) {
+			int to = x[0], from = x[1];
+			Course t = nodes.compute(to, (k ,v) -> v == null ? new Course(to) : v);
+			Course f = nodes.compute(from, (k ,v) -> v == null ? new Course(from) : v);
 			f.nexts.add(t);
 			t.in++;
 		}
-		int index = 0;
-		Queue<Node> zeroInQueue = new LinkedList<>();
+		int idx = 0;
+		Queue<Course> zeroInQueue = new LinkedList<>();
 		for (int i = 0; i < numCourses; i++) {
-			if (!nodes.containsKey(i)) {
-				ans[index++] = i;
-			} else {
-				if (nodes.get(i).in == 0) {
-					zeroInQueue.add(nodes.get(i));
-				}
-			}
+			Course cur = nodes.get(i);
+			if (cur == null) ans[idx++] = i;
+			else if (cur.in == 0) zeroInQueue.add(cur);
 		}
-		int needPrerequisiteNums = nodes.size();
-		int count = 0;
+		int needNums = nodes.size(), cnt = 0;
 		while (!zeroInQueue.isEmpty()) {
-			Node cur = zeroInQueue.poll();
-			ans[index++] = cur.name;
-			count++;
-			for (Node next : cur.nexts) {
-				if (--next.in == 0) {
-					zeroInQueue.add(next);
-				}
+			Course cur = zeroInQueue.poll();
+			ans[idx++] = cur.id;
+			cnt++;
+			for (Course next : cur.nexts) {
+				if (--next.in == 0) zeroInQueue.add(next);
 			}
 		}
-		return count == needPrerequisiteNums ? ans : new int[0];
+		return cnt == needNums ? ans : new int[0];
+	}
+	private static class Course {
+		private int id;
+		private int in;
+		private List<Course> nexts;
+		public Course(int id) {
+			this.id = id;
+			this.in = 0;
+			this.nexts = new ArrayList<>();
+		}
 	}
 
 }

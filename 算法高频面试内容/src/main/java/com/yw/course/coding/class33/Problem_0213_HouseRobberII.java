@@ -21,18 +21,11 @@ public class Problem_0213_HouseRobberII {
 		return dp[n - 1];
 	}
 
-	public static int rob(int[] nums) {
-		if (nums == null || nums.length == 0) {
-			return 0;
-		}
-		if (nums.length == 1) {
-			return nums[0];
-		}
-		if (nums.length == 2) {
-			return Math.max(nums[0], nums[1]);
-		}
-		int pre2 = nums[0];
-		int pre1 = Math.max(nums[0], nums[1]);
+	public int rob(int[] nums) {
+		if (nums == null || nums.length == 0) return 0;
+		if (nums.length == 1) return nums[0];
+		if (nums.length == 2) return Math.max(nums[0], nums[1]);
+		int pre2 = nums[0], pre1 = Math.max(nums[0], nums[1]);
 		for (int i = 2; i < nums.length - 1; i++) {
 			int tmp = Math.max(pre1, nums[i] + pre2);
 			pre2 = pre1;
