@@ -1,46 +1,23 @@
 package com.yw.course.coding.class34;
 
+import com.yw.entity.ListNode;
+
 /**
  * @author yangwei
  */
 public class Problem_0328_OddEvenLinkedList {
 
-	// 提交时不要提交这个类
-	public static class ListNode {
-		int val;
-		ListNode next;
-	}
-
 	public ListNode oddEvenList(ListNode head) {
-		ListNode firstOdd = null;
-		ListNode firstEven = null;
-		ListNode odd = null;
-		ListNode even = null;
-		ListNode next = null;
-		int count = 1;
-		while (head != null) {
-			next = head.next;
-			head.next = null;
-			if ((count & 1) == 1) {
-				firstOdd = firstOdd == null ? head : firstOdd;
-				if (odd != null) {
-					odd.next = head;
-				}
-				odd = head;
-			} else {
-				firstEven = firstEven == null ? head : firstEven;
-				if (even != null) {
-					even.next = head;
-				}
-				even = head;
-			}
-			count++;
-			head = next;
+		if (head == null || head.next == null) return head;
+		ListNode p = head, q = head.next, even = q;
+		while (p.next != null && q.next != null) {
+			p.next = q.next;
+			p = p.next;
+			q.next = p.next;
+			q = q.next;
 		}
-		if (odd != null) {
-			odd.next = firstEven;
-		}
-		return firstOdd != null ? firstOdd : firstEven;
+		p.next = even;
+		return head;
 	}
 
 }

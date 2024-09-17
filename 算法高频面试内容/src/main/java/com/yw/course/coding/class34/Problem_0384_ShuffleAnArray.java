@@ -1,36 +1,35 @@
 package com.yw.course.coding.class34;
 
+import java.util.Random;
+
 /**
  * @author yangwei
  */
 public class Problem_0384_ShuffleAnArray {
 
-	class Solution {
-		private int[] origin;
-		private int[] shuffle;
-		private int N;
-
+	public class Solution {
+		private int[] nums;
+		private Random r = new Random();
+		private int n;
 		public Solution(int[] nums) {
-			origin = nums;
-			N = nums.length;
-			shuffle = new int[N];
-			for (int i = 0; i < N; i++) {
-				shuffle[i] = origin[i];
-			}
+			this.nums = nums;
+			this.n = nums.length;
 		}
 
 		public int[] reset() {
-			return origin;
+			return nums;
 		}
 
 		public int[] shuffle() {
-			for (int i = N - 1; i >= 0; i--) {
-				int r = (int) (Math.random() * (i + 1));
-				int tmp = shuffle[r];
-				shuffle[r] = shuffle[i];
-				shuffle[i] = tmp;
+			int[] copy = new int[n];
+			for (int i = 0; i < n; i++) copy[i] = nums[i];
+			for (int i = n - 1; i >= 0; i--) {
+				int k = r.nextInt(i + 1);
+				int tmp = copy[i];
+				copy[i] = copy[k];
+				copy[k] = tmp;
 			}
-			return shuffle;
+			return copy;
 		}
 	}
 

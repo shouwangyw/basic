@@ -6,25 +6,19 @@ package com.yw.course.coding.class34;
 public class Problem_0340_LongestSubstringWithAtMostKDistinctCharacters {
 
 	public static int lengthOfLongestSubstringKDistinct(String s, int k) {
-		if (s == null || s.length() == 0 || k < 1) {
-			return 0;
-		}
-		char[] str = s.toCharArray();
-		int N = str.length;
-		int[] count = new int[256];
-		int diff = 0;
-		int R = 0;
-		int ans = 0;
-		for (int i = 0; i < N; i++) {
-			// R 窗口的右边界
-			while (R < N && (diff < k || (diff == k && count[str[R]] > 0))) {
-				diff += count[str[R]] == 0 ? 1 : 0;
-				count[str[R++]]++;
+		if (s == null || s.length() == 0 || k < 1) return 0;
+		char[] cs = s.toCharArray();
+		// r: 窗口的右边界, diff: 在窗口内不同字符的种类
+		int n = cs.length, ans = 0, r = 0, diff = 0;
+		int[] cnt = new int[256];
+		for (int i = 0; i < n; i++) {
+			while (r < n && diff < k || (diff == k && cnt[cs[r]] > 0)) {
+				diff += cnt[cs[r]] == 0 ? 1 : 0;
+				cnt[cs[r++]]++;
 			}
-			// R 来到违规的第一个位置
-			ans = Math.max(ans, R - i);
-			diff -= count[str[i]] == 1 ? 1 : 0;
-			count[str[i]]--;
+			ans = Math.max(ans, r - i);
+			diff -= cnt[cs[i]] == 1 ? 1 : 0;
+			cnt[cs[i]]--;
 		}
 		return ans;
 	}

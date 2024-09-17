@@ -1,6 +1,6 @@
 package com.yw.course.coding.class34;
 
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * @author yangwei
@@ -8,46 +8,34 @@ import java.util.HashMap;
 public class Problem_0380_InsertDeleteGetRandom {
 
 	public class RandomizedSet {
-
-		private HashMap<Integer, Integer> keyIndexMap;
-		private HashMap<Integer, Integer> indexKeyMap;
-		private int size;
-
+		private Map<Integer, Integer> map;
+		private List<Integer> list;
+		Random r = new Random();
 		public RandomizedSet() {
-			keyIndexMap = new HashMap<Integer, Integer>();
-			indexKeyMap = new HashMap<Integer, Integer>();
-			size = 0;
+			this.map = new HashMap<>();
+			this.list= new ArrayList<>();
 		}
 
 		public boolean insert(int val) {
-			if (!keyIndexMap.containsKey(val)) {
-				keyIndexMap.put(val, size);
-				indexKeyMap.put(size++, val);
-				return true;
-			}
-			return false;
+			if (map.containsKey(val)) return false;
+			map.put(val, list.size());
+			list.add(val);
+			return true;
 		}
 
 		public boolean remove(int val) {
-			if (keyIndexMap.containsKey(val)) {
-				int deleteIndex = keyIndexMap.get(val);
-				int lastIndex = --size;
-				int lastKey = indexKeyMap.get(lastIndex);
-				keyIndexMap.put(lastKey, deleteIndex);
-				indexKeyMap.put(deleteIndex, lastKey);
-				keyIndexMap.remove(val);
-				indexKeyMap.remove(lastIndex);
-				return true;
-			}
-			return false;
+			if (!map.containsKey(val)) return false;
+			int last  = list.get(list.size() - 1);
+			int idx = map.get(val);
+			list.set(idx, last);
+			map.put(last, idx);
+			list.remove(list.size() - 1);
+			map.remove(val);
+			return true;
 		}
 
 		public int getRandom() {
-			if (size == 0) {
-				return -1;
-			}
-			int randomIndex = (int) (Math.random() * size);
-			return indexKeyMap.get(randomIndex);
+			return list.get(r.nextInt(list.size()));
 		}
 	}
 

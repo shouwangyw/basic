@@ -1,5 +1,7 @@
 package com.yw.course.coding.class34;
 
+import static com.yw.util.CommonUtils.*;
+
 /**
  * @author yangwei
  */
@@ -7,112 +9,97 @@ public class Problem_0324_WiggleSortII {
 
 	// 时间复杂度O(N)，额外空间复杂度O(1)
 	public static void wiggleSort(int[] nums) {
-		if (nums == null || nums.length < 2) {
-			return;
-		}
-		int N = nums.length;
-		// 小 中 右
-		findIndexNum(nums, 0, nums.length - 1, N / 2);
-		if ((N & 1) == 0) {
-			// R L -> L R
-			shuffle(nums, 0, nums.length - 1);
-			// R1 L1 R2 L2 R3 L3 R4 L4
-			// L4 R4 L3 R3 L2 R2 L1 R1 -> 代码中的方式，可以的！
-			// L1 R1 L2 R2 L3 R3 L4 R4 -> 课上的分析，是不行的！不能两两交换！
-			reverse(nums, 0, nums.length - 1);
-			// 做个实验，如果把上一行的code注释掉(reverse过程)，然后跑下面注释掉的for循环代码
-			// for循环的代码就是两两交换，会发现对数器报错，说明两两交换是不行的, 必须整体逆序
-//			for (int i = 0; i < nums.length; i += 2) {
-//				swap(nums, i, i + 1);
-//			}
-		} else {
-			shuffle(nums, 1, nums.length - 1);
-		}
+		if (nums == null || nums.length == 0) return;
+		// 假设这个排序是额外空间复杂度O(1)的，当然系统提供的排序并不是，你可以自己实现一个堆排序
+		// Arrays.sort(nums);
+		int n = nums.length;
+		minKth(nums, 0, n - 1, n / 2);
+		if ((n & 1) == 0) {
+			reverse(nums, 0, n - 1);
+			shuffle(nums, 0, n - 1);
+		} else shuffle(nums, 1, n - 1);
 	}
-
-	public static int findIndexNum(int[] arr, int L, int R, int index) {
-		int pivot = 0;
-		int[] range = null;
-		while (L < R) {
-			pivot = arr[L + (int) (Math.random() * (R - L + 1))];
-			range = partition(arr, L, R, pivot);
-			if (index >= range[0] && index <= range[1]) {
-				return arr[index];
-			} else if (index < range[0]) {
-				R = range[0] - 1;
-			} else {
-				L = range[1] + 1;
-			}
+	// 在[l,r]范围找到第k小的数
+	private static int minKth(int[] arr, int l, int r, int k) {
+		while (l < r) {
+			int pivot = arr[l + (int) (Math.random() * (r - l + 1))];
+			int[] equals = partition3Way(arr, l, r, pivot);
+			if (k >= equals[0] && k <= equals[1]) return arr[k];
+			else if (k < equals[0]) r = equals[0] - 1;
+			else l = equals[1] + 1;
 		}
-		return arr[L];
+		return arr[l];
 	}
-
-	public static int[] partition(int[] arr, int L, int R, int pivot) {
-		int less = L - 1;
-		int more = R + 1;
-		int cur = L;
-		while (cur < more) {
-			if (arr[cur] < pivot) {
-				swap(arr, ++less, cur++);
-			} else if (arr[cur] > pivot) {
-				swap(arr, cur, --more);
-			} else {
-				cur++;
-			}
+	// 3路分区
+	private static int[] partition3Way(int[] arr, int l, int r, int pivot) {
+		int lessR = l - 1, moreL = r + 1;
+		while (l < moreL) {
+			if (arr[l] < pivot) swap(arr, ++lessR, l++);
+			else if (arr[l] > pivot) swap(arr, l, --moreL);
+			else l++;
 		}
-		return new int[] { less + 1, more - 1 };
+		return new int[] {lessR + 1, moreL - 1};
 	}
-
-	public static void shuffle(int[] nums, int l, int r) {
+	private static void swap(int[] arr, int i, int j) {
+		if (i == j) return;
+		int tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
+	}
+	// arr[l...r]上做完美洗牌(arr[L..R]范围上一定要是偶数个数字)
+	private static void shuffle(int[] arr, int l, int r) {
 		while (r - l + 1 > 0) {
-			int lenAndOne = r - l + 2;
-			int bloom = 3;
-			int k = 1;
-			while (bloom <= lenAndOne / 3) {
-				bloom *= 3;
+			// 切成一块一块的解决，每一块的长度满足(3^k)-1
+			int n = r - l + 1, base = 3, k = 1;
+			// 计算小于等于 n 且离 n 最近的，满足(3^k)-1的数，也就是找到最大的k，满足3^k <= n+1
+			while (base <= (n + 1) / 3) {
+				base *= 3;
 				k++;
 			}
-			int m = (bloom - 1) / 2;
-			int mid = (l + r) / 2;
-			rotate(nums, l + m, mid, mid + m);
-			cycles(nums, l - 1, bloom, k);
-			l = l + bloom - 1;
+			// 当前要解决长度为base-1的块，一半就是再除2
+			int half = (base - 1) / 2, mid = (l + r) / 2;
+			// 要旋转的左部分为[l+half...mid], 右部分为[mid+1..mid+half]
+			// 注意在这里，arr下标是从0开始的
+			rotate(arr, l + half, mid, mid + half);
+			// 旋转完成后，从l开始算起，长度为base-1的部分进行下标连续推
+			cycles(arr, l, base - 1, k);
+			// 解决了前base-1的部分，剩下的部分继续处理: l -> [] [+1...R]
+			l = l + base - 1;
 		}
 	}
-
-	public static void cycles(int[] nums, int base, int bloom, int k) {
-		for (int i = 0, trigger = 1; i < k; i++, trigger *= 3) {
-			int next = (2 * trigger) % bloom;
-			int cur = next;
-			int record = nums[next + base];
-			int tmp = 0;
-			nums[next + base] = nums[trigger + base];
-			while (cur != trigger) {
-				next = (2 * cur) % bloom;
-				tmp = nums[next + base];
-				nums[next + base] = record;
-				cur = next;
-				record = tmp;
-			}
-		}
-	}
-
-	public static void rotate(int[] arr, int l, int m, int r) {
-		reverse(arr, l, m);
-		reverse(arr, m + 1, r);
+	// [l...mid]为左部分，[mid+1...r]为右部分，左右两部分互换
+	private static void rotate(int[] arr, int l, int mid, int r) {
+		reverse(arr, l, mid);
+		reverse(arr, mid + 1, r);
 		reverse(arr, l, r);
 	}
-
-	public static void reverse(int[] arr, int l, int r) {
+	// 数组arr在[l..r]范围做逆序调整
+	private static void reverse(int[] arr, int l, int r) {
 		while (l < r) {
-			swap(arr, l++, r--);
+			int tmp = arr[l];
+			arr[l++] = arr[r];
+			arr[r--] = tmp;
 		}
 	}
-
-	public static void swap(int[] nums, int i, int j) {
-		int tmp = nums[i];
-		nums[i] = nums[j];
-		nums[j] = tmp;
+	// 从start位置开始，往右n的长度这一段，做下标连续推，出发位置依次为1,3,9...
+	private static void cycles(int[] arr, int start, int n, int k) {
+		// 找到每一个出发位置trigger，一共k个，每一个trigger都进行下标连续推
+		// 出发位置是从1开始算的，而数组下标是从0开始算的
+		for (int i = 0, trigger = 1; i < k; i++, trigger *= 3) {
+			int preVal = arr[trigger + start - 1], curIdx = idx(trigger, n);
+			while (curIdx != trigger) {
+				int tmp = arr[curIdx + start - 1];
+				arr[curIdx + start - 1] = preVal;
+				preVal = tmp;
+				curIdx = idx(curIdx, n);
+			}
+			arr[curIdx + start - 1] = preVal;
+		}
+	}
+	// 数组长度n，调整前位置是i，返回调整之后的位置，i从1开始
+	private static int idx(int i, int n) {
+//		return i <= n / 2 ? 2 * i : (2 * i - n - 1);
+		return (2 * i) % (n + 1);
 	}
 
 	// 为了测试，暴力方法
@@ -139,36 +126,6 @@ public class Problem_0324_WiggleSortII {
 	}
 
 	// 为了测试
-	public static boolean valid(int[] arr) {
-		boolean more = true;
-		for (int i = 1; i < arr.length; i++) {
-			if ((more && arr[i - 1] >= arr[i]) || (!more && arr[i - 1] <= arr[i])) {
-				return false;
-			}
-			more = !more;
-		}
-		return true;
-	}
-
-	// 为了测试
-	public static int[] randomArray(int n, int v) {
-		int[] ans = new int[n];
-		for (int i = 0; i < n; i++) {
-			ans[i] = (int) (Math.random() * v);
-		}
-		return ans;
-	}
-
-	// 为了测试
-	public static int[] copyArray(int[] arr) {
-		int[] ans = new int[arr.length];
-		for (int i = 0; i < arr.length; i++) {
-			ans[i] = arr[i];
-		}
-		return ans;
-	}
-
-	// 为了测试
 	public static void main(String[] args) {
 		int N = 10;
 		int V = 10;
@@ -184,6 +141,16 @@ public class Problem_0324_WiggleSortII {
 			}
 		}
 		System.out.println("测试结束");
+	}
+	private static boolean valid(int[] arr) {
+		boolean more = true;
+		for (int i = 1; i < arr.length; i++) {
+			if ((more && arr[i - 1] >= arr[i]) || (!more && arr[i - 1] <= arr[i])) {
+				return false;
+			}
+			more = !more;
+		}
+		return true;
 	}
 
 }

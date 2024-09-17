@@ -22,8 +22,7 @@ public class Problem_0277_FindTheCelebrity {
 		}
 		// cand是什么？唯一可能是明星的人！
 		// 下一步就是验证，它到底是不是明星
-		// 1) cand是不是不认识所有的人 cand...（右侧cand都不认识）
-		// 所以，只用验证 ....cand的左侧即可
+		// 1) cand是不是不认识所有的人 cand...（右侧cand都不认识）所以，只用验证 ...cand的左侧即可
 		for (int i = 0; i < cand; ++i) {
 			if (knows(cand, i)) {
 				return -1;

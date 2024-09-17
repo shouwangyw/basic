@@ -1,7 +1,6 @@
 package com.yw.course.coding.class20;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 import static com.yw.util.CommonUtils.printArray;
 

@@ -1,5 +1,11 @@
 package com.yw.course.coding.class35;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author yangwei
+ */
 public class Problem_0395_LongestSubstringWithAtLeastKRepeatingCharacters {
 
 	public static int longestSubstring1(String s, int k) {
@@ -26,47 +32,31 @@ public class Problem_0395_LongestSubstringWithAtLeastKRepeatingCharacters {
 		return max;
 	}
 
-	public static int longestSubstring2(String s, int k) {
-		char[] str = s.toCharArray();
-		int N = str.length;
-		int max = 0;
+	public int longestSubstring2(String s, int k) {
+		char[] cs = s.toCharArray();
+		int n = cs.length, ans = 0;
 		for (int require = 1; require <= 26; require++) {
-			// 3种
-			// a~z 出现次数
-			int[] count = new int[26];
-			// 目前窗口内收集了几种字符了
-			int collect = 0;
-			// 目前窗口内出现次数>=k次的字符，满足了几种
-			int satisfy = 0;
-			// 窗口右边界
-			int R = -1;
-			for (int L = 0; L < N; L++) { // L要尝试每一个窗口的最左位置
-				// [L..R] R+1
-				while (R + 1 < N && !(collect == require && count[str[R + 1] - 'a'] == 0)) {
-					R++;
-					if (count[str[R] - 'a'] == 0) {
-						collect++;
-					}
-					if (count[str[R] - 'a'] == k - 1) {
-						satisfy++;
-					}
-					count[str[R] - 'a']++;
+			int[] cnt = new int[26]; // 词频统计
+			int collect = 0; // 当前窗口收集了几种字符
+			int satisfy = 0; // 当前窗口词频大于等于k次的字符有几种
+			int r = -1;
+			for (int l = 0; l < n; l++) { // l尝试每一个窗口的最左位置
+				// 当前[l...r]，如果r+1位置要进来
+				while (r + 1 < n && !(collect == require && cnt[cs[r + 1] - 'a'] == 0)) {
+					r++;
+					if (cnt[cs[r] - 'a'] == 0) collect++;
+					if (cnt[cs[r] - 'a'] == k - 1) satisfy++;
+					cnt[cs[r] - 'a']++;
 				}
-				// [L...R]
-				if (satisfy == require) {
-					max = Math.max(max, R - L + 1);
-				}
-				// L++
-				if (count[str[L] - 'a'] == 1) {
-					collect--;
-				}
-				if (count[str[L] - 'a'] == k) {
-					satisfy--;
-				}
-				count[str[L] - 'a']--;
+				// 当前[l...r]
+				if (satisfy == require) ans = Math.max(ans, r - l + 1);
+				// l++，若l位置的字符要出窗口
+				if (cnt[cs[l] - 'a'] == 1) collect--; // l位置词频是1，出窗口后窗口收集的字符种类-1
+				if (cnt[cs[l] - 'a'] == k) satisfy--; // l位置词频是k，出窗口后窗口内满足>=k的字符种类-1
+				cnt[cs[l] - 'a']--;
 			}
 		}
-		return max;
+		return ans;
 	}
 
 	// 会超时，但是思路的确是正确的
@@ -107,4 +97,27 @@ public class Problem_0395_LongestSubstringWithAtLeastKRepeatingCharacters {
 		return max;
 	}
 
+	public int longestSubstring(String s, int k) {
+		char[] cs = s.toCharArray();
+		// 统计词频
+		int[] cnt = new int[26];
+		for (char c : cs) cnt[c - 'a']++;
+		// 词频小于k的位置可作为子串的分割点
+		List<Integer> splits = new ArrayList<>();
+		int n = cs.length;
+		for (int i = 0; i < n; i++) {
+			if (cnt[cs[i] - 'a'] < k) splits.add(i);
+		}
+		// 若不需要分割，最长子串长度就是n
+		if (splits.size() == 0) return n;
+		splits.add(n);
+		int pre = 0, ans = 0;
+		for (int p : splits) {
+			int len = p - pre;
+			if (len >= k)
+				ans = Math.max(ans, longestSubstring(s.substring(pre, pre + len), k));
+			pre = p + 1;
+		}
+		return ans;
+	}
 }

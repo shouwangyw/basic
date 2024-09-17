@@ -1,71 +1,49 @@
 package com.yw.course.coding.class34;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yangwei
  */
 public class Problem_0315_CountOfSmallerNumbersAfterSelf {
 
-	public static class Node {
-		public int value;
-		public int index;
-
-		public Node(int v, int i) {
-			value = v;
-			index = i;
-		}
+	public List<Integer> countSmaller(int[] nums) {
+		int n = nums.length;
+		Data[] datas = new Data[n];
+		for (int i = 0; i < n; i++) datas[i] = new Data(nums[i], i);
+		mergeSort(datas, 0, n - 1);
+		return Arrays.stream(datas).sorted(Comparator.comparingInt(a -> a.idx)).map(v -> v.cnt).collect(Collectors.toList());
 	}
-
-	public static List<Integer> countSmaller(int[] nums) {
-		List<Integer> ans = new ArrayList<>();
-		if (nums == null) {
-			return ans;
-		}
-		for (int i = 0; i < nums.length; i++) {
-			ans.add(0);
-		}
-		if (nums.length < 2) {
-			return ans;
-		}
-		Node[] arr = new Node[nums.length];
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = new Node(nums[i], i);
-		}
-		process(arr, 0, arr.length - 1, ans);
-		return ans;
-	}
-
-	public static void process(Node[] arr, int l, int r, List<Integer> ans) {
-		if (l == r) {
-			return;
-		}
+	// 归并排序
+	private void mergeSort(Data[] datas, int l, int r) {
+		if (l == r) return;
 		int mid = l + ((r - l) >> 1);
-		process(arr, l, mid, ans);
-		process(arr, mid + 1, r, ans);
-		merge(arr, l, mid, r, ans);
+		mergeSort(datas, l, mid);
+		mergeSort(datas, mid + 1, r);
+		Data[] tmp = new Data[r - l + 1];
+		int i = mid, j = r, k = tmp.length - 1;
+		while (i >= l && j > mid) {
+			if (datas[i].val > datas[j].val) {
+				datas[i].cnt += (j - mid);
+				tmp[k--] = datas[i--];
+			} else tmp[k--] = datas[j--];
+		}
+		while (i >= l) tmp[k--] = datas[i--];
+		while (j > mid) tmp[k--] = datas[j--];
+		for (k = 0; k < tmp.length; k++) datas[l + k] = tmp[k];
 	}
-
-	public static void merge(Node[] arr, int l, int m, int r, List<Integer> ans) {
-		Node[] help = new Node[r - l + 1];
-		int i = help.length - 1;
-		int p1 = m;
-		int p2 = r;
-		while (p1 >= l && p2 >= m + 1) {
-			if (arr[p1].value > arr[p2].value) {
-				ans.set(arr[p1].index, ans.get(arr[p1].index) + p2 - m);
-			}
-			help[i--] = arr[p1].value > arr[p2].value ? arr[p1--] : arr[p2--];
-		}
-		while (p1 >= l) {
-			help[i--] = arr[p1--];
-		}
-		while (p2 >= m + 1) {
-			help[i--] = arr[p2--];
-		}
-		for (i = 0; i < help.length; i++) {
-			arr[l + i] = help[i];
+	private static class Data {
+		private int val;
+		private int idx;
+		private int cnt; // 记录idx右侧小于当前元素的个数
+		public Data(int val, int idx) {
+			this.val = val;
+			this.idx = idx;
+			this.cnt = 0;
 		}
 	}
 
