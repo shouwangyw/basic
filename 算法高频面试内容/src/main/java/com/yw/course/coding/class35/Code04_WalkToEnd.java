@@ -1,53 +1,48 @@
 package com.yw.course.coding.class35;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
-// 来自网易
-// map[i][j] == 0，代表(i,j)是海洋，渡过的话代价是2
-// map[i][j] == 1，代表(i,j)是陆地，渡过的话代价是1
-// map[i][j] == 2，代表(i,j)是障碍，无法渡过
-// 每一步上、下、左、右都能走，返回从左上角走到右下角最小代价是多少，如果无法到达返回-1
+/**
+ * 来自网易
+ * map[i][j] == 0，代表(i,j)是海洋，渡过的话代价是2
+ * map[i][j] == 1，代表(i,j)是陆地，渡过的话代价是1
+ * map[i][j] == 2，代表(i,j)是障碍，无法渡过
+ * 每一步上、下、左、右都能走，返回从左上角走到右下角最小代价是多少，如果无法到达返回-1
+ *
+ * @author yangwei
+ */
 public class Code04_WalkToEnd {
 
-	public static int minCost(int[][] map) {
-		if (map[0][0] == 2) {
-			return -1;
-		}
-		int n = map.length;
-		int m = map[0].length;
-		PriorityQueue<Node> heap = new PriorityQueue<>((a, b) -> a.cost - b.cost);
-		boolean[][] visited = new boolean[n][m];
-		add(map, 0, 0, 0, heap, visited);
-		while (!heap.isEmpty()) {
-			Node cur = heap.poll();
-			if (cur.row == n - 1 && cur.col == m - 1) {
-				return cur.cost;
-			}
-			add(map, cur.row - 1, cur.col, cur.cost, heap, visited);
-			add(map, cur.row + 1, cur.col, cur.cost, heap, visited);
-			add(map, cur.row, cur.col - 1, cur.cost, heap, visited);
-			add(map, cur.row, cur.col + 1, cur.cost, heap, visited);
-		}
-		return -1;
-	}
-
-	public static void add(int[][] m, int i, int j, int pre, PriorityQueue<Node> heap, boolean[][] visited) {
-		if (i >= 0 && i < m.length && j >= 0 && j < m[0].length && m[i][j] != 2 && !visited[i][j]) {
-			heap.add(new Node(i, j, pre + (m[i][j] == 0 ? 2 : 1)));
-			visited[i][j] = true;
-		}
-	}
-
-	public static class Node {
-		public int row;
-		public int col;
-		public int cost;
-
-		public Node(int a, int b, int c) {
-			row = a;
-			col = b;
-			cost = c;
-		}
-	}
-
+    private static int[][] dirs = { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
+    public static int minCost(int[][] matrix) {
+        if (matrix[0][0] == 2) return -1;
+        int m = matrix.length, n = matrix[0].length;
+        Queue<Data> heap = new PriorityQueue<>(Comparator.comparingInt(o -> o.cost));
+        boolean[][] visited = new boolean[m][n];
+        dfs(matrix, 0, 0, 0, heap, visited);
+        while (!heap.isEmpty()) {
+            Data cur = heap.poll();
+            if (cur.x == m - 1 && cur.y == n - 1) return cur.cost;
+            for (int[] dir : dirs)
+                dfs(matrix, cur.x + dir[0], cur.y + dir[1], cur.cost, heap, visited);
+        }
+        return -1;
+    }
+    private static void dfs(int[][] matrix, int x, int y, int preCost, Queue<Data> heap, boolean[][] visited) {
+        if (x == 0 || x == matrix.length || y == 0 || y == matrix[0].length || matrix[x][y] == 2 || visited[x][y]) return;
+        heap.offer(new Data(x, y, preCost + (matrix[x][y] == 0 ? 2 : 1)));
+        visited[x][y] = true;
+    }
+    private static class Data {
+        private int x;
+        private int y;
+        private int cost;
+        public Data(int x, int y, int cost) {
+            this.x = x;
+            this.y = y;
+            this.cost = cost;
+        }
+    }
 }

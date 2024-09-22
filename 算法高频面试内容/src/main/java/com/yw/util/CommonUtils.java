@@ -77,6 +77,13 @@ public class CommonUtils {
 //        arr[i] = arr[i] ^ arr[j];
     }
 
+    public static void swap(int[][] arr, int i, int j) {
+        if (i == j) return;
+        int[] tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+
     public static int[] generateArray(int len, int maxValue) {
         int[] res = new int[len];
         for (int i = 0; i != res.length; i++) {
