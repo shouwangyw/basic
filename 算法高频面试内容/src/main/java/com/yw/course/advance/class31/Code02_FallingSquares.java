@@ -36,7 +36,7 @@ public class Code02_FallingSquares {
 		for (int x : pos) map.put(x, ++count);
 		return map;
 	}
-	private static class SegmentTree {
+	public static class SegmentTree {
 		private int[] max;
 		private int[] change;
 		private boolean[] update;

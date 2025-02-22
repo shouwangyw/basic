@@ -327,7 +327,7 @@ public class CommonUtils {
         return ans;
     }
 
-    private static String generateRandomString(int strLen) {
+    public static String generateRandomString(int strLen) {
         char[] ans = new char[(int) (Math.random() * strLen) + 1];
         for (int i = 0; i < ans.length; i++) {
             int value = (int) (Math.random() * 5);
@@ -335,6 +335,14 @@ public class CommonUtils {
         }
         return String.valueOf(ans);
     }
+
+    public static String generateRandomString(int len, int range) {
+		char[] str = new char[len];
+		for (int i = 0; i < len; i++) {
+			str[i] = (char) ((int) (Math.random() * range) + 'a');
+		}
+		return String.valueOf(str);
+	}
 
     public static String[] copyStringArray(String[] arr) {
         String[] ans = new String[arr.length];

@@ -2,56 +2,59 @@ package com.yw.course.coding.class36;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-// 来自三七互娱
-// Leetcode原题 : https://leetcode.com/problems/bus-routes/
+/**
+ * 来自三七互娱
+ * Leetcode原题 : https://leetcode.com/problems/bus-routes/
+ *
+ * @author yangwei
+ */
 public class Code11_BusRoutes {
 
-	// 0 : [1,3,7,0]
-	// 1 : [7,9,6,2]
-	// ....
-	// 返回：返回换乘几次+1 -> 返回一共坐了多少条线的公交。
-	public static int numBusesToDestination(int[][] routes, int source, int target) {
-		if (source == target) {
-			return 0;
-		}
+	// 返回：返回换乘几次+1 -> 返回一共坐了多少条线的公交
+	public int numBusesToDestination(int[][] routes, int source, int target) {
+		if (source == target) return 0;
 		int n = routes.length;
-		// key : 车站
-		// value : list -> 该车站拥有哪些线路！
-		HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
+		// key: 车站，value: list 表示该车站拥有哪些线路
+		Map<Integer, List<Integer>> map = new HashMap<>();
 		for (int i = 0; i < n; i++) {
+			final int idx = i;
 			for (int j = 0; j < routes[i].length; j++) {
-				if (!map.containsKey(routes[i][j])) {
-					map.put(routes[i][j], new ArrayList<>());
-				}
-				map.get(routes[i][j]).add(i);
+				map.compute(routes[i][j], (k, v) -> {
+					if (v == null) v = new ArrayList<>();
+					v.add(idx);
+					return v;
+				});
 			}
 		}
-		ArrayList<Integer> queue = new ArrayList<>();
-		boolean[] set = new boolean[n];
+		if (!map.containsKey(source)) return -1;
+		// 对线路进行宽度优先遍历
+		List<Integer> q = new ArrayList<>();
+		boolean[] visited = new boolean[n];
 		for (int route : map.get(source)) {
-			queue.add(route);
-			set[route] = true;
+			q.add(route);
+			visited[route] = true;
 		}
-		int len = 1;
-		while (!queue.isEmpty()) {
-			ArrayList<Integer> nextLevel = new ArrayList<>();
-			for (int route : queue) {
-				int[] bus = routes[route];
-				for (int station : bus) {
-					if (station == target) {
-						return len;
-					}
+		int level = 1;
+		while (!q.isEmpty()) {
+			List<Integer> next = new ArrayList<>();
+			for (int route : q) {
+				for (int station : routes[route]) {
+					if (station == target) return level;
+					if (!map.containsKey(station)) continue;
 					for (int nextRoute : map.get(station)) {
-						if (!set[nextRoute]) {
-							nextLevel.add(nextRoute);
-							set[nextRoute] = true;
-						}
+						if (visited[nextRoute]) continue;
+						next.add(nextRoute);
+						visited[nextRoute] = true;
 					}
+					// 优化
+					map.remove(station);
 				}
 			}
-			queue = nextLevel;
-			len++;
+			q = next;
+			level++;
 		}
 		return -1;
 	}

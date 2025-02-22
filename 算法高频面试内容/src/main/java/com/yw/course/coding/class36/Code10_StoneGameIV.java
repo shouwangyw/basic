@@ -1,51 +1,53 @@
 package com.yw.course.coding.class36;
 
-// 来自哈喽单车
-// 本题是leetcode原题 : https://leetcode.com/problems/stone-game-iv/
+/**
+ * 来自哈喽单车
+ * 本题是leetcode原题 : https://leetcode.com/problems/stone-game-iv/
+ *
+ * @author yangwei
+ */
 public class Code10_StoneGameIV {
 
-	// 当前的！先手，会不会赢
-	// 打表，不能发现规律
-	public static boolean winnerSquareGame1(int n) {
-		if (n == 0) {
-			return false;
-		}
-		// 当前的先手，会尝试所有的情况，1，4，9，16，25，36....
+	// 方法一：暴力递归，会超出时间限制
+	public boolean winnerSquareGame0(int n) {
+		// 先手面对0，直接输
+		if (n == 0) return false;
+		// 先手尝试拿1、4、9、16、...
 		for (int i = 1; i * i <= n; i++) {
-			// 当前的先手，决定拿走 i * i 这个平方数
-			// 它的对手会不会赢？ winnerSquareGame1(n - i * i)
-			if (!winnerSquareGame1(n - i * i)) {
-				return true;
-			}
+			// 拿完后，后手如果输，则先手赢
+			if (!winnerSquareGame0(n - i * i)) return true;
 		}
+		// 否则，先手输
 		return false;
 	}
 
-	public static boolean winnerSquareGame2(int n) {
-		int[] dp = new int[n + 1];
-		dp[0] = -1;
-		return process2(n, dp);
+	// 方法二：傻缓存
+	public boolean winnerSquareGameByCache(int n) {
+		int[] cache = new int[n + 1];
+		cache[0] = -1; // -1 表示输，1 表示赢，0 表示未设置
+		return winnerSquareGame(n, cache);
 	}
-
-	public static boolean process2(int n, int[] dp) {
-		if (dp[n] != 0) {
-			return dp[n] == 1 ? true : false;
-		}
-		boolean ans = false;
+	private static boolean winnerSquareGame(int n, int[] cache) {
+		if (cache[n] != 0) return cache[n] == 1;
+		boolean res = false;
 		for (int i = 1; i * i <= n; i++) {
-			if (!process2(n - i * i, dp)) {
-				ans = true;
+			if (!winnerSquareGame(n - i * i, cache)) {
+				res = true;
 				break;
 			}
 		}
-		dp[n] = ans ? 1 : -1;
-		return ans;
+		cache[n] = res ? 1 : -1;
+		return res;
 	}
 
-	public static boolean winnerSquareGame3(int n) {
+	// 方法三：动态规划
+	public static boolean winnerSquareGame(int n) {
+		// dp[i]: 当前i个石子时先手是否能赢
 		boolean[] dp = new boolean[n + 1];
 		for (int i = 1; i <= n; i++) {
+			// 先手依次尝试拿1、4、9、...颗石子
 			for (int j = 1; j * j <= i; j++) {
+				// 拿完j * j后剩下石子如果后手不能赢，则先手赢
 				if (!dp[i - j * j]) {
 					dp[i] = true;
 					break;
@@ -57,7 +59,7 @@ public class Code10_StoneGameIV {
 	
 	public static void main(String[] args) {
 		int n = 10000000;
-		System.out.println(winnerSquareGame3(n));
+		System.out.println(winnerSquareGame(n));
 	}
 
 }
