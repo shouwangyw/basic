@@ -1,5 +1,8 @@
 package com.yw.course.coding.class42;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0335_SelfCrossing {
 
 	public static boolean isSelfCrossing(int[] x) {

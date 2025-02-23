@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0642_DesignSearchAutocompleteSystem {
 
 	class AutocompleteSystem {

@@ -2,7 +2,9 @@ package com.yw.course.coding.class45;
 
 import java.util.Arrays;
 
-// 来自京东笔试
+/**
+ * @author yangwei
+ */ // 来自京东笔试
 // 小明手中有n块积木，并且小明知道每块积木的重量。现在小明希望将这些积木堆起来
 // 要求是任意一块积木如果想堆在另一块积木上面，那么要求：
 // 1) 上面的积木重量不能小于下面的积木重量

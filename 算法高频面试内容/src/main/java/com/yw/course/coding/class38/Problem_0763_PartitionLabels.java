@@ -3,6 +3,9 @@ package com.yw.course.coding.class38;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0763_PartitionLabels {
 
 	public static List<Integer> partitionLabels(String S) {

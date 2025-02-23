@@ -2,6 +2,9 @@ package com.yw.course.coding.class46;
 
 import java.util.TreeSet;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0363_MaxSumOfRectangleNoLargerThanK {
 
 	public static int nearK(int[] arr, int k) {

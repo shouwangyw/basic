@@ -1,5 +1,8 @@
 package com.yw.course.coding.class51;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0875_KokoEatingBananas {
 
 	public static int minEatingSpeed(int[] piles, int h) {

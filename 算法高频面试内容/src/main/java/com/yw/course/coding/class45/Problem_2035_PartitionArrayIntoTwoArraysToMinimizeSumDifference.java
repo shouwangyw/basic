@@ -3,6 +3,9 @@ package com.yw.course.coding.class45;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+/**
+ * @author yangwei
+ */
 public class Problem_2035_PartitionArrayIntoTwoArraysToMinimizeSumDifference {
 
 	public static int minimumDifference(int[] arr) {

@@ -1,6 +1,8 @@
 package com.yw.course.coding.class39;
 
-// 来自腾讯
+/**
+ * @author yangwei
+ */ // 来自腾讯
 // 给定一个只由0和1组成的字符串S，假设下标从1开始，规定i位置的字符价值V[i]计算方式如下 : 
 // 1) i == 1时，V[i] = 1
 // 2) i > 1时，如果S[i] != S[i-1]，V[i] = 1

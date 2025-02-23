@@ -1,5 +1,8 @@
 package com.yw.course.coding.class38;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0617_MergeTwoBinaryTrees {
 
 	public static class TreeNode {

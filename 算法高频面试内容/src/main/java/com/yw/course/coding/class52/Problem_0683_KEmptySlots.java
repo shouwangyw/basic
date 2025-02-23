@@ -1,5 +1,8 @@
 package com.yw.course.coding.class52;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0683_KEmptySlots {
 
 	public static int kEmptySlots1(int[] bulbs, int k) {

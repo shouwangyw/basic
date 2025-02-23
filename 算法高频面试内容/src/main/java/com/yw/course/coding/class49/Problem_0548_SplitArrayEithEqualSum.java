@@ -1,5 +1,8 @@
 package com.yw.course.coding.class49;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0548_SplitArrayEithEqualSum {
 
 	public static boolean splitArray(int[] nums) {

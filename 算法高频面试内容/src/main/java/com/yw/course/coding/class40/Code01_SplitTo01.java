@@ -3,7 +3,9 @@ package com.yw.course.coding.class40;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-// 腾讯
+/**
+ * @author yangwei
+ */ // 腾讯
 // 分裂问题
 // 一个数n，可以分裂成一个数组[n/2, n%2, n/2]
 // 这个数组中哪个数不是1或者0，就继续分裂下去

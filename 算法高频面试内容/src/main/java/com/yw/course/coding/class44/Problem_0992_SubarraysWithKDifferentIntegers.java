@@ -2,6 +2,9 @@ package com.yw.course.coding.class44;
 
 import java.util.HashMap;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0992_SubarraysWithKDifferentIntegers {
 
 	// nums 数组，题目规定，nums中的数字，不会超过nums的长度

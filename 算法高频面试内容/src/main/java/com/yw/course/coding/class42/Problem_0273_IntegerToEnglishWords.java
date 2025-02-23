@@ -1,5 +1,8 @@
 package com.yw.course.coding.class42;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0273_IntegerToEnglishWords {
 
 	public static String num1To19(int num) {

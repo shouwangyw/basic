@@ -1,5 +1,8 @@
 package com.yw.course.coding.class38;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0647_PalindromicSubstrings {
 
 	public static int countSubstrings(String s) {

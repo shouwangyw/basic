@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
+/**
+ * @author yangwei
+ */
 public class Problem_1488_AvoidFloodInTheCity {
 
 	// rains[i] = j 第i天轮到j号湖泊下雨

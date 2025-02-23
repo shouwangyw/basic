@@ -1,5 +1,8 @@
 package com.yw.course.coding.class48;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0483_SmallestGoodBase {
 
 	// ""4651" -> 4651

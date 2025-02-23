@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0656_CoinPath {
 
 	// arr 0 -> n-1

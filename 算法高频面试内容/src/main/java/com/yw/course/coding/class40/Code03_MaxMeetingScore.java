@@ -3,7 +3,9 @@ package com.yw.course.coding.class40;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 
-// 给定int[][] meetings，比如
+/**
+ * @author yangwei
+ */ // 给定int[][] meetings，比如
 // {
 //   {66, 70}   0号会议截止时间66，获得收益70
 //   {25, 90}   1号会议截止时间25，获得收益90

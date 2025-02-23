@@ -3,7 +3,9 @@ package com.yw.course.coding.class47;
 import java.util.Arrays;
 import java.util.HashMap;
 
-// 需要证明：
+/**
+ * @author yangwei
+ */ // 需要证明：
 // 一个集合中，假设整体的累加和为K，
 // 不管该集合用了什么样的0集合划分方案，当一个新的数到来时：
 // 1) 如果该数是-K，那么任何0集合的划分方案中，因为新数字的加入，0集合的数量都会+1

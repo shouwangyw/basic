@@ -1,6 +1,8 @@
 package com.yw.course.coding.class38;
 
-// 360笔试题
+/**
+ * @author yangwei
+ */ // 360笔试题
 // 长城守卫军
 // 题目描述：
 // 长城上有连成一排的n个烽火台，每个烽火台都有士兵驻守。

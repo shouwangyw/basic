@@ -1,50 +1,62 @@
 package com.yw.course.coding.class37;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
+/**
+ * @author yangwei
+ */
 public class Problem_0394_DecodeString {
 
-	public static String decodeString(String s) {
-		char[] str = s.toCharArray();
-		return process(str, 0).ans;
+	public String decodeString(String s) {
+		return process(s.toCharArray(), 0).ans;
 	}
-
-	public static class Info {
-		public String ans;
-		public int stop;
-
-		public Info(String a, int e) {
-			ans = a;
-			stop = e;
-		}
-	}
-
-	// s[i....]  何时停？遇到   ']'  或者遇到 s的终止位置，停止
-	// 返回Info
-	// 0) 串
-	// 1) 算到了哪
-	public static Info process(char[] s, int i) {
+	// cs[i...] 遇到 ']' 或字符串s的终止位置时停止，返回Info
+	private static Info process(char[] cs, int i) {
 		StringBuilder ans = new StringBuilder();
-		int count = 0;
-		while (i < s.length && s[i] != ']') {
-			if ((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z')) {
-				ans.append(s[i++]);
-			} else if (s[i] >= '0' && s[i] <= '9') {
-				count = count * 10 + s[i++] - '0';
-			} else { // str[index] = '['
-				Info next = process(s, i + 1);
-				ans.append(timesString(count, next.ans));
-				count = 0;
+		int cnt = 0; // 累加字符串次数
+		while (i < cs.length && cs[i] != ']') {
+			if ((cs[i] >= 'a' && cs[i] <= 'z') || (cs[i] >= 'A' && cs[i] <= 'Z')) ans.append(cs[i++]);
+			else if (cs[i] >= '0' && cs[i] <= '9') cnt = cnt * 10 + (cs[i++] - '0');
+			else {
+				Info next = process(cs, i + 1);
+				for (int j = 0; j < cnt; j++) ans.append(next.ans);
+				cnt = 0;
 				i = next.stop + 1;
 			}
 		}
 		return new Info(ans.toString(), i);
 	}
+	private static class Info {
+		public String ans;  // 解码的字符串
+		public int stop;    // 算到了哪个位置
+		public Info(String ans, int stop) {
+			this.ans = ans;
+			this.stop = stop;
+		}
+	}
 
-	public static String timesString(int times, String str) {
+	// 方法二：
+	public String decodeString2(String s) {
+		Deque<Integer> numStack = new LinkedList<>();
+		Deque<StringBuilder> strStack = new LinkedList<>();
 		StringBuilder ans = new StringBuilder();
-		for (int i = 0; i < times; i++) {
-			ans.append(str);
+		int num = 0;
+		for (char c : s.toCharArray()) {
+			if (Character.isDigit(c)) num = num * 10 + c - '0';
+			else if (c == '[') {
+				strStack.push(ans);
+				numStack.push(num);
+				ans = new StringBuilder();
+				num = 0;
+			} else if (Character.isAlphabetic(c)) ans.append(c);
+			else {
+				StringBuilder tmpStr = strStack.pop();
+				int tmpNum = numStack.pop();
+				for (int i = 0; i < tmpNum; i++) tmpStr.append(ans);
+				ans = tmpStr;
+			}
 		}
 		return ans.toString();
 	}
-
 }

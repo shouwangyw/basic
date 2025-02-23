@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0317_ShortestDistanceFromAllBuildings {
 
 	// 如果grid中0比较少，用这个方法比较好

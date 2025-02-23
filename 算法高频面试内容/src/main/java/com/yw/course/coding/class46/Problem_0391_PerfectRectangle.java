@@ -2,6 +2,9 @@ package com.yw.course.coding.class46;
 
 import java.util.HashMap;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0391_PerfectRectangle {
 
 	public static boolean isRectangleCover(int[][] matrix) {

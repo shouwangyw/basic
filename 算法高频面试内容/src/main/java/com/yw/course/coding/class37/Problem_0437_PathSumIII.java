@@ -1,44 +1,28 @@
 package com.yw.course.coding.class37;
 
-import java.util.HashMap;
+import com.yw.entity.TreeNode;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author yangwei
+ */
 public class Problem_0437_PathSumIII {
 
-	public class TreeNode {
-		public int val;
-		public TreeNode left;
-		public TreeNode right;
+	public int pathSum(TreeNode root, int targetSum) {
+		Map<Long, Integer> prefixSumMap = new HashMap<>();
+		prefixSumMap.put(0L, 1);
+		return process(root, targetSum, 0L, prefixSumMap);
 	}
-
-	public static int pathSum(TreeNode root, int sum) {
-		HashMap<Integer, Integer> preSumMap = new HashMap<>();
-		preSumMap.put(0, 1);
-		return process(root, sum, 0, preSumMap);
+	private int process(TreeNode root, int targetSum, long currentSum, Map<Long, Integer> prefixSumMap) {
+		if (root == null) return 0;
+		currentSum += root.val; // 更新前缀和
+		int count = prefixSumMap.getOrDefault(currentSum - targetSum, 0);
+		prefixSumMap.put(currentSum, prefixSumMap.getOrDefault(currentSum, 0) + 1); // 记录当前前缀和
+		count += process(root.left, targetSum, currentSum, prefixSumMap);
+		count += process(root.right, targetSum, currentSum, prefixSumMap);
+		prefixSumMap.put(currentSum, prefixSumMap.get(currentSum) - 1); // 回溯，恢复状态
+		return count;
 	}
-
-	// 返回方法数
-	public static int process(TreeNode x, int sum, int preAll, HashMap<Integer, Integer> preSumMap) {
-		if (x == null) {
-			return 0;
-		}
-		int all = preAll + x.val;
-		int ans = 0;
-		if (preSumMap.containsKey(all - sum)) {
-			ans = preSumMap.get(all - sum);
-		}
-		if (!preSumMap.containsKey(all)) {
-			preSumMap.put(all, 1);
-		} else {
-			preSumMap.put(all, preSumMap.get(all) + 1);
-		}
-		ans += process(x.left, sum, all, preSumMap);
-		ans += process(x.right, sum, all, preSumMap);
-		if (preSumMap.get(all) == 1) {
-			preSumMap.remove(all);
-		} else {
-			preSumMap.put(all, preSumMap.get(all) - 1);
-		}
-		return ans;
-	}
-
 }

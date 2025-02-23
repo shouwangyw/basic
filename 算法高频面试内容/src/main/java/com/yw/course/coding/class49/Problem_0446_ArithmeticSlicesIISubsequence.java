@@ -3,6 +3,9 @@ package com.yw.course.coding.class49;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0446_ArithmeticSlicesIISubsequence {
 
 	// 时间复杂度是O(N^2)，最优解的时间复杂度

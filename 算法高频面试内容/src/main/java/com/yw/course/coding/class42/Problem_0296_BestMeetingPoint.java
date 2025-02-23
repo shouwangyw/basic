@@ -1,5 +1,8 @@
 package com.yw.course.coding.class42;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0296_BestMeetingPoint {
 
 	public static int minTotalDistance(int[][] grid) {

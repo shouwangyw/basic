@@ -2,6 +2,9 @@ package com.yw.course.coding.class50;
 
 import java.util.Arrays;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0587_ErectTheFence {
 
 	public static int[][] outerTrees(int[][] points) {

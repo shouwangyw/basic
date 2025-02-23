@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0438_FindAllAnagramsInAString {
 
 	public static List<Integer> findAnagrams(String s, String p) {

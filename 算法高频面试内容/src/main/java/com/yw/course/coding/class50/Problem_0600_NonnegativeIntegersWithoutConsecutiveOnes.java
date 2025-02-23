@@ -1,5 +1,8 @@
 package com.yw.course.coding.class50;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0600_NonnegativeIntegersWithoutConsecutiveOnes {
 
 //	// f(0, false, 5,n)

@@ -2,7 +2,9 @@ package com.yw.course.coding.class43;
 
 import java.util.Arrays;
 
-// 来自微软面试
+/**
+ * @author yangwei
+ */ // 来自微软面试
 // 给定一个正数数组arr长度为n、正数x、正数y
 // 你的目标是让arr整体的累加和<=0
 // 你可以对数组中的数num执行以下三种操作中的一种，且每个数最多能执行一次操作 : 

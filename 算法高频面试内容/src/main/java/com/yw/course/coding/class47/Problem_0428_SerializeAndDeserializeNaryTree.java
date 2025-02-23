@@ -5,6 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0428_SerializeAndDeserializeNaryTree {
 
 	// 不要提交这个类

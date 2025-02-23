@@ -2,6 +2,9 @@ package com.yw.course.coding.class47;
 
 import java.util.Arrays;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0475_Heaters {
 
 	// 比如地点是7, 9, 14

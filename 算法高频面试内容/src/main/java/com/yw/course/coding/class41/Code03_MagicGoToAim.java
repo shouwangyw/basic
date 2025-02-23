@@ -2,7 +2,9 @@ package com.yw.course.coding.class41;
 
 import java.util.PriorityQueue;
 
-// 来自网易互娱
+/**
+ * @author yangwei
+ */ // 来自网易互娱
 // N个结点之间，表世界存在双向通行的道路，里世界存在双向通行的传送门.
 // 若走表世界的道路，花费一分钟.
 // 若走里世界的传送门，不花费时间，但是接下来一分钟不能走传送门.

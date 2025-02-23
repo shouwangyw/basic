@@ -3,6 +3,9 @@ package com.yw.course.coding.class51;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0630_CourseScheduleIII {
 
 	public static int scheduleCourse(int[][] courses) {

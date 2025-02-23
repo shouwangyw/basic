@@ -1,5 +1,8 @@
 package com.yw.course.coding.class41;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0031_NextPermutation {
 
 	public static void nextPermutation(int[] nums) {

@@ -2,7 +2,9 @@ package com.yw.course.coding.class48;
 
 import java.util.Arrays;
 
-// 来自学员问题
+/**
+ * @author yangwei
+ */ // 来自学员问题
 // 比如{ 5, 3, 1, 4 }
 // 全部数字对是：(5,3)、(5,1)、(5,4)、(3,1)、(3,4)、(1,4)
 // 数字对的差值绝对值： 2、4、1、2、1、3

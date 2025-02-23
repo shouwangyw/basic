@@ -3,7 +3,9 @@ package com.yw.course.coding.class41;
 import java.util.Arrays;
 import java.util.HashMap;
 
-// 来自小红书
+/**
+ * @author yangwei
+ */ // 来自小红书
 // 有四种诗的韵律分别为: AABB、ABAB、ABBA、AAAA
 // 比如 : 1 1 3 3就属于AABB型的韵律、6 6 6 6就属于AAAA型的韵律等等
 // 一个数组arr，当然可以生成很多的子序列，如果某个子序列一直以韵律的方式连接起来，我们称这样的子序列是有效的

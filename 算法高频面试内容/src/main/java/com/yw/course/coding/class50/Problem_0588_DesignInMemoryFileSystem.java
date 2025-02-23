@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0588_DesignInMemoryFileSystem {
 
 	class FileSystem {

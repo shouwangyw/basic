@@ -1,6 +1,8 @@
 package com.yw.course.coding.class38;
 
-// 来自字节
+/**
+ * @author yangwei
+ */ // 来自字节
 // 给定两个数a和b
 // 第1轮，把1选择给a或者b
 // 第2轮，把2选择给a或者b

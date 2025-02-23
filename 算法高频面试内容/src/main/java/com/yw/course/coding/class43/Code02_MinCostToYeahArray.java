@@ -2,7 +2,9 @@ package com.yw.course.coding.class43;
 
 import java.util.Arrays;
 
-// 来自360笔试
+/**
+ * @author yangwei
+ */ // 来自360笔试
 // 给定一个正数数组arr，长度为n，下标0~n-1
 // arr中的0、n-1位置不需要达标，它们分别是最左、最右的位置
 // 中间位置i需要达标，达标的条件是 : arr[i-1] > arr[i] 或者 arr[i+1] > arr[i]哪个都可以

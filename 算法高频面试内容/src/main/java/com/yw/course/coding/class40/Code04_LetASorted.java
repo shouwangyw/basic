@@ -1,6 +1,8 @@
 package com.yw.course.coding.class40;
 
-// 给定两个数组A和B，长度都是N
+/**
+ * @author yangwei
+ */ // 给定两个数组A和B，长度都是N
 // A[i]不可以在A中和其他数交换，只可以选择和B[i]交换(0<=i<n)
 // 你的目的是让A有序，返回你能不能做到
 public class Code04_LetASorted {

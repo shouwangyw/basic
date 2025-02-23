@@ -2,6 +2,9 @@ package com.yw.course.coding.class45;
 
 import java.util.HashSet;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0291_WordPatternII {
 
 	public static boolean wordPatternMatch(String pattern, String str) {

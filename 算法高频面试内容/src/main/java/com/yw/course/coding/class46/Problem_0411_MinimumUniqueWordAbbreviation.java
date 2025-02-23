@@ -1,5 +1,8 @@
 package com.yw.course.coding.class46;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0411_MinimumUniqueWordAbbreviation {
 
 	// 区分出来之后，缩写的长度，最短是多少？

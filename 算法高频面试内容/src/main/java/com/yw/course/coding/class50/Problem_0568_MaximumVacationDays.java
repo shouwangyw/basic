@@ -1,5 +1,8 @@
 package com.yw.course.coding.class50;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0568_MaximumVacationDays {
 
 	public static int maxVacationDays(int[][] fly, int[][] day) {

@@ -3,6 +3,9 @@ package com.yw.course.coding.class45;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0403_FrogJump {
 
 	public static boolean canCross(int[] stones) {

@@ -3,7 +3,9 @@ package com.yw.course.coding.class47;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-// 本题的解法思路与leetcode 621题 TaskScheduler 问题是一样的
+/**
+ * @author yangwei
+ */ // 本题的解法思路与leetcode 621题 TaskScheduler 问题是一样的
 public class Problem_0358_RearrangeStringKDistanceApart {
 
 	public String rearrangeString(String s, int k) {

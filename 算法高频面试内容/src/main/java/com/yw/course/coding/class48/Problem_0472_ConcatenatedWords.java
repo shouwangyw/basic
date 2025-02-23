@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author yangwei
+ */
 public class Problem_0472_ConcatenatedWords {
 
 	public static class TrieNode {

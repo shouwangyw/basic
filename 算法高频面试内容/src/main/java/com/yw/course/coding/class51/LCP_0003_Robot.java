@@ -3,7 +3,9 @@ package com.yw.course.coding.class51;
 import java.util.Arrays;
 import java.util.HashSet;
 
-// leetcode题目 : https://leetcode-cn.com/problems/programmable-robot/
+/**
+ * @author yangwei
+ */ // leetcode题目 : https://leetcode-cn.com/problems/programmable-robot/
 public class LCP_0003_Robot {
 
 	public static boolean robot1(String command, int[][] obstacles, int x, int y) {
