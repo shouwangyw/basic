@@ -9,23 +9,23 @@ import static com.yw.util.CommonUtils.*;
  */
 public class Code02_PartitionAndQuickSort extends Code03_PartitionAndQuickSort {
 
-public static void quickSort(int[] arr) {
-    if (arr == null || arr.length < 2) return;
+    public static void quickSort(int[] arr) {
+        if (arr == null || arr.length < 2) return;
 
-    quickSortByRandom(arr, 0, arr.length - 1);
-}
+        quickSortByRandom(arr, 0, arr.length - 1);
+    }
 
-/**
- * 随机快排
- */
-private static void quickSortByRandom(int[] arr, int l, int r) {
-    if (l >= r) return;
-    // 在[l, r]`等概率随机`选一个基准值arr[r]
-    swap(arr, l + (int) (Math.random() * (r - l + 1)), r);
-    int[] equals = partition3Way(arr, l, r);
-    quickSortByRandom(arr, l, equals[0] - 1);
-    quickSortByRandom(arr, equals[1] + 1, r);
-}
+    /**
+     * 随机快排
+     */
+    private static void quickSortByRandom(int[] arr, int l, int r) {
+        if (l >= r) return;
+        // 在[l, r]`等概率随机`选一个基准值arr[r]
+        swap(arr, l + (int) (Math.random() * (r - l + 1)), r);
+        int[] equals = partition3Way(arr, l, r);
+        quickSortByRandom(arr, l, equals[0] - 1);
+        quickSortByRandom(arr, equals[1] + 1, r);
+    }
 
     public static void main(String[] args) {
         int testTime = 500000;

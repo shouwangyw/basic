@@ -9,27 +9,18 @@ import java.util.Stack;
  */
 public class Problem_0739_DailyTemperatures {
 
-	public static int[] dailyTemperatures(int[] arr) {
-		if (arr == null || arr.length == 0) {
-			return new int[0];
-		}
-		int N = arr.length;
-		int[] ans = new int[N];
-		Stack<List<Integer>> stack = new Stack<>();
-		for (int i = 0; i < N; i++) {
-			while (!stack.isEmpty() && arr[stack.peek().get(0)] < arr[i]) {
-				List<Integer> popIs = stack.pop();
-				for (Integer popi : popIs) {
-					ans[popi] = i - popi;
-				}
+	// 单调栈
+	public int[] dailyTemperatures(int[] temperatures) {
+		// 定义一个单调栈，存储尚未找到更高温度的索引
+		Stack<Integer> descStack = new Stack<>();
+		int[] ans = new int[temperatures.length];
+		for (int i = 0; i < temperatures.length; i++) {
+			// 当前温度比栈顶温度高时，计算栈顶元素的等待天数
+			while (!descStack.isEmpty() && temperatures[i] > temperatures[descStack.peek()]) {
+				ans[descStack.peek()] = i - descStack.peek();
+				descStack.pop();
 			}
-			if (!stack.isEmpty() && arr[stack.peek().get(0)] == arr[i]) {
-				stack.peek().add(Integer.valueOf(i));
-			} else {
-				ArrayList<Integer> list = new ArrayList<>();
-				list.add(i);
-				stack.push(list);
-			}
+			descStack.push(i);
 		}
 		return ans;
 	}

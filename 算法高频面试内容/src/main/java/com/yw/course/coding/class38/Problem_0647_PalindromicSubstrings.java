@@ -5,48 +5,30 @@ package com.yw.course.coding.class38;
  */
 public class Problem_0647_PalindromicSubstrings {
 
-	public static int countSubstrings(String s) {
-		if (s == null || s.length() == 0) {
-			return 0;
-		}
-		int[] dp = getManacherDP(s);
-		int ans = 0;
-		for (int i = 0; i < dp.length; i++) {
-			ans += dp[i] >> 1;
-		}
-		return ans;
-	}
-
-	public static int[] getManacherDP(String s) {
-		char[] str = manacherString(s);
-		int[] pArr = new int[str.length];
-		int C = -1;
-		int R = -1;
-		for (int i = 0; i < str.length; i++) {
-			pArr[i] = R > i ? Math.min(pArr[2 * C - i], R - i) : 1;
-			while (i + pArr[i] < str.length && i - pArr[i] > -1) {
-				if (str[i + pArr[i]] == str[i - pArr[i]])
-					pArr[i]++;
-				else {
-					break;
-				}
+	public int countSubstrings(String s) {
+		char[] ms = getManachers(s);
+		int n = ms.length, l = 0, r = -1, cnt = 0;
+		int[] d = new int[n]; // 记录每个中心的最大回文半径
+		for (int i = 0; i < n; i++) {
+			// 初始化半径：若i在已知边界，初始化为1；否则利用对称性快速初始化
+			d[i] = (i > r) ? 1 : Math.min(r - i, d[r - i + l]);
+			// 扩展半径：左右字符串匹配时，扩大半径
+			while (i - d[i] >= 0 && i + d[i] < n && ms[i - d[i]] == ms[i + d[i]]) d[i]++;
+			// 更新左右回文边界
+			if (i - d[i] > 0 && i + d[i] > r) {
+				l = i - d[i];
+				r = i + d[i];
 			}
-			if (i + pArr[i] > R) {
-				R = i + pArr[i];
-				C = i;
-			}
+			cnt += d[i] / 2; // 累加当前中心的回文子串数
 		}
-		return pArr;
+		return cnt;
 	}
-
-	public static char[] manacherString(String str) {
-		char[] charArr = str.toCharArray();
-		char[] res = new char[str.length() * 2 + 1];
-		int index = 0;
-		for (int i = 0; i != res.length; i++) {
-			res[i] = (i & 1) == 0 ? '#' : charArr[index++];
-		}
-		return res;
+	// 预处理，生成manacher串
+	private char[] getManachers(String s) {
+		char[] ms = new char[(s.length() << 1) + 1];
+		for (int i = 0; i < ms.length; i += 2) ms[i] = '#';
+		for (int i = 1; i < ms.length; i += 2) ms[i] = s.charAt(i >> 1);
+		return ms;
 	}
 
 }

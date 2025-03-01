@@ -16,96 +16,65 @@ package com.yw.course.coding.class37;
  */
 public class Code02_GameForEveryStepWin {
 
-//	public static max(int[] cands, int[] sroces) {
-//		return f(cands, sroces, 0, 0, 0, 0);
-//	}
+	public static int maxScore(int[] cards, int[] scores) {
+		return process(cards, scores, 0, 0, 0, 0);
+	}
+	// 当前来到idx位置，牌面值是cards[idx]
+	// 对手第i轮的得分是scores[i]
+	// hold: i之前保留的牌的总分
+	// cur: 当前轮得到的加成是多少 = 之前的牌只算上"使用"的效果
+	// next: 之前的牌，对idx的下一轮，使用效果的加成是多少
+	// 返回值: 如果i...最后，不能全赢，返回-1；如果能全赢，返回最后一轮的最大值
+	// index -> 26种
+	// hold -> (1+2+3+..13) -> 91 -> 91 * 4 - (11 + 12) -> 341
+	// cur -> 26 * 3 = 78
+	// next -> 13 * 3 = 39
+	// 26 * 341 * 79 * 39 -> 10^7
+	public static int process(int[] cards, int[] scores, int idx, int hold, int cur, int next) {
+		if (idx == 25) { // 最后一张
+			int score = hold + cur + cards[idx] * 3;
+			if (score <= scores[idx]) return -1;
+			return score;
+		}
+		// 不是最后一张
+		// 1. 保留
+		int score1 = hold + cur + cards[idx];
+		int p1 = -1;
+		if (score1 > scores[idx])
+			p1 = process(cards, scores, idx + 1, hold + cards[idx], next, 0);
+		// 2. 使用
+		int score2 = hold + cur + cards[idx] * 3;
+		int p2 = -1;
+		if (score2 > scores[idx])
+			p2 = process(cards, scores, idx + 1, hold, next + cards[idx] * 3, cards[idx] * 3);
+		return Math.max(p1, p2);
+	}
 
-	// 当前来到index位置，牌是cands[index]值
-	// 对手第i轮的得分，sroces[i]
-	// int hold : i之前保留的牌的总分
-	// int cur : 当前轮得到的，之前的牌只算上使用的效果，加成是多少
-	// int next : 之前的牌，对index的下一轮，使用效果加成是多少
-	// 返回值：如果i...最后，不能全赢，返回-1
-	// 如果i...最后，能全赢，返回最后一轮的最大值
-	
 	// index -> 26种
 	// hold -> (1+2+3+..13) -> 91 -> 91 * 4 - (11 + 12) -> 341
 	// cur -> 26
 	// next -> 13
 	// 26 * 341 * 26 * 13 -> ? * (10 ^ 5)
-	public static int f(int[] cands, int[] sroces, int index, int hold, int cur, int next) {
-		if (index == 25) { // 最后一张
-			int all = hold + cur + cands[index] * 3;
-			if (all <= sroces[index]) {
-				return -1;
-			}
-			return all;
-		}
-		// 不仅最后一张
-		// 保留
-		int all1 = hold + cur + cands[index];
-		int p1 = -1;
-		if (all1 > sroces[index]) {
-			p1 = f(cands, sroces, index + 1, hold + cands[index], next, 0);
-		}
-		// 爆发
-		int all2 = hold + cur + cands[index] * 3;
-		int p2 = -1;
-		if (all2 > sroces[index]) {
-			p2 = f(cands, sroces, index + 1, hold, next + cands[index] * 3, cands[index] * 3);
-		}
-		return Math.max(p1, p2);
-	}
 
-	// 26 * 341 * 78 * 39 = 2 * (10 ^ 7)
-	public static int process(int[] cards, int[] scores, int index, int hold, int cur, int next) {
-		if (index == 25) {
-			int all = hold + cur + cards[index] * 3;
-			if (all > scores[index]) {
-				return all;
-			} else {
-				return -1;
-			}
-		} else {
-			int d1 = hold + cur + cards[index];
-			int p1 = -1;
-			if (d1 > scores[index]) {
-				p1 = process(cards, scores, index + 1, hold + cards[index], next, 0);
-			}
-			int d2 = hold + cur + cards[index] * 3;
-			int p2 = -1;
-			if (d2 > scores[index]) {
-				p2 = process(cards, scores, index + 1, hold, next + cards[index] * 3, cards[index] * 3);
-			}
-			return Math.max(p1, p2);
-		}
-	}
-	
-	
-	
-	// cur -> 牌点数    ->  * 3 之后是效果
-	// next -> 牌点数   ->  * 3之后是效果
-	public static int p(int[] cands, int[] sroces, int index, int hold, int cur, int next) {
-		if (index == 25) { // 最后一张
-			int all = hold + cur * 3 + cands[index] * 3;
-			if (all <= sroces[index]) {
-				return -1;
-			}
-			return all;
+	// cur: 牌点数    ->  * 3之后是效果
+	// next: 牌点数   ->  * 3之后是效果
+	public static int process2(int[] cards, int[] scores, int idx, int hold, int cur, int next) {
+		if (idx == 25) { // 最后一张
+			int score = hold + cur * 3 + cards[idx] * 3;
+			if (score <= scores[idx]) return -1;
+			return score;
 		}
 		// 不仅最后一张
 		// 保留
-		int all1 = hold + cur * 3 + cands[index];
+		int score1 = hold + cur * 3 + cards[idx];
 		int p1 = -1;
-		if (all1 > sroces[index]) {
-			p1 = f(cands, sroces, index + 1, hold + cands[index], next, 0);
-		}
+		if (score1 > scores[idx])
+			p1 = process2(cards, scores, idx + 1, hold + cards[idx], next, 0);
 		// 爆发
-		int all2 = hold + cur * 3 + cands[index] * 3;
+		int score2 = hold + cur * 3 + cards[idx] * 3;
 		int p2 = -1;
-		if (all2 > sroces[index]) {
-			p2 = f(cands, sroces, index + 1, hold, next + cands[index], cands[index]);
-		}
+		if (score2 > scores[idx])
+			p2 = process2(cards, scores, idx + 1, hold, next + cards[idx], cards[idx]);
 		return Math.max(p1, p2);
 	}
 	

@@ -1,34 +1,19 @@
 package com.yw.course.coding.class38;
 
+import com.yw.entity.TreeNode;
+
 /**
  * @author yangwei
  */
 public class Problem_0617_MergeTwoBinaryTrees {
 
-	public static class TreeNode {
-		public int val;
-		public TreeNode left;
-		public TreeNode right;
-
-		public TreeNode(int val) {
-			this.val = val;
-		}
-	}
-
-	// 当前，一棵树的头是t1，另一颗树的头是t2
-	// 请返回，整体merge之后的头
-	public static TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
-		if (t1 == null) {
-			return t2;
-		}
-		if (t2 == null) {
-			return t1;
-		}
-		// t1和t2都不是空
-		TreeNode merge = new TreeNode(t1.val + t2.val);
-		merge.left = mergeTrees(t1.left, t2.left);
-		merge.right = mergeTrees(t1.right, t2.right);
-		return merge;
+	public TreeNode mergeTrees(TreeNode root1, TreeNode root2) {
+		if (root1 == null) return root2;
+		if (root2 == null) return root1;
+		TreeNode root = new TreeNode(root1.val + root2.val);
+		root.left = mergeTrees(root1.left, root2.left);
+		root.right = mergeTrees(root1.right, root2.right);
+		return root;
 	}
 
 }

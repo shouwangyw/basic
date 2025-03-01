@@ -3,43 +3,32 @@ package com.yw.course.coding.class38;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.yw.util.CommonUtils.swap;
+
 /**
  * @author yangwei
  */
 public class Problem_0448_FindAllNumbersDisappearedInAnArray {
 
-	public static List<Integer> findDisappearedNumbers(int[] nums) {
+	public List<Integer> findDisappearedNumbers(int[] nums) {
 		List<Integer> ans = new ArrayList<>();
-		if (nums == null || nums.length == 0) {
-			return ans;
-		}
-		int N = nums.length;
-		for (int i = 0; i < N; i++) {
-			// 从i位置出发，去玩下标循环怼
-			walk(nums, i);
-		}
-		for (int i = 0; i < N; i++) {
-			if (nums[i] != i + 1) {
-				ans.add(i + 1);
-			}
+		if (nums == null || nums.length == 0) return ans;
+		int n = nums.length;
+		for (int i = 0; i < n; i++)
+			// 从i位置出发，坐标循环怼
+			process(nums, i);
+		for (int i = 0; i < n; i++) {
+			if (nums[i] != i + 1) ans.add(i + 1);
 		}
 		return ans;
 	}
 
-	public static void walk(int[] nums, int i) {
-		while (nums[i] != i + 1) { // 不断从i发货
-			int nexti = nums[i] - 1;
-			if (nums[nexti] == nexti + 1) {
-				break;
-			}
-			swap(nums, i, nexti);
+	private void process(int[] nums, int i) {
+		while (nums[i] != i + 1) {
+			int next = nums[i] - 1;
+			if (nums[next] == next + 1) break;
+			swap(nums, i, next);
 		}
-	}
-
-	public static void swap(int[] nums, int i, int j) {
-		int tmp = nums[i];
-		nums[i] = nums[j];
-		nums[j] = tmp;
 	}
 
 }
