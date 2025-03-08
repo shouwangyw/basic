@@ -5,43 +5,36 @@ package com.yw.course.coding.class41;
  */
 public class Problem_0031_NextPermutation {
 
-	public static void nextPermutation(int[] nums) {
-		int N = nums.length;
-		// 从右往左第一次降序的位置
+	public void nextPermutation(int[] nums) {
+		int n = nums.length;
+		// 从右往左遍历，找到第一次降序的位置
 		int firstLess = -1;
-		for (int i = N - 2; i >= 0; i--) {
+		for (int i = n - 2; i >= 0; i--) {
 			if (nums[i] < nums[i + 1]) {
 				firstLess = i;
 				break;
 			}
 		}
-		if (firstLess < 0) {
-			reverse(nums, 0, N - 1);
-		} else {
-			int rightClosestMore = -1;
-			// 找最靠右的、同时比nums[firstLess]大的数，位置在哪
-			// 这里其实也可以用二分优化，但是这种优化无关紧要了
-			for (int i = N - 1; i > firstLess; i--) {
+		if (firstLess == -1) reverse(nums, 0, n - 1);
+		else {
+			// 找比nums[firstLess]大的且最右位置，可以用二分优化
+			int rightMore = -1;
+			for (int i = n - 1; i > firstLess; i--) {
 				if (nums[i] > nums[firstLess]) {
-					rightClosestMore = i;
+					rightMore = i;
 					break;
 				}
 			}
-			swap(nums, firstLess, rightClosestMore);
-			reverse(nums, firstLess + 1, N - 1);
+			swap(nums, firstLess, rightMore);
+			reverse(nums, firstLess + 1, n - 1);
 		}
 	}
-
-	public static void reverse(int[] nums, int L, int R) {
-		while (L < R) {
-			swap(nums, L++, R--);
-		}
+	private void reverse(int[] nums, int l, int r) {
+		while (l < r) swap(nums, l++, r--);
 	}
-
-	public static void swap(int[] nums, int i, int j) {
+	private void swap(int[] nums, int i, int j) {
 		int tmp = nums[i];
 		nums[i] = nums[j];
 		nums[j] = tmp;
 	}
-
 }

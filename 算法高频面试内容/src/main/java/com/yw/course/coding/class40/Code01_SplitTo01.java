@@ -2,6 +2,8 @@ package com.yw.course.coding.class40;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 腾讯
@@ -24,13 +26,6 @@ import java.util.HashMap;
  */
 public class Code01_SplitTo01 {
 
-//	public static long nums3(long n, long l, long r) {
-//		HashMap<Long, Long> lenMap = new HashMap<>();
-//		len(n, lenMap);
-//		HashMap<Long, Long> onesMap = new HashMap<>();
-//		ones(n, onesMap);
-//	}
-
 	// n = 100
 	// n = 100, 最终裂变的数组，长度多少？
 	// n = 50, 最终裂变的数组，长度多少？
@@ -38,7 +33,7 @@ public class Code01_SplitTo01 {
 	// ..
 	// n = 1 ,.最终裂变的数组，长度多少？
 	// 请都填写到lenMap中去！
-	public static long len(long n, HashMap<Long, Long> lenMap) {
+	public static long len(long n, Map<Long, Long> lenMap) {
 		if (n == 1 || n == 0) {
 			lenMap.put(n, 1L);
 			return 1;
@@ -58,7 +53,7 @@ public class Code01_SplitTo01 {
 	// ..
 	// n = 1 ,.最终裂变的数组，一共有几个1
 	// 请都填写到onesMap中去！
-	public static long ones(long num, HashMap<Long, Long> onesMap) {
+	public static long ones(long num, Map<Long, Long> onesMap) {
 		if (num == 1 || num == 0) {
 			onesMap.put(num, num);
 			return num;
@@ -71,78 +66,55 @@ public class Code01_SplitTo01 {
 		return all;
 	}
 
-	//
-
-	public static long nums1(long n, long l, long r) {
-		if (n == 1 || n == 0) {
-			return n == 1 ? 1 : 0;
-		}
-		long half = size(n / 2);
-		long left = l > half ? 0 : nums1(n / 2, l, Math.min(half, r));
-		long mid = (l > half + 1 || r < half + 1) ? 0 : (n & 1);
-		long right = r > half + 1 ? nums1(n / 2, Math.max(l - half - 1, 1), r - half - 1) : 0;
-		return left + mid + right;
+	// 方法一：
+	public static long countSplitOnes1(long n, long l, long r) {
+		if (n == 0 || n == 1) return n == 1 ? 1 : 0;
+		long half = size(n / 2), countOne = 0;
+		// 1. 左部分分裂1的个数
+		if (l <= half)
+			countOne += countSplitOnes1(n / 2, l, Math.min(half, r));
+		// 2. 右部分分裂1的个数
+		if (r > half + 1)
+			countOne += countSplitOnes1(n / 2, Math.max(l - half - 1, 1), r - half - 1);
+		// 3. 中间是否1
+		if (l <= half + 1 && half < r && ((n & 1) == 1)) countOne += 1;
+		return countOne;
+	}
+	// 返回n裂变后的数组长度
+	private static long size(long n) {
+		return (n == 0 || n == 1) ? 1 : (size(n / 2) << 1) + 1;
 	}
 
-	public static long size(long n) {
-		if (n == 1 || n == 0) {
-			return 1;
-		} else {
-			long half = size(n / 2);
-			return (half << 1) + 1;
-		}
+	// 方法二：
+	public static long countSplitOnes(long n, long l, long r) {
+		Map<Long, Long> cache = new HashMap<>();
+		return process(n, l, r, cache);
 	}
-
-	public static long nums2(long n, long l, long r) {
-		HashMap<Long, Long> allMap = new HashMap<>();
-		return dp(n, l, r, allMap);
-	}
-
-	public static long dp(long n, long l, long r, HashMap<Long, Long> allMap) {
-		if (n == 1 || n == 0) {
-			return n == 1 ? 1 : 0;
+	private static long process(long n, long l, long r, Map<Long, Long> cache) {
+		if (n == 0 || n == 1) return n == 1 ? 1 : 0;
+		long half = size(n / 2), countOne = 0;
+		if (l == 1 && r >= (half << 1) + 1) {
+			Long count = cache.get(n);
+			if (count != null) return count;
+			count = process(n / 2, 1, half, cache);
+			count = (count << 1) + (n & 1);
+			cache.put(n, count);
+			return count;
 		}
-		long half = size(n / 2);
-		long all = (half << 1) + 1;
-		long mid = n & 1;
-		if (l == 1 && r >= all) {
-			if (allMap.containsKey(n)) {
-				return allMap.get(n);
-			} else {
-				long count = dp(n / 2, 1, half, allMap);
-				long ans = (count << 1) + mid;
-				allMap.put(n, ans);
-				return ans;
-			}
-		} else {
-			mid = (l > half + 1 || r < half + 1) ? 0 : mid;
-			long left = l > half ? 0 : dp(n / 2, l, Math.min(half, r), allMap);
-			long right = r > half + 1 ? dp(n / 2, Math.max(l - half - 1, 1), r - half - 1, allMap) : 0;
-			return left + mid + right;
-		}
-	}
-
-	// 为了测试
-	// 彻底生成n的最终分裂数组返回
-	public static ArrayList<Integer> test(long n) {
-		ArrayList<Integer> arr = new ArrayList<>();
-		process(n, arr);
-		return arr;
-	}
-
-	public static void process(long n, ArrayList<Integer> arr) {
-		if (n == 1 || n == 0) {
-			arr.add((int) n);
-		} else {
-			process(n / 2, arr);
-			arr.add((int) (n % 2));
-			process(n / 2, arr);
-		}
+		// 1. 左部分分裂1的个数
+		if (l <= half)
+			countOne += process(n / 2, l, Math.min(half, r), cache);
+		// 2. 右部分分裂1的个数
+		if (r > half + 1)
+			countOne += process(n / 2, Math.max(l - half - 1, 1), r - half - 1, cache);
+		// 3. 中间是否1
+		if (l <= half + 1 && half < r && ((n & 1) == 1)) countOne += 1;
+		return countOne;
 	}
 
 	public static void main(String[] args) {
 		long num = 671;
-		ArrayList<Integer> ans = test(num);
+		List<Integer> ans = test(num);
 		int testTime = 10000;
 		System.out.println("功能测试开始");
 		for (int i = 0; i < testTime; i++) {
@@ -156,8 +128,8 @@ public class Code01_SplitTo01 {
 					ans1++;
 				}
 			}
-			long ans2 = nums1(num, l, r);
-			long ans3 = nums2(num, l, r);
+			long ans2 = countSplitOnes1(num, l, r);
+			long ans3 = countSplitOnes(num, l, r);
 			if (ans1 != ans2 || ans1 != ans3) {
 				System.out.println("出错了!");
 			}
@@ -172,12 +144,12 @@ public class Code01_SplitTo01 {
 		long start;
 		long end;
 		start = System.currentTimeMillis();
-		System.out.println("nums1结果 : " + nums1(num, l, r));
+		System.out.println("nums1结果 : " + countSplitOnes1(num, l, r));
 		end = System.currentTimeMillis();
 		System.out.println("nums1花费时间(毫秒) : " + (end - start));
 
 		start = System.currentTimeMillis();
-		System.out.println("nums2结果 : " + nums2(num, l, r));
+		System.out.println("nums2结果 : " + countSplitOnes(num, l, r));
 		end = System.currentTimeMillis();
 		System.out.println("nums2花费时间(毫秒) : " + (end - start));
 		System.out.println("性能测试结束");
@@ -188,12 +160,30 @@ public class Code01_SplitTo01 {
 		l = 30000L;
 		r = 6431000002000L;
 		start = System.currentTimeMillis();
-		System.out.println("nums2结果 : " + nums2(num, l, r));
+		System.out.println("nums2结果 : " + countSplitOnes(num, l, r));
 		end = System.currentTimeMillis();
 		System.out.println("nums2花费时间(毫秒) : " + (end - start));
 		System.out.println("单独展示nums2方法强悍程度测试结束");
 		System.out.println("==============");
 
+	}
+
+	// 为了测试
+	// 彻底生成n的最终分裂数组返回
+	public static List<Integer> test(long n) {
+		ArrayList<Integer> arr = new ArrayList<>();
+		process(n, arr);
+		return arr;
+	}
+
+	public static void process(long n, List<Integer> arr) {
+		if (n == 1 || n == 0) {
+			arr.add((int) n);
+		} else {
+			process(n / 2, arr);
+			arr.add((int) (n % 2));
+			process(n / 2, arr);
+		}
 	}
 
 }

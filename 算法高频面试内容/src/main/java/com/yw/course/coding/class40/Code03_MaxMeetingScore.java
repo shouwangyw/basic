@@ -1,89 +1,67 @@
 package com.yw.course.coding.class40;
 
+import com.yw.util.CommonUtils;
+
 import java.util.Arrays;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
+ * 给定int[][] meetings，比如
+ * {
+ * {66, 70}   0号会议截止时间66，获得收益70
+ * {25, 90}   1号会议截止时间25，获得收益90
+ * {50, 30}   2号会议截止时间50，获得收益30
+ * }
+ * 一开始的时间是0，任何会议都持续10的时间，但是一个会议一定要在该会议截止时间之前开始
+ * 只有一个会议室，任何会议不能共用会议室，一旦一个会议被正确安排，将获得这个会议的收益
+ * 请返回最大的收益
+ *
  * @author yangwei
- */ // 给定int[][] meetings，比如
-// {
-//   {66, 70}   0号会议截止时间66，获得收益70
-//   {25, 90}   1号会议截止时间25，获得收益90
-//   {50, 30}   2号会议截止时间50，获得收益30
-// }
-// 一开始的时间是0，任何会议都持续10的时间，但是一个会议一定要在该会议截止时间之前开始
-// 只有一个会议室，任何会议不能共用会议室，一旦一个会议被正确安排，将获得这个会议的收益
-// 请返回最大的收益
+ */
 public class Code03_MaxMeetingScore {
 
-	public static int maxScore1(int[][] meetings) {
-		Arrays.sort(meetings, (a, b) -> a[0] - b[0]);
+	// 方法一：
+	public static int maxScore0(int[][] meetings) {
+		Arrays.sort(meetings, (o1, o2) -> o1[0] == o2[0] ? o2[1] - o1[1] : o1[0] - o2[0]);
 		int[][] path = new int[meetings.length][];
-		int size = 0;
-		return process1(meetings, 0, path, size);
+		return process(meetings, 0, 0, path);
 	}
-
-	public static int process1(int[][] meetings, int index, int[][] path, int size) {
-		if (index == meetings.length) {
-			int time = 0;
-			int ans = 0;
+	private static int process(int[][] mettings, int idx, int size, int[][] path) {
+		if (idx == mettings.length) {
+			int time = 0, ans = 0;
 			for (int i = 0; i < size; i++) {
-				if (time + 10 <= path[i][0]) {
+				if (time <= path[i][0]) {
 					ans += path[i][1];
 					time += 10;
-				} else {
-					return 0;
-				}
+				} else return 0;
 			}
 			return ans;
 		}
-		int p1 = process1(meetings, index + 1, path, size);
-		path[size] = meetings[index];
-		int p2 = process1(meetings, index + 1, path, size + 1);
-		// path[size] = null;
+		int p1 = process(mettings, idx + 1, size, path);
+		path[size] = mettings[idx];
+		int p2 = process(mettings, idx + 1, size + 1, path);
 		return Math.max(p1, p2);
 	}
 
-	public static int maxScore2(int[][] meetings) {
-		Arrays.sort(meetings, (a, b) -> a[0] - b[0]);
-		PriorityQueue<Integer> heap = new PriorityQueue<>();
+	// 方法二：小根堆
+	public static int maxScore(int[][] meetings) {
+		// 按会议截止时间从小到大排序，截止时间相同的按收益从大到小排序
+		Arrays.sort(meetings, (o1, o2) -> o1[0] == o2[0] ? o2[1] - o1[1] : o1[0] - o2[0]);
+		// 定义一个小根堆
+		Queue<Integer> head = new PriorityQueue<>();
 		int time = 0;
-		// 已经把所有会议，按照截止时间，从小到大，排序了！
-		// 截止时间一样的，谁排前谁排后，无所谓
-		for (int i = 0; i < meetings.length; i++) {
-			if (time + 10 <= meetings[i][0]) {
-				heap.add(meetings[i][1]);
+		for (int[] m : meetings) {
+			if (time <= m[0]) {
+				head.offer(m[1]);
 				time += 10;
-			} else {
-				if (!heap.isEmpty() && heap.peek() < meetings[i][1]) {
-					heap.poll();
-					heap.add(meetings[i][1]);
-				}
+			} else if (!head.isEmpty() && head.peek() < m[1]){
+				head.poll();
+				head.offer(m[1]);
 			}
 		}
 		int ans = 0;
-		while (!heap.isEmpty()) {
-			ans += heap.poll();
-		}
-		return ans;
-	}
-
-	public static int[][] randomMeetings(int n, int t, int s) {
-		int[][] ans = new int[n][2];
-		for (int i = 0; i < n; i++) {
-			ans[i][0] = (int) (Math.random() * t) + 1;
-			ans[i][1] = (int) (Math.random() * s) + 1;
-		}
-		return ans;
-	}
-
-	public static int[][] copyMeetings(int[][] meetings) {
-		int n = meetings.length;
-		int[][] ans = new int[n][2];
-		for (int i = 0; i < n; i++) {
-			ans[i][0] = meetings[i][0];
-			ans[i][1] = meetings[i][1];
-		}
+		while (!head.isEmpty()) ans += head.poll();
 		return ans;
 	}
 
@@ -97,15 +75,34 @@ public class Code03_MaxMeetingScore {
 			int size = (int) (Math.random() * n) + 1;
 			int[][] meetings1 = randomMeetings(size, t, s);
 			int[][] meetings2 = copyMeetings(meetings1);
-			int ans1 = maxScore1(meetings1);
-			int ans2 = maxScore2(meetings2);
+			int ans1 = maxScore0(meetings1);
+			int ans2 = maxScore(meetings2);
 			if (ans1 != ans2) {
-				System.out.println("出错了!");
-				System.out.println(ans1);
-				System.out.println(ans2);
+				System.out.println("出错了! ans1 = " + ans1 + ", ans2 = " + ans2);
+				CommonUtils.printMatrix(meetings1);
+				break;
 			}
 		}
 		System.out.println("测试结束");
+	}
+
+	private static int[][] randomMeetings(int n, int t, int s) {
+		int[][] ans = new int[n][2];
+		for (int i = 0; i < n; i++) {
+			ans[i][0] = (int) (Math.random() * t) + 1;
+			ans[i][1] = (int) (Math.random() * s) + 1;
+		}
+		return ans;
+	}
+
+	private static int[][] copyMeetings(int[][] meetings) {
+		int n = meetings.length;
+		int[][] ans = new int[n][2];
+		for (int i = 0; i < n; i++) {
+			ans[i][0] = meetings[i][0];
+			ans[i][1] = meetings[i][1];
+		}
+		return ans;
 	}
 
 }
