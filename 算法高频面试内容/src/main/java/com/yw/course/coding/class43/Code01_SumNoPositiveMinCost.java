@@ -1,57 +1,76 @@
 package com.yw.course.coding.class43;
 
+import org.omg.CORBA.MARSHAL;
+
 import java.util.Arrays;
 
+import static com.yw.util.CommonUtils.copyArray;
+import static com.yw.util.CommonUtils.randomArray;
+
 /**
+ * 来自微软面试
+ * 给定一个正数数组arr长度为n、正数x、正数y
+ * 你的目标是让arr整体的累加和<=0
+ * 你可以对数组中的数num执行以下三种操作中的一种，且每个数最多能执行一次操作 :
+ * 1）不变
+ * 2）可以选择让num变成0，承担x的代价
+ * 3）可以选择让num变成-num，承担y的代价
+ * 返回你达到目标的最小代价
+ * 数据规模 : 面试时面试官没有说数据规模
+ *
  * @author yangwei
- */ // 来自微软面试
-// 给定一个正数数组arr长度为n、正数x、正数y
-// 你的目标是让arr整体的累加和<=0
-// 你可以对数组中的数num执行以下三种操作中的一种，且每个数最多能执行一次操作 : 
-// 1）不变
-// 2）可以选择让num变成0，承担x的代价
-// 3）可以选择让num变成-num，承担y的代价
-// 返回你达到目标的最小代价
-// 数据规模 : 面试时面试官没有说数据规模
+ */
 public class Code01_SumNoPositiveMinCost {
 
-	// 动态规划
-	public static int minOpStep1(int[] arr, int x, int y) {
+	// 方法一：从左往右的尝试模型
+	public static int minCost0(int[] arr, int x, int y) {
 		int sum = 0;
-		for (int num : arr) {
-			sum += num;
-		}
-		return process1(arr, x, y, 0, sum);
+		for (int a : arr) sum += a;
+		return process(arr, x, y, 0, sum);
+	}
+	// arr[i...]自由选择，每个位置的数可以执行3种操作，不变(代价0)、变0(代价x)、变相反数(代价y)
+	// 返回使得累加和sum<=0的最小代价
+	private static int process(int[] arr, int x, int y, int i, int sum) {
+		if (sum <= 0) return 0;
+		if (i == arr.length) return Integer.MAX_VALUE;
+		// 1. 不变
+		int cost = process(arr, x, y, i + 1, sum);
+		// 2. 变0
+		int next = process(arr, x, y, i + 1, sum - arr[i]);
+		if (next != Integer.MAX_VALUE)
+			cost = Math.min(cost, x + next);
+		// 3. 变相反数
+		next = process(arr, x, y, i + 1, sum - (arr[i] << 1));
+		if (next != Integer.MAX_VALUE)
+			cost = Math.min(cost, y + next);
+		return cost;
 	}
 
-	// arr[i...]自由选择，每个位置的数可以执行三种操作中的一种！
-	// 执行变0的操作，x操作，代价 -> x
-	// 执行变相反数的操作，y操作，代价 -> y
-	// 还剩下sum这么多累加和，需要去搞定！
-	// 返回搞定了sum，最低代价是多少？
-	public static int process1(int[] arr, int x, int y, int i, int sum) {
-		if (sum <= 0) {
-			return 0;
+	// 方法二：贪心+不回退（最优解）
+	public static int minCost(int[] arr, int x, int y) {
+		Arrays.sort(arr);
+		int n = arr.length;
+		if (x >= y) { // 没有任何必要执行x操作
+			int sum = 0;
+			for (int a : arr) sum += a;
+			int cost = 0;
+			// 从大到小处理
+			for (int i = n - 1; i >= 0 && sum > 0; i--) {
+				sum -= arr[i] << 1;
+				cost += y;
+			}
+			return cost;
 		}
-		// sum > 0 没搞定
-		if (i == arr.length) {
-			return Integer.MAX_VALUE;
+		int cost = n * x; 	// 全部数都执行x操作，最大代价
+		int benefit = 0, holdSum = 0;
+		for (int yLeft = n - 1, holdRight = 0; yLeft >= holdRight; yLeft--) {
+			benefit += arr[yLeft];
+			while (holdRight < yLeft && holdSum + arr[holdRight] <= benefit)
+				holdSum += arr[holdRight++];
+			// 0...holdRight x yLeft....
+			cost = Math.min(cost, (n - yLeft) * y + (yLeft - holdRight) * x);
 		}
-		// 第一选择，什么也不干！
-		int p1 = process1(arr, x, y, i + 1, sum);
-		// 第二选择，执行x的操作，变0 x + 后续
-		int p2 = Integer.MAX_VALUE;
-		int next2 = process1(arr, x, y, i + 1, sum - arr[i]);
-		if (next2 != Integer.MAX_VALUE) {
-			p2 = x + next2;
-		}
-		// 第三选择，执行y的操作，变相反数 x + 后续 7 -7 -14
-		int p3 = Integer.MAX_VALUE;
-		int next3 = process1(arr, x, y, i + 1, sum - (arr[i] << 1));
-		if (next3 != Integer.MAX_VALUE) {
-			p3 = y + next3;
-		}
-		return Math.min(p1, Math.min(p2, p3));
+		return cost;
 	}
 
 	// 贪心（最优解）
@@ -152,25 +171,6 @@ public class Code01_SumNoPositiveMinCost {
 		}
 	}
 
-	// 为了测试
-	public static int[] randomArray(int len, int v) {
-		int[] arr = new int[len];
-		for (int i = 0; i < len; i++) {
-			arr[i] = (int) (Math.random() * v) + 1;
-		}
-		return arr;
-	}
-
-	// 为了测试
-	public static int[] copyArray(int[] arr) {
-		int[] ans = new int[arr.length];
-		for (int i = 0; i < arr.length; i++) {
-			ans[i] = arr[i];
-		}
-		return ans;
-	}
-
-	// 为了测试
 	public static void main(String[] args) {
 		int n = 12;
 		int v = 20;
@@ -185,11 +185,12 @@ public class Code01_SumNoPositiveMinCost {
 			int[] arr3 = copyArray(arr);
 			int x = (int) (Math.random() * c);
 			int y = (int) (Math.random() * c);
-			int ans1 = minOpStep1(arr1, x, y);
+			int ans1 = minCost0(arr1, x, y);
 			int ans2 = minOpStep2(arr2, x, y);
-			int ans3 = minOpStep3(arr3, x, y);
+			int ans3 = minCost(arr3, x, y);
 			if (ans1 != ans2 || ans1 != ans3) {
-				System.out.println("出错了!");
+				System.out.println("出错了! ans1 = " + ans1 + ", ans2 = " + ans2 + ",  ans3 = " + ans3);
+				break;
 			}
 		}
 		System.out.println("测试结束");

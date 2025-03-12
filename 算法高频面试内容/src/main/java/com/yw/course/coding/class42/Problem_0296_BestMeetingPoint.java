@@ -6,46 +6,41 @@ package com.yw.course.coding.class42;
 public class Problem_0296_BestMeetingPoint {
 
 	public static int minTotalDistance(int[][] grid) {
-		int N = grid.length;
-		int M = grid[0].length;
-		int[] iOnes = new int[N];
-		int[] jOnes = new int[M];
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				if (grid[i][j] == 1) {
-					iOnes[i]++;
-					jOnes[j]++;
-				}
+		int m = grid.length, n = grid[0].length;
+		// 遍历整个二维数组，统计每一行、每一列出现1的个数
+		int[] rowOnes = new int[m], colOnes = new int[n];
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				if (grid[i][j] == 0) continue;
+				rowOnes[i]++;
+				colOnes[j]++;
 			}
 		}
-		int total = 0;
-		int i = 0;
-		int j = N - 1;
-		int iRest = 0;
-		int jRest = 0;
+		// 找到最优行
+		int total = 0, i = 0, j = m - 1, iRest = 0, jRest = 0;
 		while (i < j) {
-			if (iOnes[i] + iRest <= iOnes[j] + jRest) {
-				total += iOnes[i] + iRest;
-				iRest += iOnes[i++];
+			if (rowOnes[i] + iRest <= rowOnes[j] + jRest) {
+				total += rowOnes[i] + iRest;
+				iRest += rowOnes[i++];
 			} else {
-				total += iOnes[j] + jRest;
-				jRest += iOnes[j--];
+				total += rowOnes[j] + jRest;
+				jRest += rowOnes[j--];
 			}
 		}
+		// 找到最优列
 		i = 0;
-		j = M - 1;
+		j = n - 1;
 		iRest = 0;
 		jRest = 0;
 		while (i < j) {
-			if (jOnes[i] + iRest <= jOnes[j] + jRest) {
-				total += jOnes[i] + iRest;
-				iRest += jOnes[i++];
+			if (colOnes[i] + iRest <= colOnes[j] + jRest) {
+				total += colOnes[i] + iRest;
+				iRest += colOnes[i++];
 			} else {
-				total += jOnes[j] + jRest;
-				jRest += jOnes[j--];
+				total += colOnes[j] + jRest;
+				jRest += colOnes[j--];
 			}
 		}
 		return total;
 	}
-
 }
