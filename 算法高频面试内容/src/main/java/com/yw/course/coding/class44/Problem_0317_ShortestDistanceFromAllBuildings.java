@@ -167,8 +167,8 @@ public class Problem_0317_ShortestDistanceFromAllBuildings {
 		}
 	}
 
-	// 方法三的大流程和方法二完全一样，从每一个1出发，而不从0出发
-	// 运行时间快主要是因为常数优化，以下是优化点：
+	// 方法三的大流程和方法二完全一样
+	// 从每一个1出发，而不从0出发，运行时间快主要是因为常数优化，以下是优化点：
 	// 1) 宽度优先遍历时，一次解决一层，不是一个一个遍历：
 	// int size = que.size();
 	// level++;
@@ -188,31 +188,28 @@ public class Problem_0317_ShortestDistanceFromAllBuildings {
 	// dist[nextr][nextc] += level;
 	public static int shortestDistance3(int[][] grid) {
 		int[][] dist = new int[grid.length][grid[0].length];
-		int pass = 0;
-		int step = Integer.MAX_VALUE;
+		int pass = 0, step = Integer.MAX_VALUE;
 		int[] trans = { 0, 1, 0, -1, 0 };
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[0].length; j++) {
 				if (grid[i][j] == 1) {
 					step = bfs(grid, dist, i, j, pass--, trans);
-					if (step == Integer.MAX_VALUE) {
-						return -1;
-					}
+					if (step == Integer.MAX_VALUE) return -1;
 				}
 			}
 		}
 		return step == Integer.MAX_VALUE ? -1 : step;
 	}
 
-	// 原始矩阵是grid，但是所有的路(0)，被改了
-	// 改成了啥？改成认为，pass才是路！原始矩阵中的1和2呢？不变！
-	// dist，距离压缩表，之前的bfs，也就是之前每个1，走到某个0，总距离和都在dist里
+	// 原始矩阵是grid，但是所有的路(0)被改了
+	// 改成了啥？改成认为 pass 才是路！原始矩阵中的1和2呢？不变！
+	// dist 距离压缩表，之前的bfs，也就是之前每个1，走到某个0，总距离和都在dist里
 	// row,col 宽度优先遍历的，出发点！
 	// trans -> 炫技的，上下左右
-	// 返回值代表，进行完这一遍bfs，压缩距离表中(dist)，最小值是谁？
+	// 返回值代表进行完这一遍bfs，压缩距离表中(dist)，最小值是谁？
 	// 如果突然发现，无法联通！返回系统最大！
-	public static int bfs(int[][] grid, int[][] dist, int row, int col, int pass, int[] trans) {
-		Queue<int[]> que = new LinkedList<int[]>();
+	private static int bfs(int[][] grid, int[][] dist, int row, int col, int pass, int[] trans) {
+		Queue<int[]> que = new LinkedList<>();
 		que.offer(new int[] { row, col });
 		int level = 0;
 		int ans = Integer.MAX_VALUE;
@@ -220,10 +217,10 @@ public class Problem_0317_ShortestDistanceFromAllBuildings {
 			int size = que.size();
 			level++;
 			for (int k = 0; k < size; k++) {
-				int[] node = que.poll();
+				int[] cur = que.poll();
 				for (int i = 1; i < trans.length; i++) { // 上下左右
-					int nextr = node[0] + trans[i - 1];
-					int nextc = node[1] + trans[i];
+					int nextr = cur[0] + trans[i - 1];
+					int nextc = cur[1] + trans[i];
 					if (nextr >= 0 && nextr < grid.length && nextc >= 0 && nextc < grid[0].length
 							&& grid[nextr][nextc] == pass) {
 						que.offer(new int[] { nextr, nextc });

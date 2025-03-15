@@ -1,6 +1,7 @@
 package com.yw.course.coding.class45;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author yangwei
@@ -19,27 +20,22 @@ public class Problem_0291_WordPatternII {
 	// p[a] -> "abc"   map[0] -> "abc"
 	// p[b] -> "fbf"   map[1] -> "fbf";
 	// p[z] -> "kfk"   map[25] -> "kfk"
-	// HashSet<String> set -> map中指代了哪些字符串
+	// Set<String> set -> map中指代了哪些字符串
 	// str[si.......]  是不是符合  p[pi......]？符合返回true，不符合返回false
 	// 之前的决定！由map和set，告诉我！不能冲突！
-	public static boolean match(String s, String p, int si, int pi, String[] map, HashSet<String> set) {
-		if (pi == p.length() && si == s.length()) {
-			return true;
-		}
+	private static boolean match(String s, String p, int si, int pi, String[] map, Set<String> set) {
+		if (pi == p.length() && si == s.length()) return true;
 		// str和pattern，并没有都结束！
-		if (pi == p.length() || si == s.length()) {
-			return false;
-		}
+		if (pi == p.length() || si == s.length()) return false;
 		//  str和pattern，都没结束！
-
-		char ch = p.charAt(pi);
-		String cur = map[ch - 'a'];
+		char c = p.charAt(pi);
+		String cur = map[c - 'a'];
 		if (cur != null) { // 当前p[pi]已经指定过了！
 			return si + cur.length() <= s.length() // 不能越界！
 					&& cur.equals(s.substring(si, si + cur.length()))
 					&& match(s, p, si + cur.length(), pi + 1, map, set);
 		}
-		// p[pi]没指定！
+		// p[pi]没指定
 		int end = s.length();
 		// 剪枝！重要的剪枝！
 		for (int i = p.length() - 1; i > pi; i--) {
@@ -51,11 +47,9 @@ public class Problem_0291_WordPatternII {
 			// 但是，只有这个前缀串，之前没占过别的坑！才能去尝试
 			if (!set.contains(cur)) {
 				set.add(cur);
-				map[ch - 'a'] = cur;
-				if (match(s, p, i + 1, pi + 1, map, set)) {
-					return true;
-				}
-				map[ch - 'a'] = null;
+				map[c - 'a'] = cur;
+				if (match(s, p, i + 1, pi + 1, map, set)) return true;
+				map[c - 'a'] = null;
 				set.remove(cur);
 			}
 		}
