@@ -31,17 +31,11 @@ public class Problem_0363_MaxSumOfRectangleNoLargerThanK {
 		return ans;
 	}
 
-	public static int maxSumSubmatrix(int[][] matrix, int k) {
-		if (matrix == null || matrix[0] == null) {
-			return 0;
-		}
-		if (matrix.length > matrix[0].length) {
-			matrix = rotate(matrix);
-		}
-		int row = matrix.length;
-		int col = matrix[0].length;
-		int res = Integer.MIN_VALUE;
-		TreeSet<Integer> sumSet = new TreeSet<>();
+	public int maxSumSubmatrix(int[][] matrix, int k) {
+		if (matrix == null || matrix[0] == null) return 0;
+		if (matrix.length > matrix[0].length) matrix = rotate(matrix);
+		int row = matrix.length, col = matrix[0].length, ans = Integer.MIN_VALUE;
+		TreeSet<Integer> sumSet = new TreeSet<>(); // 有序表
 		for (int s = 0; s < row; s++) {
 			int[] colSum = new int[col];
 			for (int e = s; e < row; e++) {
@@ -53,28 +47,24 @@ public class Problem_0363_MaxSumOfRectangleNoLargerThanK {
 				for (int c = 0; c < col; c++) {
 					colSum[c] += matrix[e][c];
 					rowSum += colSum[c];
+					// 找之前哪个前缀和 >= rowSum-k 且最接近
+					// 有序表中ceiling(x) 返回>=x且最接近的，floor(x)返回<=x且最接近的
 					Integer it = sumSet.ceiling(rowSum - k);
-					if (it != null) {
-						res = Math.max(res, rowSum - it);
-					}
+					if (it != null) ans = Math.max(ans, rowSum - it);
 					sumSet.add(rowSum);
 				}
 				sumSet.clear();
 			}
 		}
-		return res;
+		return ans;
 	}
-
-	public static int[][] rotate(int[][] matrix) {
-		int N = matrix.length;
-		int M = matrix[0].length;
-		int[][] r = new int[M][N];
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				r[j][i] = matrix[i][j];
-			}
+	private int[][] rotate(int[][] matrix) {
+		int row = matrix.length, col = matrix[0].length;
+		int[][] m = new int[col][row];
+		for (int i = 0; i < col; i++) {
+			for (int j = 0; j < row; j++) m[i][j] = matrix[j][i];
 		}
-		return r;
+		return m;
 	}
 
 }

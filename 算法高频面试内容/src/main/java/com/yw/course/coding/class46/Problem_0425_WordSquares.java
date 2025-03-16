@@ -1,9 +1,6 @@
 package com.yw.course.coding.class46;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author yangwei
@@ -45,45 +42,51 @@ public class Problem_0425_WordSquares {
 
 	public static List<List<String>> wordSquares(String[] words) {
 		int n = words[0].length();
-		// 所有单词，所有前缀字符串，都会成为key！
-		HashMap<String, List<String>> map = new HashMap<>();
+		// 所有单词的所有前缀字符串，都作为key
+		Map<String, List<String>> map = new HashMap<>();
 		for (String word : words) {
-			for (int end = 0; end <= n; end++) {
-				String prefix = word.substring(0, end);
-				if (!map.containsKey(prefix)) {
-					map.put(prefix, new ArrayList<>());
-				}
-				map.get(prefix).add(word);
+			for (int e = 0; e <= n; e++) {
+				String prefix = word.substring(0, e);
+				map.compute(prefix, (k, v) -> {
+					if (v == null) v = new ArrayList<>();
+					v.add(word);
+					return v;
+				});
 			}
 		}
 		List<List<String>> ans = new ArrayList<>();
 		process(0, n, map, new LinkedList<>(), ans);
 		return ans;
 	}
-
-	// i, 当前填到第i号单词，从0开始，填到n-1
-	// map, 前缀所拥有的单词
-	// path, 之前填过的单词, 0...i-1填过的
-	// ans, 收集答案
-	public static void process(int i, int n, HashMap<String, List<String>> map, LinkedList<String> path,
-			List<List<String>> ans) {
+	// i: 当前填到第i号单词，从0开始，填到n-1
+	// map: 前缀所拥有的单词
+	// path: 之前填过的单词, 0...i-1填过的
+	// ans: 收集答案
+	public static void process(int i, int n, Map<String, List<String>> map,
+							   LinkedList<String> path, List<List<String>> ans) {
 		if (i == n) {
 			ans.add(new ArrayList<>(path));
-		} else {
-			// 把限制求出来，前缀的限制！
-			StringBuilder builder = new StringBuilder();
-			for (String pre : path) {
-				builder.append(pre.charAt(i));
-			}
-			String prefix = builder.toString();
-			if (map.containsKey(prefix)) {
-				for (String next : map.get(prefix)) {
-					path.addLast(next);
-					process(i + 1, n, map, path, ans);
-					path.pollLast();
-				}
-			}
+			return;
+		}
+		// 把限制求出来，前缀的限制！
+		StringBuilder sb = new StringBuilder();
+		for (String pre : path) sb.append(pre.charAt(i));
+		List<String> prefixWords = map.get(sb.toString());
+		if (prefixWords == null) return;
+		for (String word : prefixWords) {
+			path.addLast(word);
+			process(i + 1, n, map, path, ans);
+			path.pollLast();
 		}
 	}
 
+	public static void main(String[] args) {
+//		String[] words = {"ball","area","lead","lady"};
+//		String[] words = {"abat","baba","atan","atal"};
+		String[] words = {"area","lead","wall","lady","ball"};
+
+		List<List<String>> lists = wordSquares(words);
+
+		lists.forEach(System.out::println);
+	}
 }

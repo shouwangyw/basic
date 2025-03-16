@@ -76,16 +76,6 @@ public class Problem_0475_Heaters {
 		return j == heaters.length - 1 || Math.abs(heaters[j] - houses[i]) <= Math.abs(heaters[j + 1] - houses[i]);
 	}
 
-	// 为了测试
-	public static int[] randomArray(int len, int v) {
-		int[] arr = new int[len];
-		for (int i = 0; i < len; i++) {
-			arr[i] = (int) (Math.random() * v) + 1;
-		}
-		return arr;
-	}
-
-	// 为了测试
 	public static void main(String[] args) {
 		int len = 5;
 		int v = 10;
@@ -111,6 +101,13 @@ public class Problem_0475_Heaters {
 				break;
 			}
 		}
+	}
+	private static int[] randomArray(int len, int v) {
+		int[] arr = new int[len];
+		for (int i = 0; i < len; i++) {
+			arr[i] = (int) (Math.random() * v) + 1;
+		}
+		return arr;
 	}
 
 }

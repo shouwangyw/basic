@@ -1,25 +1,25 @@
 package com.yw.course.coding.class47;
 
 /**
+ * 同时支持范围增加 + 范围修改 + 范围查询的动态开点线段树（累加和）
+ * 真的用到！才去建立
+ * 懒更新，及其所有的东西，和普通线段树，没有任何区别！
+ *
  * @author yangwei
- */ // 同时支持范围增加 + 范围修改 + 范围查询的动态开点线段树（累加和）
-// 真的用到！才去建立
-// 懒更新，及其所有的东西，和普通线段树，没有任何区别！
+ */
 public class Code02_DynamicSegmentTree {
 
-	public static class Node {
-		public int sum;
-		public int lazy;
-		public int change;
-		public boolean update;
-		public Node left;
-		public Node right;
-	}
-
 	public static class DynamicSegmentTree {
-		public Node root;
-		public int size;
-
+		private static class Node {
+			int sum;
+			int lazy;
+			int change;
+			boolean update;
+			Node left;
+			Node right;
+		}
+		public final Node root;
+		public final int size;
 		public DynamicSegmentTree(int max) {
 			root = new Node();
 			size = max;
@@ -30,12 +30,8 @@ public class Code02_DynamicSegmentTree {
 		}
 
 		private void pushDown(Node p, int ln, int rn) {
-			if (p.left == null) {
-				p.left = new Node();
-			}
-			if (p.right == null) {
-				p.right = new Node();
-			}
+			if (p.left == null) p.left = new Node();
+			if (p.right == null) p.right = new Node();
 			if (p.update) {
 				p.left.update = true;
 				p.right.update = true;
@@ -59,7 +55,6 @@ public class Code02_DynamicSegmentTree {
 		public void update(int s, int e, int v) {
 			update(root, 1, size, s, e, v);
 		}
-
 		private void update(Node c, int l, int r, int s, int e, int v) {
 			if (s <= l && r <= e) {
 				c.update = true;
@@ -69,12 +64,8 @@ public class Code02_DynamicSegmentTree {
 			} else {
 				int mid = (l + r) >> 1;
 				pushDown(c, mid - l + 1, r - mid);
-				if (s <= mid) {
-					update(c.left, l, mid, s, e, v);
-				}
-				if (e > mid) {
-					update(c.right, mid + 1, r, s, e, v);
-				}
+				if (s <= mid) update(c.left, l, mid, s, e, v);
+				if (e > mid) update(c.right, mid + 1, r, s, e, v);
 				pushUp(c);
 			}
 		}
@@ -82,7 +73,6 @@ public class Code02_DynamicSegmentTree {
 		public void add(int s, int e, int v) {
 			add(root, 1, size, s, e, v);
 		}
-
 		private void add(Node c, int l, int r, int s, int e, int v) {
 			if (s <= l && r <= e) {
 				c.sum += v * (r - l + 1);
@@ -90,12 +80,8 @@ public class Code02_DynamicSegmentTree {
 			} else {
 				int mid = (l + r) >> 1;
 				pushDown(c, mid - l + 1, r - mid);
-				if (s <= mid) {
-					add(c.left, l, mid, s, e, v);
-				}
-				if (e > mid) {
-					add(c.right, mid + 1, r, s, e, v);
-				}
+				if (s <= mid) add(c.left, l, mid, s, e, v);
+				if (e > mid) add(c.right, mid + 1, r, s, e, v);
 				pushUp(c);
 			}
 		}
@@ -103,52 +89,15 @@ public class Code02_DynamicSegmentTree {
 		public int query(int s, int e) {
 			return query(root, 1, size, s, e);
 		}
-
 		private int query(Node c, int l, int r, int s, int e) {
-			if (s <= l && r <= e) {
-				return c.sum;
-			}
+			if (s <= l && r <= e) return c.sum;
 			int mid = (l + r) >> 1;
 			pushDown(c, mid - l + 1, r - mid);
 			int ans = 0;
-			if (s <= mid) {
-				ans += query(c.left, l, mid, s, e);
-			}
-			if (e > mid) {
-				ans += query(c.right, mid + 1, r, s, e);
-			}
+			if (s <= mid) ans += query(c.left, l, mid, s, e);
+			if (e > mid) ans += query(c.right, mid + 1, r, s, e);
 			return ans;
 		}
-
-	}
-
-	public static class Right {
-		public int[] arr;
-
-		public Right(int size) {
-			arr = new int[size + 1];
-		}
-
-		public void add(int s, int e, int v) {
-			for (int i = s; i <= e; i++) {
-				arr[i] += v;
-			}
-		}
-
-		public void update(int s, int e, int v) {
-			for (int i = s; i <= e; i++) {
-				arr[i] = v;
-			}
-		}
-
-		public int query(int s, int e) {
-			int sum = 0;
-			for (int i = s; i <= e; i++) {
-				sum += arr[i];
-			}
-			return sum;
-		}
-
 	}
 
 	public static void main(String[] args) {
@@ -195,6 +144,35 @@ public class Code02_DynamicSegmentTree {
 			}
 		}
 		System.out.println("测试结束");
+	}
+
+	public static class Right {
+		public int[] arr;
+
+		public Right(int size) {
+			arr = new int[size + 1];
+		}
+
+		public void add(int s, int e, int v) {
+			for (int i = s; i <= e; i++) {
+				arr[i] += v;
+			}
+		}
+
+		public void update(int s, int e, int v) {
+			for (int i = s; i <= e; i++) {
+				arr[i] = v;
+			}
+		}
+
+		public int query(int s, int e) {
+			int sum = 0;
+			for (int i = s; i <= e; i++) {
+				sum += arr[i];
+			}
+			return sum;
+		}
+
 	}
 
 }

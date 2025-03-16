@@ -1,66 +1,55 @@
 package com.yw.course.coding.class47;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ * 本题的解法思路与leetcode 621题 TaskScheduler
+ * {@link com.yw.course.coding.class38.Problem_0621_TaskScheduler} 问题是一样的
+ *
  * @author yangwei
- */ // 本题的解法思路与leetcode 621题 TaskScheduler 问题是一样的
+ */
 public class Problem_0358_RearrangeStringKDistanceApart {
 
-	public String rearrangeString(String s, int k) {
-		if (s == null || s.length() < k) {
-			return s;
-		}
-		char[] str = s.toCharArray();
+	public static String rearrangeString(String s, int k) {
+		if (s == null || s.length() < k) return s;
+		char[] cs = s.toCharArray();
+		// 记录每种字符、以及出现的次数 {{'d', 4}, {'a', 3}, ...}
 		int[][] cnts = new int[256][2];
-		for (int i = 0; i < 256; i++) {
-			cnts[i] = new int[] { i, 0 };
+		// maxCnt: 记录出现次数最多的是几次，maxKinds: 记录出现最多次数的有几种
+		int maxCnt = 0, maxKinds = 0;
+		for (char c : cs) {
+			cnts[c][0] = c;
+			maxCnt = Math.max(maxCnt, ++cnts[c][1]);
 		}
-		int maxCount = 0;
-		for (char task : str) {
-			cnts[task][1]++;
-			maxCount = Math.max(maxCount, cnts[task][1]);
+		for (int[] cnt : cnts) if (cnt[1] == maxCnt) maxKinds++;
+		// 出现次数最多的至少需要占据位置: k * (maxCnt - 1)
+		// 如果大于其它种类: cs.length - maxKinds，说明不能重排
+		if (k * (maxCnt - 1) > cs.length - maxKinds) return "";
+		// 对cnts排序，按出现次数从大到小
+		Arrays.sort(cnts, (o1, o2) -> o2[1] - o1[1]);
+		StringBuilder[] ans = new StringBuilder[maxCnt];
+		for (int i = 0; i < maxCnt; i++) ans[i] = new StringBuilder();
+		int i = 0, out = 0;
+		while (i < cnts.length && cnts[i][1] == maxCnt) {
+			for (int j = 0; j < maxCnt; j++)
+				ans[j].append((char) cnts[i][0]);
+			i++;
 		}
-		int maxKinds = 0;
-		for (int task = 0; task < 256; task++) {
-			if (cnts[task][1] == maxCount) {
-				maxKinds++;
-			}
-		}
-		int N = str.length;
-		if (!isValid(N, k, maxCount, maxKinds)) {
-			return "";
-		}
-		ArrayList<StringBuilder> ans = new ArrayList<>();
-		for (int i = 0; i < maxCount; i++) {
-			ans.add(new StringBuilder());
-		}
-		Arrays.sort(cnts, (a, b) -> (b[1] - a[1]));
-		int i = 0;
-		for (; i < 256 && cnts[i][1] == maxCount; i++) {
-			for (int j = 0; j < maxCount; j++) {
-				ans.get(j).append((char) cnts[i][0]);
-			}
-		}
-		int out = 0;
-		for (; i < 256; i++) {
+		while (i < cnts.length) {
 			for (int j = 0; j < cnts[i][1]; j++) {
-				ans.get(out).append((char) cnts[i][0]);
-				out = out == ans.size() - 2 ? 0 : out + 1;
+				ans[out].append((char) cnts[i][0]);
+				out = out == ans.length - 2 ? 0 : out + 1;
 			}
+			i++;
 		}
-		StringBuilder builder = new StringBuilder();
-		for (StringBuilder b : ans) {
-			builder.append(b.toString());
-		}
-		return builder.toString();
+		StringBuilder res = new StringBuilder();
+		for (StringBuilder sb : ans) res.append(sb.toString());
+		return res.toString();
 	}
 
-	public static boolean isValid(int N, int k, int maxCount, int maxKinds) {
-		int restTasks = N - maxKinds;
-		int spaces = k * (maxCount - 1);
-		return spaces - restTasks <= 0;
+	public static void main(String[] args) {
+		System.out.println(rearrangeString("aabbcc", 3));
+		System.out.println(rearrangeString("aaabc", 3));
+		System.out.println(rearrangeString("aaadbbcc", 2));
 	}
-
 }
