@@ -16,56 +16,43 @@ public class Problem_0428_SerializeAndDeserializeNaryTree {
 		public List<Node> children;
 
 		public Node() {
-			children = new ArrayList<>();
+			this.children = new ArrayList<>();
 		}
 
-		public Node(int _val) {
-			val = _val;
-			children = new ArrayList<>();
+		public Node(int val) {
+			this(val, new ArrayList<>());
 		}
 
-		public Node(int _val, List<Node> _children) {
-			val = _val;
-			children = _children;
+		public Node(int val, List<Node> children) {
+			this.val = val;
+			this.children = children;
 		}
-	};
+	}
 
-	// 提交下面这个类
 	public static class Codec {
-
 		public static String serialize(Node root) {
-			if (root == null) { // 空树！直接返回#
-				return "#";
-			}
+			// 空树！直接返回#
+			if (root == null) return "#";
 			StringBuilder builder = new StringBuilder();
 			serial(builder, root);
 			return builder.toString();
 		}
-
 		// 当前来到head
 		private static void serial(StringBuilder builder, Node head) {
 			builder.append(head.val + ",");
 			if (!head.children.isEmpty()) {
 				builder.append("[,");
-				for (Node next : head.children) {
-					serial(builder, next);
-				}
+				for (Node next : head.children) serial(builder, next);
 				builder.append("],");
 			}
 		}
-
 		public static Node deserialize(String data) {
-			if (data.equals("#")) {
-				return null;
-			}
+			if (data.equals("#")) return null;
 			String[] splits = data.split(",");
 			Queue<String> queue = new LinkedList<>();
-			for (String str : splits) {
-				queue.offer(str);
-			}
+			for (String str : splits) queue.offer(str);
 			return deserial(queue);
 		}
-
 		private static Node deserial(Queue<String> queue) {
 			Node cur = new Node(Integer.valueOf(queue.poll()));
 			cur.children = new ArrayList<>();
@@ -79,7 +66,6 @@ public class Problem_0428_SerializeAndDeserializeNaryTree {
 			}
 			return cur;
 		}
-
 	}
 
 	public static void main(String[] args) {

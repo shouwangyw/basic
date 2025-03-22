@@ -2,6 +2,7 @@ package com.yw.course.coding.class48;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -9,119 +10,80 @@ import java.util.List;
  */
 public class Problem_0472_ConcatenatedWords {
 
-	public static class TrieNode {
-		public boolean end;
-		public TrieNode[] nexts;
-
-		public TrieNode() {
-			end = false;
-			nexts = new TrieNode[26];
+	// 方法一：前缀树
+	public List<String> findAllConcatenatedWordsInADict(String[] words) {
+		List<String> ans = new ArrayList<>();
+		if (words == null || words.length < 3) return ans;
+		// 字符串数量>=3个
+		Arrays.sort(words, Comparator.comparingInt(String::length));
+		TrieNode root = new TrieNode();
+		for (String word : words) {
+			char[] cs = word.toCharArray();
+			// 若能分解，则加入到答案中
+			if (cs.length > 0 && split(cs, root, 0)) ans.add(word);
+				// 否则，加入到前缀树上
+			else insert(root, cs);
 		}
+		return ans;
 	}
-
-	public static void insert(TrieNode root, char[] s) {
-		int path = 0;
-		for (char c : s) {
-			path = c - 'a';
-			if (root.nexts[path] == null) {
-				root.nexts[path] = new TrieNode();
-			}
+	private static boolean split(char[] cs, TrieNode root, int idx) {
+		if (idx == cs.length) return true;
+		TrieNode cur = root;
+		// 枚举[idx, cs.length)，是否可以分解
+		for (int end = idx; end < cs.length; end++) {
+			int path = cs[end] - 'a';
+			if (cur.nexts[path] == null) break;
+			cur = cur.nexts[path];
+			if (cur.end && split(cs, root, end + 1)) return true;
+		}
+		return false;
+	}
+	private static void insert(TrieNode root, char[] cs) {
+		for (char c : cs) {
+			int path = c - 'a';
+			if (root.nexts[path] == null) root.nexts[path] = new TrieNode();
 			root = root.nexts[path];
 		}
 		root.end = true;
 	}
+	// 前缀树
+	private static class TrieNode {
+		private boolean end;
+		private TrieNode[] nexts;
+		public TrieNode() {
+			this.end = false;
+			this.nexts = new TrieNode[26];
+		}
+	}
 
-	// 方法1：前缀树优化
-	public static List<String> findAllConcatenatedWordsInADict1(String[] words) {
+	// 方法二：前缀树优化 + 傻缓存
+	public List<String> findAllConcatenatedWordsInADictByCache(String[] words) {
 		List<String> ans = new ArrayList<>();
-		if (words == null || words.length < 3) {
-			return ans;
-		}
-		// 字符串数量 >= 3个
-		Arrays.sort(words, (str1, str2) -> str1.length() - str2.length());
+		if (words == null || words.length < 3) return ans;
+		// 字符串数量>=3个
+		Arrays.sort(words, Comparator.comparingInt(String::length));
 		TrieNode root = new TrieNode();
-		for (String str : words) {
-			char[] s = str.toCharArray(); // "" 题目要求
-			if (s.length > 0 && split1(s, root, 0)) {
-				ans.add(str);
-			} else {
-				insert(root, s);
-			}
+		for (String word : words) {
+			char[] cs = word.toCharArray();
+			Boolean[] cache = new Boolean[31];
+			// 若能分解，则加入到答案中
+			if (cs.length > 0 && split(cs, root, 0, cache)) ans.add(word);
+				// 否则，加入到前缀树上
+			else insert(root, cs);
 		}
 		return ans;
 	}
-
-	// 字符串s[i....]能不能被分解？
-	// 之前的元件，全在前缀树上，r就是前缀树头节点
-	public static boolean split1(char[] s, TrieNode r, int i) {
-		boolean ans = false;
-		if (i == s.length) { // 没字符了！
-			ans = true;
-		} else { // 还有字符
-			TrieNode c = r;
-			// s[i.....]
-			// s[i..end]作前缀，看看是不是一个元件！f(end+1)...
-			for (int end = i; end < s.length; end++) {
-				int path = s[end] - 'a';
-				if (c.nexts[path] == null) {
-					break;
-				}
-				c = c.nexts[path];
-				if (c.end && split1(s, r, end + 1)) {
-					ans = true;
-					break;
-				}
-			}
+	private static boolean split(char[] cs, TrieNode root, int idx, Boolean[] cache) {
+		if (cache[idx] != null) return cache[idx];
+		if (idx == cs.length) return cache[idx] = true;
+		TrieNode cur = root;
+		// 枚举[idx, cs.length)，是否可以分解
+		for (int end = idx; end < cs.length; end++) {
+			int path = cs[end] - 'a';
+			if (cur.nexts[path] == null) break;
+			cur = cur.nexts[path];
+			if (cur.end && split(cs, root, end + 1, cache)) return cache[idx] = true;
 		}
-		return ans;
+		return cache[idx] = false;
 	}
-
-	// 提前准备好动态规划表
-	public static int[] dp = new int[1000];
-
-	// 方法二：前缀树优化 + 动态规划优化
-	public static List<String> findAllConcatenatedWordsInADict2(String[] words) {
-		List<String> ans = new ArrayList<>();
-		if (words == null || words.length < 3) {
-			return ans;
-		}
-		Arrays.sort(words, (str1, str2) -> str1.length() - str2.length());
-		TrieNode root = new TrieNode();
-		for (String str : words) {
-			char[] s = str.toCharArray();
-			Arrays.fill(dp, 0, s.length + 1, 0);
-			if (s.length > 0 && split2(s, root, 0, dp)) {
-				ans.add(str);
-			} else {
-				insert(root, s);
-			}
-		}
-		return ans;
-	}
-
-	public static boolean split2(char[] s, TrieNode r, int i, int[] dp) {
-		if (dp[i] != 0) {
-			return dp[i] == 1;
-		}
-		boolean ans = false;
-		if (i == s.length) {
-			ans = true;
-		} else {
-			TrieNode c = r;
-			for (int end = i; end < s.length; end++) {
-				int path = s[end] - 'a';
-				if (c.nexts[path] == null) {
-					break;
-				}
-				c = c.nexts[path];
-				if (c.end && split2(s, r, end + 1, dp)) {
-					ans = true;
-					break;
-				}
-			}
-		}
-		dp[i] = ans ? 1 : -1;
-		return ans;
-	}
-
 }
