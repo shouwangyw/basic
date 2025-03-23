@@ -1,7 +1,7 @@
 package com.yw.course.coding.class49;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author yangwei
@@ -9,25 +9,21 @@ import java.util.HashMap;
 public class Problem_0446_ArithmeticSlicesIISubsequence {
 
 	// 时间复杂度是O(N^2)，最优解的时间复杂度
-	public static int numberOfArithmeticSlices(int[] arr) {
-		int N = arr.length;
-		int ans = 0;
-		ArrayList<HashMap<Integer, Integer>> maps = new ArrayList<>();
-		for (int i = 0; i < N; i++) {
-			maps.add(new HashMap<>());
-			//  ....j...i（结尾）
+	public int numberOfArithmeticSlices(int[] nums) {
+		int n = nums.length, ans = 0;
+		// maps[i]表示以[i]位置数结尾的序列中，差值(key)有几个(val)
+		Map<Integer, Integer>[] maps = new HashMap[n];
+		for (int i = 0; i < n; i++) {
+			maps[i] = new HashMap<>();
 			for (int j = i - 1; j >= 0; j--) {
-				long diff = (long) arr[i] - (long) arr[j];
-				if (diff <= Integer.MIN_VALUE || diff > Integer.MAX_VALUE) {
-					continue;
-				}
+				long diff = (long) nums[i] - (long) nums[j];
+				if (diff <= Integer.MIN_VALUE || diff > Integer.MAX_VALUE) continue;
 				int dif = (int) diff;
-				int count = maps.get(j).getOrDefault(dif, 0);
-				ans += count;
-				maps.get(i).put(dif, maps.get(i).getOrDefault(dif, 0) + count + 1);
+				int cnt = maps[j].getOrDefault(dif, 0);
+				ans += cnt;
+				maps[i].compute(dif, (k, v) -> (v == null ? 0 : v) + cnt + 1);
 			}
 		}
 		return ans;
 	}
-
 }

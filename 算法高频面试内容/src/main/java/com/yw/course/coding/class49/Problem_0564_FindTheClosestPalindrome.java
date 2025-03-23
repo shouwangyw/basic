@@ -1,75 +1,43 @@
 package com.yw.course.coding.class49;
 
+import java.util.Map;
+
 /**
  * @author yangwei
  */
 public class Problem_0564_FindTheClosestPalindrome {
 
 	public static String nearestPalindromic(String n) {
-		Long num = Long.valueOf(n);
-		Long raw = getRawPalindrome(n);
-		Long big = raw > num ? raw : getBigPalindrome(raw);
-		Long small = raw < num ? raw : getSmallPalindrome(raw);
+		long num = Long.parseLong(n);
+		// 生成候选回文数
+		long raw = getRawPalindrome(n);
+		// 生成较大的回文数
+		long big = raw > num ? raw : getBigPalindrome(num, n.length());
+		// 生成较小的回文数
+		long small = raw < num ? raw : getSmallPalindrome(num, n.length());
+		// 比较差值，返回更优解
 		return String.valueOf(big - num >= num - small ? small : big);
 	}
-
-	public static Long getRawPalindrome(String n) {
-		char[] chs = n.toCharArray();
-		int len = chs.length;
-		for (int i = 0; i < len / 2; i++) {
-			chs[len - 1 - i] = chs[i];
-		}
-		return Long.valueOf(String.valueOf(chs));
+	private static long getBigPalindrome(long num, int len) {
+		num += (long) Math.pow(10, len / 2);
+		return getRawPalindrome(String.valueOf(num));
+	}
+	private static long getSmallPalindrome(long num, int len) {
+		if (num <= 11) return num == 11 ? 9 : num - 1;
+		// 处理偶数位且中间位为0的特殊情况，调整减法量级
+		int adjust = (len % 2 == 0 && String.valueOf(num).charAt(len / 2) == '0') ? 1 : 0;
+		num -= (long) Math.pow(10, len / 2 - adjust);
+		return getRawPalindrome(String.valueOf(num));
+	}
+	private static long getRawPalindrome(String s) {
+		char[] cs = s.toCharArray();
+		for (int i = 0; i < cs.length / 2; i++)
+			cs[cs.length - 1 - i] = cs[i];
+		return Long.parseLong(String.valueOf(cs));
 	}
 
-	public static Long getBigPalindrome(Long raw) {
-		char[] chs = String.valueOf(raw).toCharArray();
-		char[] res = new char[chs.length + 1];
-		res[0] = '0';
-		for (int i = 0; i < chs.length; i++) {
-			res[i + 1] = chs[i];
-		}
-		int size = chs.length;
-		for (int j = (size - 1) / 2 + 1; j >= 0; j--) {
-			if (++res[j] > '9') {
-				res[j] = '0';
-			} else {
-				break;
-			}
-		}
-		int offset = res[0] == '1' ? 1 : 0;
-		size = res.length;
-		for (int i = size - 1; i >= (size + offset) / 2; i--) {
-			res[i] = res[size - i - offset];
-		}
-		return Long.valueOf(String.valueOf(res));
+	public static void main(String[] args) {
+		System.out.println(nearestPalindromic("1000"));
+		System.out.println(nearestPalindromic("11011"));
 	}
-
-	public static Long getSmallPalindrome(Long raw) {
-		char[] chs = String.valueOf(raw).toCharArray();
-		char[] res = new char[chs.length];
-		int size = res.length;
-		for (int i = 0; i < size; i++) {
-			res[i] = chs[i];
-		}
-		for (int j = (size - 1) / 2; j >= 0; j--) {
-			if (--res[j] < '0') {
-				res[j] = '9';
-			} else {
-				break;
-			}
-		}
-		if (res[0] == '0') {
-			res = new char[size - 1];
-			for (int i = 0; i < res.length; i++) {
-				res[i] = '9';
-			}
-			return size == 1 ? 0 : Long.parseLong(String.valueOf(res));
-		}
-		for (int k = 0; k < size / 2; k++) {
-			res[size - 1 - k] = res[k];
-		}
-		return Long.valueOf(String.valueOf(res));
-	}
-
 }
