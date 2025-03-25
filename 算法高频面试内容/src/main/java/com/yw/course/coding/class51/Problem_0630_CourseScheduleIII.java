@@ -1,36 +1,30 @@
 package com.yw.course.coding.class51;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * @author yangwei
  */
 public class Problem_0630_CourseScheduleIII {
 
-	public static int scheduleCourse(int[][] courses) {
-		// courses[i]  = {花费，截止}
-		Arrays.sort(courses, (a, b) -> a[1] - b[1]);
-		// 花费时间的大根堆
-		PriorityQueue<Integer> heap = new PriorityQueue<>((a, b) -> b - a);
-		// 时间点
+	public int scheduleCourse(int[][] courses) {
+		// 按课程截止时间对课程数组进行从小到大排序
+		Arrays.sort(courses, Comparator.comparingInt(o -> o[1]));
+		// 定义一个花费时间的大根堆
+		Queue<Integer> heap = new PriorityQueue<>((a, b) -> b - a);
 		int time = 0;
-		for (int[] c : courses) {
-			// 
-			if (time + c[0] <= c[1]) { // 当前时间 + 花费 <= 截止时间的
-				heap.add(c[0]);
-				time += c[0];
-			} else { // 当前时间 + 花费 > 截止时间的, 只有淘汰掉某课，当前的课才能进来！
-				// 
-				
-				
-				if (!heap.isEmpty() && heap.peek() > c[0]) {
-//					time -= heap.poll();
-//					heap.add(c[0]);
-//					time += c[0];
-					heap.add(c[0]);
-					time += c[0] - heap.poll();
-				}
+		for (int[] course : courses) {
+			// 若当前时间+花费 <= 截止时间，则直接入堆
+			if (time + course[0] <= course[1]) {
+				heap.offer(course[0]);
+				time += course[0];
+				// 若当前时间+花费 > 截止时间，则考虑淘汰掉某些课（堆顶元素-花费时间更多的被淘汰）
+			} else if (!heap.isEmpty() && heap.peek() > course[0]) {
+				heap.offer(course[0]);
+				time += course[0] - heap.poll();
 			}
 		}
 		return heap.size();

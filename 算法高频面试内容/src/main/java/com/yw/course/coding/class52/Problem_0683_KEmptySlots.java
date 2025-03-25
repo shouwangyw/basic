@@ -43,36 +43,29 @@ public class Problem_0683_KEmptySlots {
 		return (ans == Integer.MAX_VALUE) ? -1 : ans;
 	}
 
-	public static int kEmptySlots2(int[] bulbs, int k) {
+	public static int kEmptySlots(int[] bulbs, int k) {
 		int n = bulbs.length;
+		// 数组转换，days[i]表示位置i的灯在那一天亮
 		int[] days = new int[n];
-		for (int i = 0; i < n; i++) {
-			days[bulbs[i] - 1] = i + 1;
-		}
+		for (int i = 0; i < n; i++) days[bulbs[i] - 1] = i + 1;
 		int ans = Integer.MAX_VALUE;
-		for (int left = 0, mid = 1, right = k + 1; right < n; mid++) {
-			// 验证指针mid
-			// mid 永远不和left撞上的！
+		// 维护一个固定宽度的滑动窗口[left, right]
+		int left = 0, mid = 1, right = k + 1;
+		while (right < n) {
+			// 验证指针mid，mid 永远不和left撞上的！
 			// 1) mid在left和right中间验证的时候，没通过！
 			// 2) mid是撞上right的时候
 			if (days[mid] <= Math.max(days[left], days[right])) {
-//				if(mid == right) { // left...right 达标的！
-//					int cur = Math.max(days[left], days[right]);
-//					ans = Math.min(ans, cur);
-//					left  = mid;
-//					right =  mid + k + 1;
-//				} else { // 验证不通过！
-//					left  = mid;
-//					right =  mid + k + 1;
-//				}
-				if (mid == right) { // 收答案！
+				if (mid == right) {
+					// 收答案！
 					ans = Math.min(ans, Math.max(days[left], days[right]));
 				}
 				left = mid;
 				right = mid + k + 1;
 			}
+			mid++;
 		}
-		return (ans == Integer.MAX_VALUE) ? -1 : ans;
+		return ans == Integer.MAX_VALUE ? -1 : ans;
 	}
 
 }

@@ -61,29 +61,23 @@ public class Problem_1035_UncrossedLines {
 	}
 
 	// 但是其实这个题，不就是求两个数组的最长公共子序列吗？
-	public static int maxUncrossedLines2(int[] A, int[] B) {
-		if (A == null || A.length == 0 || B == null || B.length == 0) {
-			return 0;
-		}
-		int N = A.length;
-		int M = B.length;
-		int[][] dp = new int[N][M];
-		dp[0][0] = A[0] == B[0] ? 1 : 0;
-		for (int j = 1; j < M; j++) {
-			dp[0][j] = A[0] == B[j] ? 1 : dp[0][j - 1];
-		}
-		for (int i = 1; i < N; i++) {
-			dp[i][0] = A[i] == B[0] ? 1 : dp[i - 1][0];
-		}
-		for (int i = 1; i < N; i++) {
-			for (int j = 1; j < M; j++) {
-				int p1 = dp[i - 1][j];
-				int p2 = dp[i][j - 1];
-				int p3 = A[i] == B[j] ? (1 + dp[i - 1][j - 1]) : 0;
-				dp[i][j] = Math.max(p1, Math.max(p2, p3));
+	public int maxUncrossedLines(int[] nums1, int[] nums2) {
+		if (nums1 == null || nums1.length == 0 || nums2 == null || nums2.length == 0) return 0;
+		int n1 = nums1.length, n2 = nums2.length;
+		int[][] dp = new int[n1][n2];
+		dp[0][0] = nums1[0] == nums2[0] ? 1 : 0;
+		for (int j = 1; j < n2; j++)
+			dp[0][j] = nums1[0] == nums2[j] ? 1 : dp[0][j - 1];
+		for (int i = 1; i < n1; i++)
+			dp[i][0] = nums1[i] == nums2[0] ? 1 : dp[i - 1][0];
+		for (int i = 1; i < n1; i++) {
+			for (int j = 1; j < n2; j++) {
+				dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+				if (nums1[i] == nums2[j])
+					dp[i][j] = Math.max(dp[i][j], dp[i - 1][j - 1] + 1);
 			}
 		}
-		return dp[N - 1][M - 1];
+		return dp[n1 - 1][n2 - 1];
 	}
 
 }

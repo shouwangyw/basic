@@ -1,83 +1,59 @@
 package com.yw.course.coding.class52;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * @author yangwei
  */
 public class Problem_1488_AvoidFloodInTheCity {
 
-	// rains[i] = j 第i天轮到j号湖泊下雨
-	// 规定，下雨日，干啥 : -1
-	// 不下雨日，如果没有湖泊可抽 : 1
-	public static int[] avoidFlood(int[] rains) {
+	public int[] avoidFlood(int[] rains) {
 		int n = rains.length;
 		int[] ans = new int[n];
-		int[] invalid = new int[0];
-		// key : 某个湖
-		// value : 这个湖在哪些位置降雨
-		// 4 : {3,7,19,21}
-		// 1 : { 13 }
-		// 2 : {4, 56}
-		HashMap<Integer, LinkedList<Integer>> map = new HashMap<>();
+		// 定义一个map，记录每一个湖在哪些天会下雨
+		Map<Integer, LinkedList<Integer>> map = new HashMap<>();
 		for (int i = 0; i < n; i++) {
-			if (rains[i] != 0) { // 第i天要下雨，rains[i]
-				// 3天 9号
-				// 9号 { 3 }
-				// 9号 {1, 3}
-				if (!map.containsKey(rains[i])) {
-					map.put(rains[i], new LinkedList<>());
-				}
-				map.get(rains[i]).addLast(i);
-			}
+			if (rains[i] == 0) continue;
+			final int day = i;
+			map.compute(rains[i], (k, v) -> {
+				if (v == null) v = new LinkedList<>();
+				v.add(day);
+				return v;
+			});
 		}
-		// 没抽干的湖泊表
-		// 某个湖如果满了，加入到set里
-		// 某个湖被抽干了，从set中移除
-		HashSet<Integer> set = new HashSet<>();
-		// 这个堆的堆顶表示最先处理的湖是哪个
-		PriorityQueue<Work> heap = new PriorityQueue<>();
-		for (int i = 0; i < n; i++) { // 0 1 2 3 ...
-			if (rains[i] != 0) {
-				if (set.contains(rains[i])) {
-					return invalid;
-				}
-				// 放入到没抽干的表里
+		// 记录哪些湖水满了
+		Set<Integer> set = new HashSet<>();
+		// 定义小根堆: 按湖泊的下雨天排序
+		Queue<Work> heap = new PriorityQueue<>();
+		for (int i = 0; i < n; i++) {
+			if (rains[i] != 0) { // 今天下雨
+				if (set.contains(rains[i])) return new int[0];
 				set.add(rains[i]);
 				map.get(rains[i]).pollFirst();
-				if (!map.get(rains[i]).isEmpty()) {
+				if (!map.get(rains[i]).isEmpty())
 					heap.add(new Work(rains[i], map.get(rains[i]).peekFirst()));
-				}
-				// 题目规定
 				ans[i] = -1;
-			} else { // 今天干活！
-				if (heap.isEmpty()) {
-					ans[i] = 1;
-				} else {
-					Work cur = heap.poll();
-					set.remove(cur.lake);
-					ans[i] = cur.lake;
+			} else { // 今天干活
+				if (heap.isEmpty()) ans[i] = 1;
+				else {
+					Work work = heap.poll();
+					set.remove(work.lake);
+					ans[i] = work.lake;
 				}
 			}
 		}
 		return ans;
 	}
-
-	public static class Work implements Comparable<Work> {
-		public int lake;
-		public int nextRain;
-
-		public Work(int l, int p) {
-			lake = l;
-			nextRain = p;
+	private static class Work implements Comparable<Work> {
+		private final int lake;
+		private final int rainDay;
+		public Work(int lake, int rainDay) {
+			this.lake = lake;
+			this.rainDay = rainDay;
 		}
-
 		@Override
 		public int compareTo(Work o) {
-			return nextRain - o.nextRain;
+			return this.rainDay - o.rainDay;
 		}
 	}
 

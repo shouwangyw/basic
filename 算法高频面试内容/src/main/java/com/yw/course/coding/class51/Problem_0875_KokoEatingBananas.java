@@ -5,33 +5,24 @@ package com.yw.course.coding.class51;
  */
 public class Problem_0875_KokoEatingBananas {
 
-	public static int minEatingSpeed(int[] piles, int h) {
-		int L = 1;
-		int R = 0;
-		for (int pile : piles) {
-			R = Math.max(R, pile);
+	public int minEatingSpeed(int[] piles, int h) {
+		long l = 1, r = 0;
+		for (int pile : piles) r = Math.max(r, pile);
+		long ans = 0, mid;
+		while (l <= r) {
+			mid = l + ((r - l) >> 1);
+			if (cost(piles, mid) <= h) {
+				ans = mid;
+				r = mid - 1;
+			} else l = mid + 1;
 		}
-		int ans = 0;
-		int M = 0;
-		while (L <= R) {
-			M = L + ((R - L) >> 1);
-			if (hours(piles, M) <= h) {
-				ans = M;
-				R = M - 1;
-			} else {
-				L = M + 1;
-			}
-		}
-		return ans;
+		return (int) ans;
 	}
-
-	public static int hours(int[] piles, int speed) {
-		int ans = 0;
-		int offset = speed - 1;
-		for (int pile : piles) {
-			ans += (pile + offset) / speed;
-		}
-		return ans;
+	// 以speed速度吃香蕉，需要多长时间
+	private static long cost(int[] piles, long speed) {
+		long time = 0, offset = speed - 1;
+		for (int pile : piles) time += (pile + offset) / speed;
+		return time;
 	}
 
 }

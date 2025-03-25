@@ -44,40 +44,39 @@ public class Problem_0600_NonnegativeIntegersWithoutConsecutiveOnes {
 //		}
 //	}
 
-	public static int findIntegers(int n) {
-		int i = 31;
-		for (; i >= 0; i--) {
-			if ((n & (1 << i)) != 0) {
-				break;
-			}
-		}
-		// for循环出来之后，i表示，n最高位的1，在哪？
-		// 从这个位置，往右边低位上走！
-		int[][][] dp = new int[2][2][i + 1];
-		return f(0, 0, i, n, dp);
-	}
+    public int findIntegers(int n) {
+        int i = 31;
+        // 找到n的最高位1的位置
+        for (; i >= 0; i--) {
+            if ((n & (1 << i)) != 0) break;
+        }
+        // 初始化缓存，处理从最高位到最低位
+        int[][][] cache = new int[2][2][i + 1];
+        return process(0, 0, i, n, cache);
+    }
 
-	
-	public static int f(int pre, int alreadyLess, int index, int num, int[][][] dp) {
-		if (index == -1) {
-			return 1;
-		}
-		if (dp[pre][alreadyLess][index] != 0) {
-			return dp[pre][alreadyLess][index];
-		}
-		int ans = 0;
-		if (pre == 1) {
-			ans = f(0, Math.max(alreadyLess, (num & (1 << index)) != 0 ? 1 : 0), index - 1, num, dp);
-		} else {
-			if ((num & (1 << index)) == 0 && alreadyLess == 0) {
-				ans = f(0, alreadyLess, index - 1, num, dp);
-			} else {
-				ans = f(1, alreadyLess, index - 1, num, dp)
-						+ f(0, Math.max(alreadyLess, (num & (1 << index)) != 0 ? 1 : 0), index - 1, num, dp);
-			}
-		}
-		dp[pre][alreadyLess][index] = ans;
-		return ans;
-	}
+    private static int process(int pre, int isLess, int idx, int num, int[][][] cache) {
+        if (idx == -1) return 1; // 终止条件：处理完所有位
+        if (cache[pre][isLess][idx] != 0) return cache[pre][isLess][idx]; // 查缓存
+
+        int res = 0;
+        if (pre == 1) { // 前一位是1，当前必须填0
+            // 更新isLess：若num的当前位为1且填0，则后续可自由选择
+            int newIsLess = Math.max(isLess, (num & (1 << idx)) != 0 ? 1 : 0);
+            res = process(0, newIsLess, idx - 1, num, cache);
+        } else { // 前一位是0，当前可填0或1
+            if ((num & (1 << idx)) == 0 && isLess == 0) { // 必须填0
+                res = process(0, isLess, idx - 1, num, cache);
+            } else { // 可填0或1
+                // 填1：后续pre=1，isLess保持当前状态（若num当前位为1则需匹配）
+                res += process(1, isLess, idx - 1, num, cache);
+                // 填0：更新isLess（若num当前位为1，填0后后续可自由选择）
+                int newIsLess = Math.max(isLess, (num & (1 << idx)) != 0 ? 1 : 0);
+                res += process(0, newIsLess, idx - 1, num, cache);
+            }
+        }
+        cache[pre][isLess][idx] = res; // 存缓存
+        return res;
+    }
 
 }
