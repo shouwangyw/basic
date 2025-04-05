@@ -1,8 +1,9 @@
 package com.mashibing.juc.c_028_FalseSharing;
 
 public class T02_CacheLinePadding {
+    // 使用缓存行的对齐能够提高效率
     private static class Padding {
-        public volatile long p1, p2, p3, p4, p5, p6, p7;
+        public volatile long p1, p2, p3, p4, p5, p6, p7; // --> 56Bytes
     }
 
     private static class T extends Padding {

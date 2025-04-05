@@ -4,8 +4,8 @@ import com.mashibing.jvm.agent.ObjectSizeAgent;
 
 public class T03_SizeOfAnObject {
     public static void main(String[] args) {
-        System.out.println(ObjectSizeAgent.sizeOf(new Object()));
-        System.out.println(ObjectSizeAgent.sizeOf(new int[] {}));
+        System.out.println(ObjectSizeAgent.sizeOf(new Object())); // 16
+        System.out.println(ObjectSizeAgent.sizeOf(new int[] {})); // 默认：16（开启了压缩），不压缩 24
         System.out.println(ObjectSizeAgent.sizeOf(new P()));
     }
 

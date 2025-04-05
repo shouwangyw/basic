@@ -1,7 +1,5 @@
 package com.mashibing.jvm.c2_classloader;
 
-import com.mashibing.jvm.Hello;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,7 +10,7 @@ public class T012_ClassReloading2 {
         @Override
         public Class<?> loadClass(String name) throws ClassNotFoundException {
 
-            File f = new File("C:/work/ijprojects/JVM/out/production/JVM/" + name.replace(".", "/").concat(".class"));
+            File f = new File("JVM/out/production/JVM/" + name.replace(".", "/").concat(".class"));
 
             if(!f.exists()) return super.loadClass(name);
 

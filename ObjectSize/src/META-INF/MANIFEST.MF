@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Created-By: mashibing.com
+Premain-Class: com.mashibing.jvm.agent.ObjectSizeAgent
